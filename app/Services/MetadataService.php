@@ -11,7 +11,8 @@ use Intervention\Image\Drivers\Gd\Driver;
 class MetadataService
 {
     public function __construct(
-        private AssetStorageService $assetStorageService
+        private AssetStorageService $assetStorageService,
+        private MediaService $mediaService
     ) {}
 
     public function __invoke(
@@ -30,12 +31,7 @@ class MetadataService
             $metadata['thumbnail_url'] = $thumbnailUrl;
         }
 
-        if (str_starts_with($file->getMimeType(), 'image/')) {
-            $manager = new ImageManager(new Driver());
-            $image = $manager->read($file->getRealPath());
-            $metadata['width'] = $image->width();
-            $metadata['height'] = $image->height();
-        }
+        $this->mediaService->setProperties($file, $metadata);
 
         $this->assetStorageService->storeMetadata($assetId, $disk, $metadata);
     }
