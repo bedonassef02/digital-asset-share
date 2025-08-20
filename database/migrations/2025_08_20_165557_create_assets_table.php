@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('file_path');
+            $table->string('path');
+            $table->string('url')->nullable();
             $table->string('mime_type');
             $table->unsignedBigInteger('size');
             $table->string('disk');
+            $table->json('metadata')->nullable();
             $table->timestamps();
         });
     }

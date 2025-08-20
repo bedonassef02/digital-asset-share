@@ -25,7 +25,16 @@ class AssetController extends Controller
      */
     public function store(Request $request)
     {
-        $asset = $this->assetService->create($request->all());
+        $request->validate([
+            'file' => 'required|file|max:10240', // Max 10MB
+            'disk' => 'required|string|in:local', // Only local for now
+        ]);
+
+        $file = $request->file('file');
+        $disk = $request->input('disk');
+        $data = $request->except(['file', 'disk']); // Get other data
+
+        $asset = $this->assetService->create($file, $disk, $data);
         return response()->json($asset, 201);
     }
 

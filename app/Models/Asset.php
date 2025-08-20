@@ -9,9 +9,11 @@ class Asset extends Model
     protected $fillable = [
         'name',
         'description',
-        'file_path',
+        'path',
+        'url',
         'mime_type',
         'size',
         'disk',
+        'metadata',
     ];
 }
