@@ -57,13 +57,20 @@ class AssetService
         return $asset;
     }
 
-    public function delete(int $id)
+    public function softDelete(int $id): bool
     {
         $asset = Asset::findOrFail($id);
+        $asset->delete();
+        return true;
+    }
+
+    public function forceDelete(int $id): bool
+    {
+        $asset = Asset::withTrashed()->findOrFail($id);
 
         Storage::disk()->deleteDirectory('uploads/' . $id);
 
-        $asset->delete();
+        $asset->forceDelete();
         return true;
     }
 }

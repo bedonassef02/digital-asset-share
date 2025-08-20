@@ -52,11 +52,15 @@ class AssetController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage (soft or hard delete).
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        $this->assetService->delete($id);
+        if ($request->query('force')) {
+            $this->assetService->forceDelete($id);
+        } else {
+            $this->assetService->softDelete($id);
+        }
         return response()->json(null, 204);
     }
 }
