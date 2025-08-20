@@ -5,11 +5,16 @@ namespace App\Services;
 use App\Models\Asset;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
+use App\Services\ThumbnailService;
+use App\Services\AssetStorageService;
 
 class AssetService
 {
+    public function __construct(
+        private ThumbnailService $thumbnailService,
+        private AssetStorageService $assetStorageService)
+    { }
+
     public function findAll()
     {
         return Asset::all();
@@ -35,28 +40,18 @@ class AssetService
 
         $asset = Asset::create($assetData);
 
-        $assetDirectory = 'uploads/' . $asset->id;
-        Storage::disk($disk)->makeDirectory($assetDirectory);
+        $storedAsset = ($this->assetStorageService)($file, $asset->id, $disk);
 
-        $originalFileName = $file->getClientOriginalName();
-        $path = Storage::disk($disk)->putFileAs($assetDirectory, $file, $originalFileName);
-        $url = Storage::disk($disk)->url($path);
-
-        $asset->path = $path;
-        $asset->url = $url;
+        $asset->path = $storedAsset['path'];
+        $asset->url = $storedAsset['url'];
 
         $metadata = json_decode($asset->metadata, true);
-        $metadata['hash_name'] = basename($path);
+        $metadata['hash_name'] = $storedAsset['hash_name'];
 
-        // Generate thumbnail if it's an image
-        if (str_starts_with($file->getMimeType(), 'image/')) {
-            $manager = new ImageManager(new Driver());
-            $image = $manager->read($file->getRealPath());
-            $image->cover(150, 150);
+        $thumbnailUrl = ($this->thumbnailService)($file, $asset->id, $disk);
 
-            $thumbnailPath = $assetDirectory . '/thumbnail.' . $file->getClientOriginalExtension();
-            Storage::disk($disk)->put($thumbnailPath, $image->encode());
-            $metadata['thumbnail_url'] = Storage::disk($disk)->url($thumbnailPath);
+        if ($thumbnailUrl) {
+            $metadata['thumbnail_url'] = $thumbnailUrl;
         }
 
         $asset->metadata = json_encode($metadata);
