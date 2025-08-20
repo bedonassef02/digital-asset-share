@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AssetService;
+use App\Services\ServeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ServeController extends Controller
 {
     public function __construct(
-        private AssetService $assetService
+        private ServeService $serveService
     ) {}
 
     /**
      * Serve the specified asset file.
      */
-    public function __invoke(Request $request)
+    public function __invoke(string $id)
     {
-        $asset = $this->assetService->findOne($request->query('id'));
+        $asset = ($this->serveService)($id);
 
         if (!$asset) {
             return response()->json(['message' => 'Asset not found'], 404);

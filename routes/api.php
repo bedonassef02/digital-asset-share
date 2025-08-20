@@ -11,4 +11,4 @@ Route::get('/test', function (Request $request) {
 
 Route::apiResource('/assets', AssetController::class);
 
-Route::get('/serve', ServeController::class);
+Route::get('/serve/{id}', ServeController::class);
