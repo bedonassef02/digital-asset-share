@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Asset;
+use App\Services\AssetService;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
 {
+    public function __construct(
+        private AssetService $assetService
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $assets = $this->assetService->findAll();
+        return response()->json($assets);
     }
 
     /**
@@ -20,7 +25,8 @@ class AssetController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $asset = $this->assetService->create($request->all());
+        return response()->json($asset, 201);
     }
 
     /**
@@ -28,7 +34,8 @@ class AssetController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $asset = $this->assetService->findOne($id);
+        return response()->json($asset);
     }
 
     /**
@@ -36,7 +43,8 @@ class AssetController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $asset = $this->assetService->update($id, $request->all());
+        return response()->json($asset);
     }
 
     /**
@@ -44,6 +52,7 @@ class AssetController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $this->assetService->delete($id);
+        return response()->json(null, 204);
     }
 }
