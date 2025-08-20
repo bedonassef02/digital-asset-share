@@ -24,4 +24,14 @@ class AssetStorageService
             'extension' => $extension,
         ];
     }
+
+    public function storeMetadata(int $assetId, string $disk, array $metadata): string
+    {
+        $assetDirectory = 'uploads/' . $assetId;
+        $metadataFilePath = $assetDirectory . '/metadata.json';
+
+        Storage::disk($disk)->put($metadataFilePath, json_encode($metadata, JSON_PRETTY_PRINT));
+
+        return Storage::disk($disk)->url($metadataFilePath);
+    }
 }

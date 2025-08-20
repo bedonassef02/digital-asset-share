@@ -10,8 +10,9 @@ class AssetService
 {
     public function __construct(
         private ThumbnailService $thumbnailService,
-        private AssetStorageService $assetStorageService)
-    { }
+        private AssetStorageService $assetStorageService,
+        private MetadataService $metadataService
+    ) { }
 
     public function findAll()
     {
@@ -28,8 +29,10 @@ class AssetService
         $assetData = $this->prepareAssetData($file, $disk, $data);
         $asset = Asset::create($assetData);
 
-        $this->storeFile($file, $asset, $disk);
-        $this->generateThumbnail($file, $asset, $disk);
+        $hashName = $this->storeFile($file, $asset, $disk);
+        $thumbnailUrl = ($this->thumbnailService)($file, $asset->id, $disk);
+
+        ($this->metadataService)($file, $asset->id, $disk, $hashName, $thumbnailUrl);
 
         $asset->save();
 
@@ -44,11 +47,10 @@ class AssetService
             'size' => $file->getSize(),
             'disk' => $disk,
             'extension' => $file->getClientOriginalExtension(),
-            'metadata' => json_encode([]),
         ]);
     }
 
-    private function storeFile(UploadedFile $file, Asset $asset, string $disk): void
+    private function storeFile(UploadedFile $file, Asset $asset, string $disk): string
     {
         $storedAsset = ($this->assetStorageService)($file, $asset->id, $disk);
 
@@ -56,20 +58,7 @@ class AssetService
         $asset->url = $storedAsset['url'];
         $asset->extension = $storedAsset['extension'];
 
-        $metadata = json_decode($asset->metadata, true);
-        $metadata['hash_name'] = $storedAsset['hash_name'];
-        $asset->metadata = json_encode($metadata);
-    }
-
-    private function generateThumbnail(UploadedFile $file, Asset $asset, string $disk): void
-    {
-        $thumbnailUrl = ($this->thumbnailService)($file, $asset->id, $disk);
-
-        if ($thumbnailUrl) {
-            $metadata = json_decode($asset->metadata, true);
-            $metadata['thumbnail_url'] = $thumbnailUrl;
-            $asset->metadata = json_encode($metadata);
-        }
+        return $storedAsset['hash_name'];
     }
 
     public function update(int $id, array $data)
