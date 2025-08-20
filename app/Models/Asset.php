@@ -14,6 +14,7 @@ class Asset extends Model
         'mime_type',
         'size',
         'disk',
+        'extension',
         'metadata',
     ];
 
