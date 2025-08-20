@@ -5,47 +5,29 @@ namespace App\Services;
 use App\Models\Asset;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class MetadataService
 {
     public function __construct(
-        private AssetStorageService $assetStorageService,
         private MediaService $mediaService
     ) {}
 
     public function __invoke(
         UploadedFile $file,
-        int $assetId,
-        string $fileHash,
-        ?string $thumbnailUrl
-    ): void
-    {
-        $metadata = [
-            'file_hash' => $fileHash,
-        ];
-
-        if ($thumbnailUrl) {
-            $metadata['thumbnail_url'] = $thumbnailUrl;
-        }
+        Asset $asset,
+    ): void {
+        $metadata['hash'] = hash_file('sha256', $file->getRealPath());
 
         $this->mediaService->setProperties($file, $metadata);
 
-        $this->assetStorageService->storeMetadata($assetId, $metadata);
+        $this->store($asset->id, $metadata);
     }
 
-    public function findOne(Asset $asset)
+    public function store(int $assetId, array $metadata): string
     {
-        $metadataFilePath = 'uploads/' . $asset->id . '/metadata.json';
+        $assetDirectory = 'uploads/' . $assetId;
+        $metadataFilePath = $assetDirectory . '/metadata.json';
 
-        if (Storage::disk()->exists($metadataFilePath)) {
-            $metadataContent = Storage::disk()->get($metadataFilePath);
-            $asset->metadata = json_decode($metadataContent, true);
-        } else {
-            $asset->metadata = [];
-        }
-
-        return $asset;
+        return Storage::disk()->put($metadataFilePath, json_encode($metadata, JSON_PRETTY_PRINT));
     }
 }

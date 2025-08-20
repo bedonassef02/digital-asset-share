@@ -9,56 +9,45 @@ use Illuminate\Http\UploadedFile;
 class AssetService
 {
     public function __construct(
-        private ThumbnailService $thumbnailService,
         private AssetStorageService $assetStorageService,
+        private ThumbnailService $thumbnailService,
         private MetadataService $metadataService
     ) { }
 
     public function findAll()
     {
-        return Asset::all()->map(fn ($asset) => $this->metadataService->findOne($asset));
+        return Asset::all();
     }
 
     public function findOne(int $id)
     {
-        $asset = Asset::findOrFail($id);
-        return $this->metadataService->findOne($asset);
+        return Asset::findOrFail($id);
     }
 
     public function create(UploadedFile $file, array $data = []): Asset
     {
-        $assetData = $this->prepareAssetData($file, $data);
+        $assetData = $this->prepareData($file, $data);
         $asset = Asset::create($assetData);
 
-        $fileHash = $this->storeFile($file, $asset);
-        $thumbnailUrl = ($this->thumbnailService)($file, $asset->id);
+        ($this->assetStorageService)($file, $asset->id);
 
-        ($this->metadataService)($file, $asset->id, $fileHash, $thumbnailUrl);
+        ($this->thumbnailService)($file, $asset->id);
+
+        ($this->metadataService)($file, $asset);
 
         $asset->save();
 
         return $asset;
     }
 
-    private function prepareAssetData(UploadedFile $file, array $data): array
+    private function prepareData(UploadedFile $file, array $data): array
     {
         return array_merge($data, [
-            'file_name' => $file->getClientOriginalName(),
+            'name' => $data['name'] ?? $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
             'extension' => $file->getClientOriginalExtension(),
         ]);
-    }
-
-    private function storeFile(UploadedFile $file, Asset $asset): string
-    {
-        $storedAsset = ($this->assetStorageService)($file, $asset->id);
-
-        $asset->path = $storedAsset['path'];
-        $asset->url = $storedAsset['url'];
-        $asset->extension = $storedAsset['extension'];
-
-        return $storedAsset['file_hash'];
     }
 
     public function update(int $id, array $data)
@@ -72,7 +61,7 @@ class AssetService
     {
         $asset = Asset::findOrFail($id);
 
-        Storage::disk()->delete($asset->path);
+        Storage::disk()->deleteDirectory('uploads/' . $id);
 
         $asset->delete();
         return true;
