@@ -30,7 +30,11 @@ class AssetService
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
             'disk' => $disk,
-            'metadata' => json_encode([]), // Initialize with empty JSON
+            'metadata' => json_encode([
+                'extension' => $file->getClientOriginalExtension(),
+                'original_name' => $file->getClientOriginalName(),
+                'hash_name' => basename($path),
+            ]),
         ]);
 
         return Asset::create($assetData);
