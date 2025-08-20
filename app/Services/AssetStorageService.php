@@ -12,14 +12,16 @@ class AssetStorageService
         $assetDirectory = 'uploads/' . $assetId;
         Storage::disk($disk)->makeDirectory($assetDirectory);
 
-        $originalFileName = $file->getClientOriginalName();
-        $path = Storage::disk($disk)->putFileAs($assetDirectory, $file, $originalFileName);
+        $extension = $file->getClientOriginalExtension();
+        $fileName = 'file';
+        $path = Storage::disk($disk)->putFileAs($assetDirectory, $file, $fileName);
         $url = Storage::disk($disk)->url($path);
 
         return [
             'path' => $path,
             'url' => $url,
-            'hash_name' => basename($path),
+            'hash_name' => pathinfo($path, PATHINFO_FILENAME),
+            'extension' => $extension,
         ];
     }
 }

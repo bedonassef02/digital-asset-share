@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Models\Asset;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
-use App\Services\ThumbnailService;
-use App\Services\AssetStorageService;
 
 class AssetService
 {
@@ -32,8 +30,8 @@ class AssetService
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
             'disk' => $disk,
+            'extension' => $storedAsset['extension'],
             'metadata' => json_encode([
-                'extension' => $file->getClientOriginalExtension(),
                 'original_name' => $file->getClientOriginalName(),
             ]),
         ]);

@@ -20,7 +20,7 @@ class ThumbnailService
         $image->cover(150, 150);
 
         $assetDirectory = 'uploads/' . $assetId;
-        $thumbnailPath = $assetDirectory . '/thumbnail.' . $file->getClientOriginalExtension();
+        $thumbnailPath = $assetDirectory . '/thumbnail';
 
         Storage::disk($disk)->put($thumbnailPath, $image->encode());
 
