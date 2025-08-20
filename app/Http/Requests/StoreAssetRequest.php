@@ -23,21 +23,10 @@ class StoreAssetRequest extends FormRequest
     {
         return [
             'file' => 'required|file|max:10240',
-            'disk' => 'nullable|string|in:local',
             'name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
         ];
     }
 
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        if (!$this->has('disk')) {
-            $this->merge([
-                'disk' => 'local',
-            ]);
-        }
-    }
+    
 }

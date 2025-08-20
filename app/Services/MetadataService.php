@@ -18,7 +18,6 @@ class MetadataService
     public function __invoke(
         UploadedFile $file,
         int $assetId,
-        string $disk,
         string $fileHash,
         ?string $thumbnailUrl
     ): void
@@ -33,15 +32,15 @@ class MetadataService
 
         $this->mediaService->setProperties($file, $metadata);
 
-        $this->assetStorageService->storeMetadata($assetId, $disk, $metadata);
+        $this->assetStorageService->storeMetadata($assetId, $metadata);
     }
 
     public function findOne(Asset $asset)
     {
         $metadataFilePath = 'uploads/' . $asset->id . '/metadata.json';
 
-        if (Storage::disk($asset->disk)->exists($metadataFilePath)) {
-            $metadataContent = Storage::disk($asset->disk)->get($metadataFilePath);
+        if (Storage::disk()->exists($metadataFilePath)) {
+            $metadataContent = Storage::disk()->get($metadataFilePath);
             $asset->metadata = json_decode($metadataContent, true);
         } else {
             $asset->metadata = [];

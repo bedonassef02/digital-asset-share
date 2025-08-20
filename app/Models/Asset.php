@@ -13,7 +13,6 @@ class Asset extends Model
         'url',
         'mime_type',
         'size',
-        'disk',
         'extension',
     ];
 

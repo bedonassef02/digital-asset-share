@@ -25,35 +25,34 @@ class AssetService
         return $this->metadataService->findOne($asset);
     }
 
-    public function create(UploadedFile $file, string $disk, array $data = []): Asset
+    public function create(UploadedFile $file, array $data = []): Asset
     {
-        $assetData = $this->prepareAssetData($file, $disk, $data);
+        $assetData = $this->prepareAssetData($file, $data);
         $asset = Asset::create($assetData);
 
-        $fileHash = $this->storeFile($file, $asset, $disk);
-        $thumbnailUrl = ($this->thumbnailService)($file, $asset->id, $disk);
+        $fileHash = $this->storeFile($file, $asset);
+        $thumbnailUrl = ($this->thumbnailService)($file, $asset->id);
 
-        ($this->metadataService)($file, $asset->id, $disk, $fileHash, $thumbnailUrl);
+        ($this->metadataService)($file, $asset->id, $fileHash, $thumbnailUrl);
 
         $asset->save();
 
         return $asset;
     }
 
-    private function prepareAssetData(UploadedFile $file, string $disk, array $data): array
+    private function prepareAssetData(UploadedFile $file, array $data): array
     {
         return array_merge($data, [
             'file_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
-            'disk' => $disk,
             'extension' => $file->getClientOriginalExtension(),
         ]);
     }
 
-    private function storeFile(UploadedFile $file, Asset $asset, string $disk): string
+    private function storeFile(UploadedFile $file, Asset $asset): string
     {
-        $storedAsset = ($this->assetStorageService)($file, $asset->id, $disk);
+        $storedAsset = ($this->assetStorageService)($file, $asset->id);
 
         $asset->path = $storedAsset['path'];
         $asset->url = $storedAsset['url'];
@@ -73,7 +72,7 @@ class AssetService
     {
         $asset = Asset::findOrFail($id);
 
-        Storage::disk($asset->disk)->delete($asset->path);
+        Storage::disk()->delete($asset->path);
 
         $asset->delete();
         return true;

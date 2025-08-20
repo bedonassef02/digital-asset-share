@@ -9,7 +9,7 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class ThumbnailService
 {
-    public function __invoke(UploadedFile $file, int $assetId, string $disk): ?string
+    public function __invoke(UploadedFile $file, int $assetId): ?string
     {
         if (!str_starts_with($file->getMimeType(), 'image/')) {
             return null;
@@ -22,8 +22,8 @@ class ThumbnailService
         $assetDirectory = 'uploads/' . $assetId;
         $thumbnailPath = $assetDirectory . '/thumbnail';
 
-        Storage::disk($disk)->put($thumbnailPath, $image->encode());
+        Storage::disk()->put($thumbnailPath, $image->encode());
 
-        return Storage::disk($disk)->url($thumbnailPath);
+        return Storage::disk()->url($thumbnailPath);
     }
 }
