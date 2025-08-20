@@ -18,11 +18,12 @@ class MetadataService
         UploadedFile $file,
         int $assetId,
         string $disk,
-        string $hashName,
+        string $fileHash,
         ?string $thumbnailUrl
-    ): void {
+    ): void
+    {
         $metadata = [
-            'hash_name' => $hashName,
+            'file_hash' => $fileHash,
         ];
 
         if ($thumbnailUrl) {

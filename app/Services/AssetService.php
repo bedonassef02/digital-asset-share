@@ -30,10 +30,10 @@ class AssetService
         $assetData = $this->prepareAssetData($file, $disk, $data);
         $asset = Asset::create($assetData);
 
-        $hashName = $this->storeFile($file, $asset, $disk);
+        $fileHash = $this->storeFile($file, $asset, $disk);
         $thumbnailUrl = ($this->thumbnailService)($file, $asset->id, $disk);
 
-        ($this->metadataService)($file, $asset->id, $disk, $hashName, $thumbnailUrl);
+        ($this->metadataService)($file, $asset->id, $disk, $fileHash, $thumbnailUrl);
 
         $asset->save();
 
@@ -59,7 +59,7 @@ class AssetService
         $asset->url = $storedAsset['url'];
         $asset->extension = $storedAsset['extension'];
 
-        return $storedAsset['hash_name'];
+        return $storedAsset['file_hash'];
     }
 
     public function update(int $id, array $data)

@@ -16,11 +16,12 @@ class AssetStorageService
         $fileName = 'file';
         $path = Storage::disk($disk)->putFileAs($assetDirectory, $file, $fileName);
         $url = Storage::disk($disk)->url($path);
+        $fileHash = hash_file('sha256', $file->getRealPath());
 
         return [
             'path' => $path,
             'url' => $url,
-            'hash_name' => pathinfo($path, PATHINFO_FILENAME),
+            'file_hash' => $fileHash,
             'extension' => $extension,
         ];
     }
