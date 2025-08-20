@@ -16,27 +16,13 @@ class AssetService
 
     public function findAll()
     {
-        return Asset::all()->map(fn ($asset) => $this->attachMetadata($asset));
+        return Asset::all()->map(fn ($asset) => $this->metadataService->findOne($asset));
     }
 
     public function findOne(int $id)
     {
         $asset = Asset::findOrFail($id);
-        return $this->attachMetadata($asset);
-    }
-
-    private function attachMetadata(Asset $asset): Asset
-    {
-        $metadataFilePath = 'uploads/' . $asset->id . '/metadata.json';
-
-        if (Storage::disk($asset->disk)->exists($metadataFilePath)) {
-            $metadataContent = Storage::disk($asset->disk)->get($metadataFilePath);
-            $asset->metadata = json_decode($metadataContent, true);
-        } else {
-            $asset->metadata = [];
-        }
-
-        return $asset;
+        return $this->metadataService->findOne($asset);
     }
 
     public function create(UploadedFile $file, string $disk, array $data = []): Asset
