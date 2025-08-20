@@ -15,11 +15,6 @@ class Asset extends Model
         'size',
         'disk',
         'extension',
-        'metadata',
-    ];
-
-    protected $casts = [
-        'metadata' => 'array',
     ];
 
     protected $hidden = [
