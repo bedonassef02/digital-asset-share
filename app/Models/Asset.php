@@ -16,4 +16,8 @@ class Asset extends Model
         'disk',
         'metadata',
     ];
+
+    protected $casts = [
+        'metadata' => 'array',
+    ];
 }
