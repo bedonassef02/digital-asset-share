@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\AssetService;
+use App\Http\Requests\StoreAssetRequest;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -23,13 +24,8 @@ class AssetController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAssetRequest $request)
     {
-        $request->validate([
-            'file' => 'required|file|max:10240', // Max 10MB
-            'disk' => 'required|string|in:local', // Only local for now
-        ]);
-
         $file = $request->file('file');
         $disk = $request->input('disk');
         $data = $request->except(['file', 'disk']); // Get other data
