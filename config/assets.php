@@ -14,8 +14,20 @@ return [
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'audio/mpeg',
         'audio/wav',
+        'text/plain',
+        'application/json',
+        'text/csv',
+        'text/html',
+        'text/css',
+        'application/xml',
     ],
     'max_file_sizes_kb' => [
+        'text/plain' => 1024, // 1MB
+        'text/csv' => 1024, // 1MB
+        'text/html' => 1024, // 1MB
+        'text/css' => 1024, // 1MB
+        'application/json' => 5120, // 5MB
+        'application/xml' => 5120, // 5MB
         'image/jpeg' => 5120, // 5MB
         'image/png' => 5120,   // 5MB
         'image/gif' => 2048,   // 2MB

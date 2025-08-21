@@ -9,6 +9,7 @@ use App\Services\MediaProcessors\WordDocumentProcessor;
 use App\Services\MediaProcessors\ExcelProcessor;
 use App\Services\MediaProcessors\PowerPointProcessor;
 use App\Services\MediaProcessors\AudioProcessor;
+use App\Services\MediaProcessors\TextProcessor;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,7 +26,8 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(WordDocumentProcessor::class),
                 $app->make(ExcelProcessor::class),
                 $app->make(PowerPointProcessor::class),
-                $app->make(AudioProcessor::class)
+                $app->make(AudioProcessor::class),
+                $app->make(TextProcessor::class)
             );
         });
     }
