@@ -20,6 +20,11 @@ return [
         'text/html',
         'text/css',
         'application/xml',
+        'application/zip',
+        'application/x-rar-compressed',
+        'application/x-tar',
+        'application/gzip',
+        'application/x-7z-compressed',
     ],
     'max_file_sizes_kb' => [
         'text/plain' => 1024, // 1MB
@@ -40,6 +45,11 @@ return [
         'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 20480, // 20MB
         'audio/mpeg' => 10240, // 10MB
         'audio/wav' => 20480, // 20MB
+        'application/zip' => 51200, // 50MB - for general zip files
+        'application/x-rar-compressed' => 51200, // 50MB
+        'application/x-tar' => 51200, // 50MB
+        'application/gzip' => 51200, // 50MB
+        'application/x-7z-compressed' => 51200, // 50MB
         // Default max size if not specified for a MIME type
         'default' => 5120, // 5MB
     ],
