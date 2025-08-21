@@ -4,14 +4,15 @@ namespace App\Services;
 
 use App\Jobs\GenerateThumbnail;
 use App\Models\Asset;
-use App\Models\Tag;
+use App\Services\TagService;
 use Illuminate\Http\UploadedFile;
 
 class AssetService
 {
     public function __construct(
         private AssetStorageService $assetStorageService,
-        private MetadataService $metadataService
+        private MetadataService $metadataService,
+        private TagService $tagService
     ) { }
 
     public function findAll(int $userId, int $perPage = 15)
@@ -41,7 +42,7 @@ class AssetService
         ($this->metadataService)($file, $asset);
 
         if (!empty($tags)) {
-            $this->syncTags($asset->id, $tags);
+            $this->tagService->sync($asset->id, $tags);
         }
 
         return $asset;
@@ -65,8 +66,8 @@ class AssetService
         $asset = Asset::findOrFail($id);
         $asset->update($data);
 
-        if ($tags !== null) {
-            $this->syncTags($asset->id, $tags);
+        if ($tags) {
+            $this->tagService->sync($asset->id, $tags);
         }
 
         return $asset;
@@ -87,16 +88,5 @@ class AssetService
 
         $asset->forceDelete();
         return true;
-    }
-
-    public function syncTags(int $assetId, array $tags): void
-    {
-        $asset = Asset::findOrFail($assetId);
-        $tagIds = [];
-        foreach ($tags as $tagName) {
-            $tag = \App\Models\Tag::firstOrCreate(['name' => $tagName]);
-            $tagIds[] = $tag->id;
-        }
-        $asset->tags()->sync($tagIds);
     }
 }
