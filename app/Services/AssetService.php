@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Jobs\GenerateThumbnail;
 use App\Models\Asset;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 
 class AssetService
@@ -31,7 +30,9 @@ class AssetService
 
         ($this->assetStorageService)($file, $asset->id);
 
-        GenerateThumbnail::dispatch($asset);
+        if (str_starts_with($asset->mime_type, 'image/')) {
+            GenerateThumbnail::dispatch($asset);
+        }
 
         ($this->metadataService)($file, $asset);
 

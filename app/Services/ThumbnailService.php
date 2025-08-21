@@ -19,10 +19,6 @@ class ThumbnailService
     {
         $filePath = 'uploads/' . $asset->id . '/file';
 
-        if (!str_starts_with($asset->mime_type, 'image/') || !Storage::disk()->exists($filePath)) {
-            return null;
-        }
-
         return $this->generateThumbnail(Storage::disk()->get($filePath), $asset->id);
     }
 
