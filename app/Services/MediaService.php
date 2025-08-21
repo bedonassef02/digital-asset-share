@@ -6,7 +6,6 @@ use Illuminate\Http\UploadedFile;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Smalot\PdfParser\Parser;
-use Illuminate\Support\Facades\Log;
 
 class MediaService
 {
@@ -28,18 +27,14 @@ class MediaService
             $metadata['width'] = $image->width();
             $metadata['height'] = $image->height();
         } elseif ($mimeType === 'application/pdf') {
-            $metadata['page_count'] = $this->getPdfPageCount($file->path());
-        }
-    }
+            $pdf = $this->pdfParser->parseFile($file->path());
+            $pdfDetails = $pdf->getDetails();
 
-    private function getPdfPageCount(string $filePath): ?int
-    {
-        try {
-            $pdf = $this->pdfParser->parseFile($filePath);
-            return count($pdf->getPages());
-        } catch (\Exception $e) {
-            Log::error('Failed to get PDF page count: ' . $e->getMessage());
-            return null;
+            foreach ($pdfDetails as $property => $value) {
+                if (!empty($value)) {
+                    $metadata[strtolower($property)] = $value;
+                }
+            }
         }
     }
 }
