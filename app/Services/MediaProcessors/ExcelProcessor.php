@@ -6,7 +6,7 @@ use Illuminate\Http\UploadedFile;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Log;
 
-class ExcelProcessor implements MediaProcessorInterface
+class ExcelProcessor extends AbstractOfficeProcessor
 {
     public function canProcess(UploadedFile $file): bool
     {
@@ -17,25 +17,21 @@ class ExcelProcessor implements MediaProcessorInterface
         ]);
     }
 
+    protected function getDocumentProperties(UploadedFile $file)
+    {
+        return IOFactory::load($file->getRealPath())->getProperties();
+    }
+
     public function process(UploadedFile $file, array &$metadata): void
     {
+        parent::process($file, $metadata); // Call parent to extract common properties
+
         try {
             $spreadsheet = IOFactory::load($file->getRealPath());
-            $properties = $spreadsheet->getProperties();
-
-            $metadata['title'] = $properties->getTitle();
-            $metadata['author'] = $properties->getCreator();
-            $metadata['subject'] = $properties->getSubject();
-            $metadata['keywords'] = $properties->getKeywords();
-            $metadata['description'] = $properties->getDescription();
-            $metadata['category'] = $properties->getCategory();
-            $metadata['last_modified_by'] = $properties->getLastModifiedBy();
-            $metadata['created_at'] = $properties->getCreated();
-            $metadata['modified_at'] = $properties->getModified();
             $metadata['sheet_count'] = $spreadsheet->getSheetCount();
 
         } catch (\Exception $e) {
-            Log::error('Failed to process XLSX file: ' . $e->getMessage());
+            Log::error('Failed to process XLSX specific properties: ' . $e->getMessage());
         }
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Http\UploadedFile;
 use PhpOffice\PhpPresentation\IOFactory;
 use Illuminate\Support\Facades\Log;
 
-class PowerPointProcessor implements MediaProcessorInterface
+class PowerPointProcessor extends AbstractOfficeProcessor
 {
     public function canProcess(UploadedFile $file): bool
     {
@@ -17,25 +17,21 @@ class PowerPointProcessor implements MediaProcessorInterface
         ]);
     }
 
+    protected function getDocumentProperties(UploadedFile $file)
+    {
+        return IOFactory::load($file->getRealPath())->getDocumentProperties();
+    }
+
     public function process(UploadedFile $file, array &$metadata): void
     {
+        parent::process($file, $metadata); // Call parent to extract common properties
+
         try {
             $presentation = IOFactory::load($file->getRealPath());
-            $properties = $presentation->getDocumentProperties();
-
-            $metadata['title'] = $properties->getTitle();
-            $metadata['author'] = $properties->getCreator();
-            $metadata['subject'] = $properties->getSubject();
-            $metadata['keywords'] = $properties->getKeywords();
-            $metadata['description'] = $properties->getDescription();
-            $metadata['category'] = $properties->getCategory();
-            $metadata['last_modified_by'] = $properties->getLastModifiedBy();
-            $metadata['created_at'] = $properties->getCreated();
-            $metadata['modified_at'] = $properties->getModified();
             $metadata['slide_count'] = $presentation->getSlideCount();
 
         } catch (\Exception $e) {
-            Log::error('Failed to process PPTX file: ' . $e->getMessage());
+            Log::error('Failed to process PPTX specific properties: ' . $e->getMessage());
         }
     }
 }

@@ -7,7 +7,7 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use Illuminate\Support\Facades\Log;
 
-class WordDocumentProcessor implements MediaProcessorInterface
+class WordDocumentProcessor extends AbstractOfficeProcessor
 {
     public function canProcess(UploadedFile $file): bool
     {
@@ -19,31 +19,21 @@ class WordDocumentProcessor implements MediaProcessorInterface
         ]);
     }
 
+    protected function getDocumentProperties(UploadedFile $file)
+    {
+        return IOFactory::load($file->getRealPath())->getDocInfo();
+    }
+
     public function process(UploadedFile $file, array &$metadata): void
     {
+        parent::process($file, $metadata); // Call parent to extract common properties
+
         try {
             $phpWord = IOFactory::load($file->getRealPath());
-
-            // Extract document properties
-            $properties = $phpWord->getDocInfo();
-
-            $metadata['title'] = $properties->getTitle();
-            $metadata['author'] = $properties->getCreator();
-            $metadata['subject'] = $properties->getSubject();
-            $metadata['keywords'] = $properties->getKeywords();
-            $metadata['description'] = $properties->getDescription();
-            $metadata['category'] = $properties->getCategory();
-            $metadata['last_modified_by'] = $properties->getLastModifiedBy();
-            $metadata['created_at'] = $properties->getCreated();
-            $metadata['modified_at'] = $properties->getModified();
-
-            // Attempt to get page count (PhpWord doesn't directly provide this easily)
-            // This often requires rendering or more complex parsing, so we'll leave it out for now
-            // or add a placeholder if needed.
             $metadata['word_count'] = $this->getWordCount($phpWord);
 
         } catch (\Exception $e) {
-            Log::error('Failed to process DOCX file: ' . $e->getMessage());
+            Log::error('Failed to process DOCX specific properties: ' . $e->getMessage());
         }
     }
 
