@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Services\ServeService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ServeController extends Controller

@@ -1,10 +1,9 @@
 <?php
 
-use App\Http\Controllers\AssetController;
-use App\Http\Controllers\ServeController;
+use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\Api\ServeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
 
 Route::get('/test', function (Request $request) {
     return response()->json(['message' => 'API is working']);
