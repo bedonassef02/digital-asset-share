@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\GenerateThumbnail;
 use App\Models\Asset;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
@@ -10,7 +11,6 @@ class AssetService
 {
     public function __construct(
         private AssetStorageService $assetStorageService,
-        private ThumbnailService $thumbnailService,
         private MetadataService $metadataService
     ) { }
 
@@ -31,7 +31,7 @@ class AssetService
 
         ($this->assetStorageService)($file, $asset->id);
 
-        ($this->thumbnailService)($file, $asset->id);
+        GenerateThumbnail::dispatch($asset);
 
         ($this->metadataService)($file, $asset);
 

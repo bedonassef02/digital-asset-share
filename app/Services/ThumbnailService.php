@@ -2,21 +2,33 @@
 
 namespace App\Services;
 
-use Illuminate\Http\UploadedFile;
+use App\Models\Asset;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class ThumbnailService
 {
-    public function __invoke(UploadedFile $file, int $assetId): ?string
+    public function __construct(
+        private ?ImageManager $imageManager = null
+    ) {
+        $this->imageManager ??= new ImageManager(new Driver());
+    }
+
+    public function generate(Asset $asset): ?string
     {
-        if (!str_starts_with($file->getMimeType(), 'image/')) {
+        $filePath = 'uploads/' . $asset->id . '/file';
+
+        if (!str_starts_with($asset->mime_type, 'image/') || !Storage::disk()->exists($filePath)) {
             return null;
         }
 
-        $manager = new ImageManager(new Driver());
-        $image = $manager->read($file->getRealPath());
+        return $this->generateThumbnail(Storage::disk()->get($filePath), $asset->id);
+    }
+
+    private function generateThumbnail(string $imageSource, int $assetId): string
+    {
+        $image = $this->imageManager->read($imageSource);
         $image->cover(150, 150);
 
         $assetDirectory = 'uploads/' . $assetId;
