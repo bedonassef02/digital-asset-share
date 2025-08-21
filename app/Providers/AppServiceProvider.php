@@ -5,13 +5,11 @@ namespace App\Providers;
 use App\Services\MediaService;
 use App\Services\MediaProcessors\ImageProcessor;
 use App\Services\MediaProcessors\PdfProcessor;
-use App\Services\MediaProcessors\WordDocumentProcessor;
-use App\Services\MediaProcessors\ExcelProcessor;
-use App\Services\MediaProcessors\PowerPointProcessor;
 use App\Services\MediaProcessors\AudioProcessor;
 use App\Services\MediaProcessors\TextProcessor;
 use App\Services\MediaProcessors\ArchiveProcessor;
 use App\Services\MediaProcessors\VideoProcessor;
+use App\Services\MediaProcessors\OfficeProcessor;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
 use Illuminate\Support\ServiceProvider;
@@ -46,12 +44,10 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(ImageProcessor::class),
                 $app->make(PdfProcessor::class),
                 $app->make(ArchiveProcessor::class),
-                $app->make(WordDocumentProcessor::class),
-                $app->make(ExcelProcessor::class),
-                $app->make(PowerPointProcessor::class),
                 $app->make(AudioProcessor::class),
                 $app->make(TextProcessor::class),
-                $app->make(VideoProcessor::class)
+                $app->make(VideoProcessor::class),
+                $app->make(OfficeProcessor::class)
             );
         });
     }

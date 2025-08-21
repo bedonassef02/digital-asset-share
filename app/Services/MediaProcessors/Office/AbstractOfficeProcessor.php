@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\MediaProcessors\Office;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
