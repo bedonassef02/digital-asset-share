@@ -18,9 +18,9 @@ class AssetService
         return Asset::where('user_id', $userId)->paginate($perPage);
     }
 
-    public function findOne(int $id)
+    public function findOne(int $id, int $userId)
     {
-        return Asset::findOrFail($id);
+        return Asset::where('user_id', $userId)->findOrFail($id);
     }
 
     public function create(UploadedFile $file, array $data = []): Asset
