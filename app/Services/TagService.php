@@ -2,13 +2,20 @@
 
 namespace App\Services;
 
-use App\Jobs\SyncAssetTags;
+use App\Models\Asset;
+use App\Models\Tag;
 
 class TagService
 {
     public function sync(int $assetId, array $tags): void
     {
-        SyncAssetTags::dispatch($assetId, $tags);
+        $asset = Asset::findOrFail($assetId);
+        $tagIds = [];
+        foreach ($tags as $tagName) {
+            $tag = Tag::firstOrCreate(['name' => $tagName]);
+            $tagIds[] = $tag->id;
+        }
+        $asset->tags()->sync($tagIds);
     }
 
     public function detach(int $assetId, array $tags): void

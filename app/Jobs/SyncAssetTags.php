@@ -2,8 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Asset;
-use App\Models\Tag;
+use App\Services\TagService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -35,14 +34,8 @@ class SyncAssetTags implements ShouldQueue
      *
      * @return void
      */
-    public function handle(): void
+    public function handle(TagService $tagService): void
     {
-        $asset = Asset::findOrFail($this->assetId);
-        $tagIds = [];
-        foreach ($this->tags as $tagName) {
-            $tag = Tag::firstOrCreate(['name' => $tagName]);
-            $tagIds[] = $tag->id;
-        }
-        $asset->tags()->sync($tagIds);
+        $tagService->sync($this->assetId, $this->tags);
     }
 }

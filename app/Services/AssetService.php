@@ -4,15 +4,14 @@ namespace App\Services;
 
 use App\Jobs\GenerateThumbnail;
 use App\Models\Asset;
-use App\Services\TagService;
+use App\Jobs\SyncAssetTags;
 use Illuminate\Http\UploadedFile;
 
 class AssetService
 {
     public function __construct(
         private AssetStorageService $assetStorageService,
-        private MetadataService $metadataService,
-        private TagService $tagService
+        private MetadataService $metadataService
     ) { }
 
     public function findAll(int $userId, int $perPage = 15)
@@ -42,7 +41,7 @@ class AssetService
         ($this->metadataService)($file, $asset);
 
         if (!empty($tags)) {
-            $this->tagService->sync($asset->id, $tags);
+            SyncAssetTags::dispatch($asset->id, $tags);
         }
 
         return $asset;
@@ -67,7 +66,7 @@ class AssetService
         $asset->update($data);
 
         if ($tags) {
-            $this->tagService->sync($asset->id, $tags);
+            SyncAssetTags::dispatch($asset->id, $tags);
         }
 
         return $asset;
