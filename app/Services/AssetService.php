@@ -66,7 +66,7 @@ class AssetService
     {
         $asset = Asset::withTrashed()->findOrFail($id);
 
-        Storage::disk()->deleteDirectory('uploads/' . $id);
+        $this->assetStorageService->deleteDirectory($id);
 
         $asset->forceDelete();
         return true;

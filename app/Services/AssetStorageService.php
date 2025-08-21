@@ -14,4 +14,10 @@ class AssetStorageService
 
         return Storage::disk()->putFileAs($assetDirectory, $file, 'file');
     }
+
+    public function deleteDirectory(int $assetId): bool
+    {
+        $assetDirectory = 'uploads/' . $assetId;
+        return Storage::disk()->deleteDirectory($assetDirectory);
+    }
 }
