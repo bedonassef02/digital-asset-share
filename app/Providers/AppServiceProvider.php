@@ -10,6 +10,9 @@ use App\Services\MediaProcessors\TextProcessor;
 use App\Services\MediaProcessors\ArchiveProcessor;
 use App\Services\MediaProcessors\VideoProcessor;
 use App\Services\MediaProcessors\OfficeProcessor;
+use App\Services\MediaProcessors\Office\ExcelProcessor;
+use App\Services\MediaProcessors\Office\PowerPointProcessor;
+use App\Services\MediaProcessors\Office\WordDocumentProcessor;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
 use Illuminate\Support\ServiceProvider;
@@ -47,7 +50,11 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(AudioProcessor::class),
                 $app->make(TextProcessor::class),
                 $app->make(VideoProcessor::class),
-                $app->make(OfficeProcessor::class)
+                $app->make(OfficeProcessor::class, [
+                    $app->make(ExcelProcessor::class),
+                    $app->make(PowerPointProcessor::class),
+                    $app->make(WordDocumentProcessor::class),
+                ])
             );
         });
     }

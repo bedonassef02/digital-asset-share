@@ -5,7 +5,6 @@ namespace App\Services\MediaProcessors\Office;
 use Illuminate\Http\UploadedFile;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Log;
-use App\Services\MediaProcessors\Office\AbstractOfficeProcessor;
 
 class ExcelProcessor extends AbstractOfficeProcessor
 {

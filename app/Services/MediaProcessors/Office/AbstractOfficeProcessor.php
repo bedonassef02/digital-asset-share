@@ -4,6 +4,7 @@ namespace App\Services\MediaProcessors\Office;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
+use App\Services\MediaProcessors\MediaProcessorInterface;
 
 abstract class AbstractOfficeProcessor implements MediaProcessorInterface
 {

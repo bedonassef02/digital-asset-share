@@ -6,7 +6,6 @@ use Illuminate\Http\UploadedFile;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use Illuminate\Support\Facades\Log;
-use App\Services\MediaProcessors\Office\AbstractOfficeProcessor;
 
 class WordDocumentProcessor extends AbstractOfficeProcessor
 {
