@@ -35,8 +35,6 @@ class AssetService
 
         ($this->metadataService)($file, $asset);
 
-        $asset->save();
-
         return $asset;
     }
 
