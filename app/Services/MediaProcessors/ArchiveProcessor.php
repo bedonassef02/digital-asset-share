@@ -26,45 +26,23 @@ class ArchiveProcessor implements MediaProcessorInterface
         $filePath = $file->getRealPath();
 
         try {
-            switch ($mimeType) {
-                case 'application/zip':
-                    $zip = new ZipArchive();
-                    if ($zip->open($filePath) === TRUE) {
-                        $metadata['archive_type'] = 'zip';
-                        $metadata['file_count'] = $zip->numFiles;
-                        $fileList = [];
-                        for ($i = 0; $i < $zip->numFiles; $i++) {
-                            $fileList[] = $zip->getNameIndex($i);
-                        }
-                        $metadata['contained_files'] = $fileList;
-                        $zip->close();
-                    } else {
-                        Log::warning('Could not open zip archive: ' . $filePath);
+            if ($mimeType === 'application/zip') {
+                $zip = new ZipArchive();
+                if ($zip->open($filePath) === TRUE) {
+                    $metadata['archive_type'] = 'zip';
+                    $metadata['file_count'] = $zip->numFiles;
+                    $fileList = [];
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $fileList[] = $zip->getNameIndex($i);
                     }
-                    break;
-                case 'application/x-rar-compressed':
-                    $metadata['archive_type'] = 'rar';
-                    Log::info('RAR archive detected, but detailed processing not implemented.');
-                    // RAR processing typically requires external libraries (e.g., unrar)
-                    break;
-                case 'application/x-tar':
-                    $metadata['archive_type'] = 'tar';
-                    Log::info('TAR archive detected, but detailed processing not implemented.');
-                    // TAR processing can be done with PharData, but might be complex for nested archives
-                    break;
-                case 'application/gzip':
-                    $metadata['archive_type'] = 'gzip';
-                    Log::info('GZIP archive detected, but detailed processing not implemented.');
-                    // GZIP is a single file compression, not an archive of multiple files
-                    break;
-                case 'application/x-7z-compressed':
-                    $metadata['archive_type'] = '7z';
-                    Log::info('7z archive detected, but detailed processing not implemented.');
-                    // 7z processing typically requires external libraries
-                    break;
-                default:
-                    Log::warning('Unhandled archive MIME type: ' . $mimeType);
-                    break;
+                    $metadata['contained_files'] = $fileList;
+                    $zip->close();
+                } else {
+                    Log::warning('Could not open zip archive: ' . $filePath);
+                }
+            } else {
+                $metadata['archive_type'] = explode('/', $mimeType)[1] ?? $mimeType;
+                Log::info(sprintf('%s archive detected, but detailed processing not implemented.', $metadata['archive_type']));
             }
         } catch (\Exception $e) {
             Log::error('Error processing archive file: ' . $e->getMessage());

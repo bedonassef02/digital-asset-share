@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
             return new MediaService(
                 $app->make(ImageProcessor::class),
                 $app->make(PdfProcessor::class),
-                $app->make(WordDocumentProcessor::class),
                 $app->make(ArchiveProcessor::class),
+                $app->make(WordDocumentProcessor::class),
                 $app->make(ExcelProcessor::class),
                 $app->make(PowerPointProcessor::class),
                 $app->make(AudioProcessor::class),
