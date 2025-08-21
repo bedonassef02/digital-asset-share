@@ -15,9 +15,10 @@ class AssetController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $assets = $this->assetService->findAll();
+        $perPage = $request->query('per_page', 15);
+        $assets = $this->assetService->findAll(auth()->id, $perPage);
         return response()->json($assets);
     }
 

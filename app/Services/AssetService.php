@@ -13,9 +13,9 @@ class AssetService
         private MetadataService $metadataService
     ) { }
 
-    public function findAll()
+    public function findAll(int $userId, int $perPage = 15)
     {
-        return Asset::all();
+        return Asset::where('user_id', $userId)->paginate($perPage);
     }
 
     public function findOne(int $id)
