@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use App\Models\Tag;
 
 class Asset extends Model
 {
@@ -39,5 +40,10 @@ class Asset extends Model
         }
 
         return [];
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 }

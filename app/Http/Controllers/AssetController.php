@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Services\AssetService;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
+use App\Http\Requests\AttachTagsRequest;
+use App\Http\Requests\DetachTagsRequest;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -65,6 +67,18 @@ class AssetController extends Controller
         } else {
             $this->assetService->softDelete($id);
         }
+        return response()->json(null, 204);
+    }
+
+    public function attachTags(AttachTagsRequest $request, string $id)
+    {
+        $this->assetService->syncTags((int) $id, $request->validated('tags'));
+        return response()->json(null, 204);
+    }
+
+    public function detachTags(DetachTagsRequest $request, string $id)
+    {
+        $this->assetService->detachTags((int) $id, $request->validated('tags'));
         return response()->json(null, 204);
     }
 }

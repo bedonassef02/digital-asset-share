@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\GenerateThumbnail;
 use App\Models\Asset;
+use App\Models\Tag;
 use Illuminate\Http\UploadedFile;
 
 class AssetService
@@ -71,5 +72,29 @@ class AssetService
 
         $asset->forceDelete();
         return true;
+    }
+
+    public function syncTags(int $assetId, array $tags): void
+    {
+        $asset = Asset::findOrFail($assetId);
+        $tagIds = [];
+        foreach ($tags as $tagName) {
+            $tag = \App\Models\Tag::firstOrCreate(['name' => $tagName]);
+            $tagIds[] = $tag->id;
+        }
+        $asset->tags()->sync($tagIds);
+    }
+
+    public function detachTags(int $assetId, array $tags): void
+    {
+        $asset = Asset::findOrFail($assetId);
+        $tagIds = [];
+        foreach ($tags as $tagName) {
+            $tag = \App\Models\Tag::where('name', $tagName)->first();
+            if ($tag) {
+                $tagIds[] = $tag->id;
+            }
+        }
+        $asset->tags()->detach($tagIds);
     }
 }

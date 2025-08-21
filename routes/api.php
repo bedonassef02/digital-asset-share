@@ -19,5 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [App\Http\Controllers\Api\AuthController::class, 'user']);
 
     Route::apiResource('/assets', AssetController::class);
+    Route::post('/assets/{id}/tags/attach', [AssetController::class, 'attachTags']);
+    Route::post('/assets/{id}/tags/detach', [AssetController::class, 'detachTags']);
     Route::get('/serve/{id}', ServeController::class);
 });
