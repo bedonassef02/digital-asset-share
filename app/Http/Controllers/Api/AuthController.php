@@ -11,12 +11,9 @@ use App\Http\Requests\Auth\LoginRequest;
 
 class AuthController extends Controller
 {
-    protected $authService;
-
-    public function __construct(AuthService $authService)
-    {
-        $this->authService = $authService;
-    }
+    public function __construct(
+        private AuthService $authService
+    ) {}
 
     public function register(StoreUserRequest $request) // Use StoreUserRequest
     {
@@ -32,7 +29,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request) // Use LoginRequest
     {
         try {
-            $result = $this->authService->login($request->validated()); // Use validated()
+            $result = $this->authService->login(...$request->validated()); // Use validated()
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
