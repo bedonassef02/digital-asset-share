@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\AssetService;
 use App\Http\Requests\StoreAssetRequest;
+use App\Http\Requests\UpdateAssetRequest;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -48,9 +49,9 @@ class AssetController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateAssetRequest $request, string $id)
     {
-        $asset = $this->assetService->update($id, $request->all());
+        $asset = $this->assetService->update($id, $request->validated());
         return response()->json($asset);
     }
 
