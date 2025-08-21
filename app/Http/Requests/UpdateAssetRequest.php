@@ -23,6 +23,8 @@ class UpdateAssetRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:255',
         ];
     }
 }

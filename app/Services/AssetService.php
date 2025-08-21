@@ -26,6 +26,9 @@ class AssetService
 
     public function create(UploadedFile $file, array $data = []): Asset
     {
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
         $assetData = $this->prepareData($file, $data);
         $asset = Asset::create($assetData);
 
@@ -36,6 +39,10 @@ class AssetService
         }
 
         ($this->metadataService)($file, $asset);
+
+        if (!empty($tags)) {
+            $this->syncTags($asset->id, $tags);
+        }
 
         return $asset;
     }
@@ -52,8 +59,16 @@ class AssetService
 
     public function update(int $id, array $data)
     {
+        $tags = $data['tags'] ?? null;
+        unset($data['tags']);
+
         $asset = Asset::findOrFail($id);
         $asset->update($data);
+
+        if ($tags !== null) {
+            $this->syncTags($asset->id, $tags);
+        }
+
         return $asset;
     }
 
@@ -83,18 +98,5 @@ class AssetService
             $tagIds[] = $tag->id;
         }
         $asset->tags()->sync($tagIds);
-    }
-
-    public function detachTags(int $assetId, array $tags): void
-    {
-        $asset = Asset::findOrFail($assetId);
-        $tagIds = [];
-        foreach ($tags as $tagName) {
-            $tag = \App\Models\Tag::where('name', $tagName)->first();
-            if ($tag) {
-                $tagIds[] = $tag->id;
-            }
-        }
-        $asset->tags()->detach($tagIds);
     }
 }
