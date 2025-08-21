@@ -26,9 +26,9 @@ class AssetController extends Controller
      */
     public function store(StoreAssetRequest $request)
     {
-        $file = $request->file('file');
-        $data = $request->except(['file']); // Get other data
-
+        $data = $request->validated();
+        $file = $data['file'];
+        unset($data['file']);
         $asset = $this->assetService->create($file, $data);
         return response()->json($asset, 201);
     }
