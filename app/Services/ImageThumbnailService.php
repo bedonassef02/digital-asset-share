@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
-class ThumbnailService
+class ImageThumbnailService
 {
     public function __construct(
         private ?ImageManager $imageManager = null

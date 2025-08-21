@@ -30,7 +30,7 @@ class AssetService
 
         ($this->assetStorageService)($file, $asset->id);
 
-        if (str_starts_with($asset->mime_type, 'image/')) {
+        if (str_starts_with($asset->mime_type, 'image/') || str_starts_with($asset->mime_type, 'video/')) {
             GenerateThumbnail::dispatch($asset);
         }
 
