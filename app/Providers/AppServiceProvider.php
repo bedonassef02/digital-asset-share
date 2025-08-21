@@ -7,6 +7,7 @@ use App\Services\MediaProcessors\ImageProcessor;
 use App\Services\MediaProcessors\PdfProcessor;
 use App\Services\MediaProcessors\WordDocumentProcessor;
 use App\Services\MediaProcessors\ExcelProcessor;
+use App\Services\MediaProcessors\PowerPointProcessor;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(ImageProcessor::class),
                 $app->make(PdfProcessor::class),
                 $app->make(WordDocumentProcessor::class),
-                $app->make(ExcelProcessor::class)
+                $app->make(ExcelProcessor::class),
+                $app->make(PowerPointProcessor::class)
             );
         });
     }
