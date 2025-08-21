@@ -14,6 +14,9 @@ return [
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'audio/mpeg',
         'audio/wav',
+        'video/mp4',
+        'video/webm',
+        'video/quicktime',
         'text/plain',
         'application/json',
         'text/csv',
@@ -45,6 +48,9 @@ return [
         'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 20480, // 20MB
         'audio/mpeg' => 10240, // 10MB
         'audio/wav' => 20480, // 20MB
+        'video/mp4' => 51200, // 50MB
+        'video/webm' => 51200, // 50MB
+        'video/quicktime' => 51200, // 50MB
         'application/zip' => 51200, // 50MB - for general zip files
         'application/x-rar-compressed' => 51200, // 50MB
         'application/x-tar' => 51200, // 50MB
