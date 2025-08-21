@@ -17,17 +17,4 @@ class TagService
         }
         $asset->tags()->sync($tagIds);
     }
-
-    public function detach(int $assetId, array $tags): void
-    {
-        $asset = Asset::findOrFail($assetId);
-        $tagIds = [];
-        foreach ($tags as $tagName) {
-            $tag = Tag::where('name', $tagName)->first();
-            if ($tag) {
-                $tagIds[] = $tag->id;
-            }
-        }
-        $asset->tags()->detach($tagIds);
-    }
 }
