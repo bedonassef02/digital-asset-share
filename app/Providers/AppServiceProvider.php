@@ -12,6 +12,8 @@ use App\Services\MediaProcessors\AudioProcessor;
 use App\Services\MediaProcessors\TextProcessor;
 use App\Services\MediaProcessors\ArchiveProcessor;
 use App\Services\MediaProcessors\VideoProcessor;
+use FFMpeg\FFMpeg;
+use FFMpeg\FFProbe;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +23,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(FFMpeg::class, function ($app) {
+            return FFMpeg::create([
+                'ffmpeg.binaries'  => config('ffmpeg.ffmpeg_binary_path'),
+                'ffprobe.binaries' => config('ffmpeg.ffprobe_binary_path'),
+                'timeout'          => 3600,
+                'ffmpeg.threads'   => 12,
+            ]);
+        });
+
+        $this->app->singleton(FFProbe::class, function ($app) {
+            return FFProbe::create([
+                'ffmpeg.binaries'  => config('ffmpeg.ffmpeg_binary_path'),
+                'ffprobe.binaries' => config('ffmpeg.ffprobe_binary_path'),
+                'timeout'          => 3600,
+                'ffmpeg.threads'   => 12,
+            ]);
+        });
+
         $this->app->singleton(MediaService::class, function ($app) {
             return new MediaService(
                 $app->make(ImageProcessor::class),
