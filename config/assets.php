@@ -12,6 +12,8 @@ return [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.ms-powerpoint',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'audio/mpeg',
+        'audio/wav',
     ],
     'max_file_sizes_kb' => [
         'image/jpeg' => 5120, // 5MB
@@ -24,6 +26,8 @@ return [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 15360, // 15MB
         'application/vnd.ms-powerpoint' => 20480, // 20MB
         'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 20480, // 20MB
+        'audio/mpeg' => 10240, // 10MB
+        'audio/wav' => 20480, // 20MB
         // Default max size if not specified for a MIME type
         'default' => 5120, // 5MB
     ],
