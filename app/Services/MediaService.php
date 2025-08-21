@@ -21,7 +21,6 @@ class MediaService
 
             $metadata['width'] = $image->width();
             $metadata['height'] = $image->height();
-            $metadata['has_thumbnail'] = true;
         }
     }
 }
