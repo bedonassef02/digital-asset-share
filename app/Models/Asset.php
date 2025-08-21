@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class Asset extends Model
 {
@@ -16,11 +17,17 @@ class Asset extends Model
         'mime_type',
         'size',
         'extension',
+        'user_id',
     ];
 
     protected $appends = [
         'metadata',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function getMetadataAttribute(): array
     {

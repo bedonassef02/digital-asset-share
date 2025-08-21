@@ -29,6 +29,7 @@ class AssetController extends Controller
         $data = $request->validated();
         $file = $data['file'];
         unset($data['file']);
+        $data['user_id'] = auth()->id(); // Assign the authenticated user's ID
         $asset = $this->assetService->create($file, $data);
         return response()->json($asset, 201);
     }
