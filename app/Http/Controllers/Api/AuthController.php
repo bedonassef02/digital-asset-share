@@ -3,57 +3,47 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Http\Requests\Auth\StoreUserRequest;
+use App\Http\Requests\Auth\LoginRequest;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    protected $authService;
+
+    public function __construct(AuthService $authService)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $this->authService = $authService;
+    }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+    public function register(StoreUserRequest $request) // Use StoreUserRequest
+    {
+        $result = $this->authService->register($request->validated()); // Use validated()
 
         return response()->json([
             'message' => 'User registered successfully',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'access_token' => $result['access_token'],
+            'token_type' => $result['token_type'],
         ], 201);
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request) // Use LoginRequest
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        try {
+            $result = $this->authService->login($request->validated()); // Use validated()
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 401);
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Logged in successfully',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'access_token' => $result['access_token'],
+            'token_type' => $result['token_type'],
         ]);
     }
 
