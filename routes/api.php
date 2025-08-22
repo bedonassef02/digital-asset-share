@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\Api\AssetVersionController;
 use App\Http\Controllers\Api\ServeController;
 use App\Http\Controllers\Api\TagController;
 use Illuminate\Http\Request;
@@ -21,5 +22,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/assets', AssetController::class);
     Route::post('/assets/{id}/tags', [TagController::class, 'add']);
     Route::delete('/assets/{id}/tags', [TagController::class, 'remove']);
+
+    Route::get('/assets/{assetId}/versions', [AssetVersionController::class, 'index']);
+    Route::get('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'show']);
+    Route::post('/assets/{assetId}/versions', [AssetVersionController::class, 'store']);
+    Route::delete('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'destroy']);
+
     Route::get('/serve/{id}', ServeController::class);
 });

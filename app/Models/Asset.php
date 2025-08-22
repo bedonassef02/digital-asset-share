@@ -19,6 +19,7 @@ class Asset extends Model
         'size',
         'extension',
         'user_id',
+        'latest_version_id',
     ];
 
     protected $appends = [
@@ -42,8 +43,18 @@ class Asset extends Model
         return [];
     }
 
-    public function tags()
+    public function tags(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function versions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AssetVersion::class);
+    }
+
+    public function latestVersion(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(AssetVersion::class)->latest('version');
     }
 }
