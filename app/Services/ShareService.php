@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class ShareService
 {
-    public function createShareLink(Asset $asset, array $data)
+    public function create(Asset $asset, array $data)
     {
         $token = Str::random(32);
         $password = isset($data['password']) ? Hash::make($data['password']) : null;
@@ -25,7 +25,7 @@ class ShareService
         return $share;
     }
 
-    public function resolveShareLink(string $token, ?string $password = null)
+    public function resolve(string $token, ?string $password = null)
     {
         $share = Share::where('token', $token)->firstOrFail();
 
@@ -40,12 +40,12 @@ class ShareService
         return $share->asset;
     }
 
-    public function listUserShares()
+    public function list()
     {
         return auth()->user()->shares;
     }
 
-    public function revokeShareLink(string $token)
+    public function revoke(string $token)
     {
         $share = Share::where('token', $token)->firstOrFail();
 

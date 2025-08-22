@@ -5,51 +5,40 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Asset;
 use App\Services\ShareService;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreShareRequest;
+use App\Http\Requests\ResolveShareRequest;
 use Illuminate\Support\Facades\Auth;
 
 class ShareController extends Controller
 {
-    protected $shareService;
+    public function __construct(
+        private ShareService $shareService
+    ) {}
 
-    public function __construct(ShareService $shareService)
+    public function create(StoreShareRequest $request, Asset $asset)
     {
-        $this->shareService = $shareService;
-    }
-
-    public function create(Request $request, Asset $asset)
-    {
-        $request->validate([
-            'expires_at' => 'nullable|date',
-            'password' => 'nullable|string|min:6',
-        ]);
-
-        $share = $this->shareService->createShareLink($asset, $request->all());
+        $share = $this->shareService->create($asset, $request->all());
 
         return response()->json($share, 201);
     }
 
     public function list()
     {
-        $shares = $this->shareService->listUserShares();
+        $shares = $this->shareService->list();
 
         return response()->json($shares);
     }
 
-    public function resolve(Request $request, string $token)
+    public function resolve(ResolveShareRequest $request, string $token)
     {
-        $request->validate([
-            'password' => 'nullable|string',
-        ]);
-
-        $asset = $this->shareService->resolveShareLink($token, $request->input('password'));
+        $asset = $this->shareService->resolve($token, $request->input('password'));
 
         return response()->json($asset);
     }
 
     public function revoke(string $token)
     {
-        $this->shareService->revokeShareLink($token);
+        $this->shareService->revoke($token);
 
         return response()->json(null, 204);
     }
