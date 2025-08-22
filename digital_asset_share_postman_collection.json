@@ -335,7 +335,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Updated Asset Name\",\n    \"description\": \"Updated description for the asset.\"\n}"
+							"raw": "{\n    \"name\": \"Updated Asset Name\",\n    \"description\": \"Updated description for the asset.\",\n    \"tags\": [\"tag1\", \"tag2\"]\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/assets/{{assetId}}",
@@ -379,6 +379,264 @@
 							"path": [
 								"assets",
 								"{{assetId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Add Tag to Asset",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tag\": \"new_tag\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/assets/{{assetId}}/tags",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assets",
+								"{{assetId}}",
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Tag from Asset",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tag\": \"new_tag\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/assets/{{assetId}}/tags",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assets",
+								"{{assetId}}",
+								"tags"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Asset Versions",
+			"item": [
+				{
+					"name": "Get All Asset Versions",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/assets/{{assetId}}/versions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assets",
+								"{{assetId}}",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Asset Version",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/assets/{{assetId}}/versions/{{versionNumber}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assets",
+								"{{assetId}}",
+								"versions",
+								"{{versionNumber}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Asset Version",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/path/to/your/new_file.jpg"
+								},
+								{
+									"key": "name",
+									"value": "Updated Asset Name",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Description for the new version.",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/assets/{{assetId}}/versions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assets",
+								"{{assetId}}",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Specific Asset Version",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/assets/{{assetId}}/versions/{{versionNumber}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assets",
+								"{{assetId}}",
+								"versions",
+								"{{versionNumber}}"
 							]
 						}
 					},
@@ -462,6 +720,12 @@
 			"value": "1",
 			"type": "string",
 			"description": "Use an actual asset ID after creating one."
+		},
+		{
+			"key": "versionNumber",
+			"value": "1",
+			"type": "string",
+			"description": "Use an actual version number."
 		}
 	]
 }
