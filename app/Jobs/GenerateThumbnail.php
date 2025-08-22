@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Asset;
+use App\Models\AssetVersion;
 use App\Services\MetadataService;
 use App\Services\ImageThumbnailService;
 use App\Services\VideoThumbnailService;
@@ -17,23 +17,20 @@ class GenerateThumbnail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $asset;
-
     /**
      * Create a new job instance.
      *
-     * @param  \App\Models\Asset  $asset
+     * @param  \App\Models\AssetVersion  $assetVersion
      * @return void
      */
-    public function __construct(Asset $asset)
-    {
-        $this->asset = $asset;
-    }
+    public function __construct(
+        private AssetVersion $assetVersion
+    ) {}
 
     /**
      * Execute the job.
      *
-     * @param  \App\Services\ThumbnailService  $thumbnailService
+     * @param  \App\Services\ImageThumbnailService  $thumbnailService
      * @param  \App\Services\VideoThumbnailService  $videoThumbnailService
      * @param  \App\Services\MetadataService  $metadataService
      * @return void
@@ -43,23 +40,23 @@ class GenerateThumbnail implements ShouldQueue
         VideoThumbnailService $videoThumbnailService,
         MetadataService $metadataService
     ): void {
-        Log::info('GenerateThumbnail job started for Asset ID: ' . $this->asset->id);
+        Log::info('GenerateThumbnail job started for Asset Version ID: ' . $this->assetVersion->id);
 
-        Log::info($this->asset);
+        Log::info($this->assetVersion);
         try {
-            if (str_starts_with($this->asset->mime_type, 'image/')) {
-                $thumbnailService->generate($this->asset);
-            } elseif (str_starts_with($this->asset->mime_type, 'video/')) {
-                Log::info("Generating video thumbnail for Asset ID: " . $this->asset->id);
-                $videoThumbnailService->generate($this->asset);
+            if (str_starts_with($this->assetVersion->mime_type, 'image/')) {
+                $thumbnailService->generate($this->assetVersion);
+            } elseif (str_starts_with($this->assetVersion->mime_type, 'video/')) {
+                Log::info("Generating video thumbnail for Asset Version ID: " . $this->assetVersion->id);
+                $videoThumbnailService->generate($this->assetVersion);
             }
 
-            $metadataService->update($this->asset->id, ['has_thumbnail' => true]);
-            Log::info('Successfully generated thumbnail for Asset ID: ' . $this->asset->id);
+            $metadataService->update($this->assetVersion, ['has_thumbnail' => true]);
+            Log::info('Successfully generated thumbnail for Asset Version ID: ' . $this->assetVersion->id);
         } catch (\Exception $e) {
-            Log::error('Error generating thumbnail for Asset ID: ' . $this->asset->id . ': ' . $e->getMessage());
+            Log::error('Error generating thumbnail for Asset Version ID: ' . $this->assetVersion->id . ': ' . $e->getMessage());
         }
 
-        Log::info('GenerateThumbnail job finished for Asset ID: ' . $this->asset->id);
+        Log::info('GenerateThumbnail job finished for Asset Version ID: ' . $this->assetVersion->id);
     }
 }

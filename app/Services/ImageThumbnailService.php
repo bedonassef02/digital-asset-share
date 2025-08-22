@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Asset;
+use App\Models\AssetVersion;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -15,19 +15,19 @@ class ImageThumbnailService
         $this->imageManager ??= new ImageManager(new Driver());
     }
 
-    public function generate(Asset $asset): ?string
+    public function generate(AssetVersion $assetVersion): ?string
     {
-        $filePath = 'uploads/' . $asset->id . '/file';
+        $filePath = 'uploads/' . $assetVersion->asset_id . '/' . $assetVersion->version . '/file';
 
-        return $this->generateThumbnail(Storage::disk()->get($filePath), $asset->id);
+        return $this->generateThumbnail(Storage::disk()->get($filePath), $assetVersion->asset_id, $assetVersion->version);
     }
 
-    private function generateThumbnail(string $imageSource, int $assetId): string
+    private function generateThumbnail(string $imageSource, int $assetId, int $version): string
     {
         $image = $this->imageManager->read($imageSource);
         $image->cover(150, 150);
 
-        $assetDirectory = 'uploads/' . $assetId;
+        $assetDirectory = 'uploads/' . $assetId . '/' . $version;
         $thumbnailPath = $assetDirectory . '/thumbnail';
 
         Storage::disk()->put($thumbnailPath, $image->encode());

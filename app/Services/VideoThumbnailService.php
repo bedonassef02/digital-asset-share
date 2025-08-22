@@ -2,11 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Asset;
+use App\Models\AssetVersion;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use FFMpeg\FFMpeg;
-use FFMpeg\FFProbe;
 
 class VideoThumbnailService
 {
@@ -14,12 +13,12 @@ class VideoThumbnailService
         private FFMpeg $ffmpeg
     ) { }
 
-    public function generate(Asset $asset): ?string
+    public function generate(AssetVersion $assetVersion): ?string
     {
-        $filePath = 'uploads/' . $asset->id . '/file';
+        $filePath = 'uploads/' . $assetVersion->asset_id . '/' . $assetVersion->version . '/file';
         $fullPath = Storage::disk()->path($filePath);
 
-        $thumbnailPath = 'uploads/' . $asset->id . '/thumbnail';
+        $thumbnailPath = 'uploads/' . $assetVersion->asset_id . '/' . $assetVersion->version . '/thumbnail';
         $fullThumbnailPath = Storage::disk()->path($thumbnailPath);
 
         try {

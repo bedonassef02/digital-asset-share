@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Asset;
+use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,31 +14,31 @@ class MetadataService
 
     public function __invoke(
         UploadedFile $file,
-        Asset $asset,
+        AssetVersion $assetVersion,
     ): void {
         $metadata['hash'] = hash_file('sha256', $file->getRealPath());
 
         $this->mediaService->setProperties($file, $metadata);
 
-        $this->store($asset->id, $metadata);
+        $this->store($assetVersion, $metadata);
     }
 
-    public function store(int $assetId, array $metadata): string
+    public function store(AssetVersion $assetVersion, array $metadata): string
     {
-        $assetDirectory = 'uploads/' . $assetId;
+        $assetDirectory = 'uploads/' . $assetVersion->asset_id . '/' . $assetVersion->version;
         $metadataFilePath = $assetDirectory . '/metadata.json';
 
         return Storage::disk()->put($metadataFilePath, json_encode($metadata, JSON_PRETTY_PRINT));
     }
 
-    public function update(int $assetId, array $data): void
+    public function update(AssetVersion $assetVersion, array $data): void
     {
-        $metadataFilePath = 'uploads/' . $assetId . '/metadata.json';
+        $metadataFilePath = 'uploads/' . $assetVersion->asset_id . '/' . $assetVersion->version . '/metadata.json';
 
         if (Storage::disk()->exists($metadataFilePath)) {
             $metadata = json_decode(Storage::disk()->get($metadataFilePath), true);
             $updatedMetadata = array_merge($metadata, $data);
-            $this->store($assetId, $updatedMetadata);
+            $this->store($assetVersion, $updatedMetadata);
         }
     }
 }
