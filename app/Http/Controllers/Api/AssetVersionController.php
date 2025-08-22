@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAssetRequest;
 use App\Models\Asset;
 use App\Services\AssetService;
-use Illuminate\Http\Request;
 
 class AssetVersionController extends Controller
 {
@@ -26,13 +26,13 @@ class AssetVersionController extends Controller
         return response()->json($assetVersion);
     }
 
-    public function store(Request $request, string $assetId)
+    public function store(StoreAssetRequest $request, string $assetId)
     {
-        $request->validate([
-            'file' => 'required|file',
-        ]);
+        $data = $request->validated();
+        $file = $data['file'];
+        unset($data['file']);
 
-        $version = $this->assetService->createNewVersion($assetId, $request->file('file'));
+        $version = $this->assetService->createNewVersion($assetId, $file, $data);
 
         return response()->json($version, 201);
     }
