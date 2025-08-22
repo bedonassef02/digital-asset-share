@@ -29,4 +29,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'destroy']);
 
     Route::get('/serve/{id}', ServeController::class);
+
+    // Share routes
+    Route::post('/assets/{asset}/share', [App\Http\Controllers\Api\ShareController::class, 'create']);
+    Route::get('/shares', [App\Http\Controllers\Api\ShareController::class, 'list']);
+    Route::delete('/shares/{token}', [App\Http\Controllers\Api\ShareController::class, 'revoke']);
 });
+
+Route::get('/shares/{token}', [App\Http\Controllers\Api\ShareController::class, 'resolve']);

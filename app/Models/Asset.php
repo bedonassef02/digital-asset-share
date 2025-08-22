@@ -57,4 +57,9 @@ class Asset extends Model
     {
         return $this->hasOne(AssetVersion::class)->latest('version');
     }
+
+    public function shares(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Share::class);
+    }
 }
