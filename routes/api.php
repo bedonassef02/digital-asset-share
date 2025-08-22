@@ -30,6 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/serve/{id}', ServeController::class);
 
+    // Search route
+    Route::get('/search', [App\Http\Controllers\Api\SearchController::class, 'search']);
+
     // Share routes
     Route::post('/assets/{asset}/share', [App\Http\Controllers\Api\ShareController::class, 'create']);
     Route::get('/shares', [App\Http\Controllers\Api\ShareController::class, 'list']);
