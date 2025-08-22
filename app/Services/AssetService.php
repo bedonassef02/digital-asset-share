@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Jobs\GenerateThumbnail;
+use App\Jobs\ReplaceAssetTags;
 use App\Models\Asset;
-use App\Jobs\SyncAssetTags;
 use Illuminate\Http\UploadedFile;
 
 class AssetService
@@ -26,9 +26,6 @@ class AssetService
 
     public function create(UploadedFile $file, array $data = []): Asset
     {
-        $tags = $data['tags'] ?? [];
-        unset($data['tags']);
-
         $assetData = $this->prepareData($file, $data);
         $asset = Asset::create($assetData);
 
@@ -39,10 +36,6 @@ class AssetService
         }
 
         ($this->metadataService)($file, $asset);
-
-        if (!empty($tags)) {
-            SyncAssetTags::dispatch($asset->id, $tags);
-        }
 
         return $asset;
     }
@@ -66,7 +59,7 @@ class AssetService
         $asset->update($data);
 
         if ($tags) {
-            SyncAssetTags::dispatch($asset->id, $tags);
+            ReplaceAssetTags::dispatch($id, $tags);
         }
 
         return $asset;

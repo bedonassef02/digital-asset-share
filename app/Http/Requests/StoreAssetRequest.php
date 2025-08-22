@@ -35,10 +35,6 @@ class StoreAssetRequest extends FormRequest
             ],
             'name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string|max:255',
         ];
     }
-
-    
 }
