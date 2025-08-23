@@ -7,6 +7,8 @@ use App\Jobs\ReplaceAssetTags;
 use App\Models\Asset;
 use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AssetService
 {
@@ -27,21 +29,25 @@ class AssetService
 
     public function create(UploadedFile $file, array $data = []): Asset
     {
-        $asset = Asset::create(['user_id' => $data['user_id']]);
+        return DB::transaction(function () use ($file, $data) {
+            $asset = Asset::create(['user_id' => $data['user_id']]);
 
-        $version = $this->createVersion($asset, $file, $data);
+            $version = $this->createVersion($asset, $file, $data);
 
-        $asset->update(['latest_version_id' => $version->id]);
+            $asset->update(['latest_version_id' => $version->id]);
 
-        return $asset;
+            return $asset;
+        });
     }
 
     public function createNewVersion(int $assetId, UploadedFile $file, array $data = []): AssetVersion
     {
-        $asset = Asset::findOrFail($assetId);
-        $version = $this->createVersion($asset, $file, $data);
-        $asset->update(['latest_version_id' => $version->id]);
-        return $version;
+        return DB::transaction(function () use ($assetId, $file, $data) {
+            $asset = Asset::findOrFail($assetId);
+            $version = $this->createVersion($asset, $file, $data);
+            $asset->update(['latest_version_id' => $version->id]);
+            return $version;
+        });
     }
 
     private function createVersion(Asset $asset, UploadedFile $file, array $data): AssetVersion
@@ -102,5 +108,22 @@ class AssetService
 
         $asset->forceDelete();
         return true;
+    }
+
+    public function getMetadata(Asset $asset): array
+    {
+        if (!$asset->latestVersion) {
+            return [];
+        }
+
+        $assetStorageService = app(AssetStorageService::class);
+        $metadataFilePath = $assetStorageService->getAssetVersionPath($asset->id, $asset->latestVersion->version) . '/metadata.json';
+
+        if (Storage::disk()->exists($metadataFilePath)) {
+            $metadataContent = Storage::disk()->get($metadataFilePath);
+            return json_decode($metadataContent, true);
+        }
+
+        return [];
     }
 }

@@ -2,10 +2,8 @@
 
 namespace App\Models;
 
-use App\Services\AssetStorageService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Asset extends Model
 {
@@ -16,30 +14,11 @@ class Asset extends Model
         'latest_version_id',
     ];
 
-    protected $appends = [
-        'metadata',
-    ];
+    
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function getMetadataAttribute(): array
-    {
-        if (!$this->latestVersion) {
-            return [];
-        }
-
-        $assetStorageService = app(AssetStorageService::class);
-        $metadataFilePath = $assetStorageService->getAssetVersionPath($this->id, $this->latestVersion->version) . '/metadata.json';
-
-        if (Storage::disk()->exists($metadataFilePath)) {
-            $metadataContent = Storage::disk()->get($metadataFilePath);
-            return json_decode($metadataContent, true);
-        }
-
-        return [];
     }
 
     public function tags(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
