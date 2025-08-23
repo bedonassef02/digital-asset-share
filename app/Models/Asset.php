@@ -2,22 +2,16 @@
 
 namespace App\Models;
 
+use App\Services\AssetStorageService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
-use App\Models\Tag;
 
 class Asset extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'description',
-        'mime_type',
-        'size',
-        'extension',
         'user_id',
         'latest_version_id',
     ];
@@ -33,7 +27,12 @@ class Asset extends Model
 
     public function getMetadataAttribute(): array
     {
-        $metadataFilePath = 'uploads/' . $this->id . '/metadata.json';
+        if (!$this->latestVersion) {
+            return [];
+        }
+
+        $assetStorageService = app(AssetStorageService::class);
+        $metadataFilePath = $assetStorageService->getAssetVersionPath($this->id, $this->latestVersion->version) . '/metadata.json';
 
         if (Storage::disk()->exists($metadataFilePath)) {
             $metadataContent = Storage::disk()->get($metadataFilePath);
