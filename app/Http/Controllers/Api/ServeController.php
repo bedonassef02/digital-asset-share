@@ -23,6 +23,8 @@ class ServeController extends Controller
             return response()->json(['message' => 'Asset not found'], 404);
         }
 
-        return response()->file(Storage::disk($asset->disk)->path($asset->path), ['Content-Disposition' => 'inline; filename="' . $asset->file_name . '"]']);
+        $path = $this->serveService->getAssetPath($asset);
+
+        return response()->file(Storage::disk()->path($path), ['Content-Disposition' => 'inline; filename="' . $asset->latestVersion->name . '"']);
     }
 }
