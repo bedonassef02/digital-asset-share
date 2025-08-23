@@ -109,21 +109,4 @@ class AssetService
         $asset->forceDelete();
         return true;
     }
-
-    public function getMetadata(Asset $asset): array
-    {
-        if (!$asset->latestVersion) {
-            return [];
-        }
-
-        $assetStorageService = app(AssetStorageService::class);
-        $metadataFilePath = $assetStorageService->getAssetVersionPath($asset->id, $asset->latestVersion->version) . '/metadata.json';
-
-        if (Storage::disk()->exists($metadataFilePath)) {
-            $metadataContent = Storage::disk()->get($metadataFilePath);
-            return json_decode($metadataContent, true);
-        }
-
-        return [];
-    }
 }

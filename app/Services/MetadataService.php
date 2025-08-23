@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AssetVersion;
+use App\Models\Asset;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -40,6 +41,22 @@ class MetadataService
             $updatedMetadata = array_merge($metadata, $data);
             $this->store($assetVersion, $updatedMetadata);
         }
+    }
+
+    public function get(Asset $asset): array
+    {
+        if (!$asset->latestVersion) {
+            return [];
+        }
+
+        $metadataFilePath = $this->storageService->getAssetVersionPath($asset->id, $asset->latestVersion->version) . '/metadata.json';
+
+        if (Storage::disk()->exists($metadataFilePath)) {
+            $metadataContent = Storage::disk()->get($metadataFilePath);
+            return json_decode($metadataContent, true);
+        }
+
+        return [];
     }
 
     private function getMetadataFilePath(AssetVersion $assetVersion): string
