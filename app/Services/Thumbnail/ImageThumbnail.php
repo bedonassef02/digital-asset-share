@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Thumbnail;
 
 use App\Models\AssetVersion;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
-class ImageThumbnailService
+class ImageThumbnail
 {
     public function __construct(
         private ?ImageManager $imageManager = null

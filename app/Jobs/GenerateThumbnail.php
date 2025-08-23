@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Models\AssetVersion;
 use App\Services\MetadataService;
-use App\Services\ImageThumbnailService;
-use App\Services\VideoThumbnailService;
+use App\Services\Thumbnail\ImageThumbnail;
+use App\Services\Thumbnail\VideoThumbnail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -30,14 +30,14 @@ class GenerateThumbnail implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param  \App\Services\ImageThumbnailService  $thumbnailService
-     * @param  \App\Services\VideoThumbnailService  $videoThumbnailService
+     * @param  \App\Services\Thumbnail\ImageThumbnail  $thumbnailService
+     * @param  \App\Services\Thumbnail\VideoThumbnail  $videoThumbnailService
      * @param  \App\Services\MetadataService  $metadataService
      * @return void
      */
     public function handle(
-        ImageThumbnailService $thumbnailService,
-        VideoThumbnailService $videoThumbnailService,
+        ImageThumbnail $imageThumbnail,
+        VideoThumbnail $videoThumbnail,
         MetadataService $metadataService
     ): void {
         Log::info('GenerateThumbnail job started for Asset Version ID: ' . $this->assetVersion->id);
@@ -45,10 +45,10 @@ class GenerateThumbnail implements ShouldQueue
         Log::info($this->assetVersion);
         try {
             if (str_starts_with($this->assetVersion->mime_type, 'image/')) {
-                $thumbnailService->generate($this->assetVersion);
+                $imageThumbnail->generate($this->assetVersion);
             } elseif (str_starts_with($this->assetVersion->mime_type, 'video/')) {
                 Log::info("Generating video thumbnail for Asset Version ID: " . $this->assetVersion->id);
-                $videoThumbnailService->generate($this->assetVersion);
+                $videoThumbnail->generate($this->assetVersion);
             }
 
             $metadataService->update($this->assetVersion, ['has_thumbnail' => true]);

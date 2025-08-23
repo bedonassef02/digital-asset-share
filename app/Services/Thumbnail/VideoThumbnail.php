@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Thumbnail;
 
 use App\Models\AssetVersion;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use FFMpeg\FFMpeg;
 
-class VideoThumbnailService
+class VideoThumbnail
 {
     public function __construct(
         private FFMpeg $ffmpeg
