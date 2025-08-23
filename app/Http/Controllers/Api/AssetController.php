@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
+use App\Http\Resources\AssetResource;
 use App\Services\AssetService;
 use Illuminate\Http\Request;
 
@@ -21,7 +22,7 @@ class AssetController extends Controller
     {
         $perPage = $request->query('per_page', 15);
         $assets = $this->assetService->findAll(auth()->id(), $perPage);
-        return response()->json($assets);
+        return AssetResource::collection($assets);
     }
 
     /**
@@ -34,7 +35,7 @@ class AssetController extends Controller
         unset($data['file']);
         $data['user_id'] = auth()->id(); // Assign the authenticated user's ID
         $asset = $this->assetService->create($file, $data);
-        return response()->json($asset, 201);
+        return new AssetResource($asset);
     }
 
     /**
@@ -44,7 +45,7 @@ class AssetController extends Controller
     {
         $userId = auth()->id();
         $asset = $this->assetService->findOne($id, $userId);
-        return response()->json($asset);
+        return new AssetResource($asset);
     }
 
     /**
@@ -53,7 +54,7 @@ class AssetController extends Controller
     public function update(UpdateAssetRequest $request, string $id)
     {
         $asset = $this->assetService->update($id, $request->validated());
-        return response()->json($asset);
+        return new AssetResource($asset);
     }
 
     /**
