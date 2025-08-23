@@ -19,6 +19,16 @@ class AssetController extends Controller
      */
     public function index(Request $request)
     {
+        $perPage = $request->query('per_page', 15);
+        $assets = $this->assetService->findAll(auth()->id(), $perPage);
+        return response()->json($assets);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreAssetRequest $request)
+    {
         $data = $request->validated();
         $file = $data['file'];
         unset($data['file']);
