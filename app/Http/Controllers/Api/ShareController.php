@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreShareRequest;
+use App\Models\Asset;
 use App\Services\ShareService;
 use App\Http\Requests\ResolveShareRequest;
 use App\Services\ViewService;
@@ -17,7 +18,7 @@ class ShareController extends Controller
 
     public function create(StoreShareRequest $request, Asset $asset)
     {
-        $share = $this->shareService->create($asset, $request->all());
+        $share = $this->shareService->create($asset, $request->validated(), auth()->id());
 
         return response()->json($share, 201);
     }
@@ -40,7 +41,7 @@ class ShareController extends Controller
 
     public function revoke(string $token)
     {
-        $this->shareService->revoke($token);
+        $this->shareService->revoke($token, auth()->id());
 
         return response()->json(null, 204);
     }
