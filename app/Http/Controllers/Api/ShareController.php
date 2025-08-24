@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreShareRequest;
 use App\Services\ShareService;
 use App\Http\Requests\ResolveShareRequest;
 use App\Services\ViewService;
@@ -32,7 +33,7 @@ class ShareController extends Controller
     {
         $asset = $this->shareService->resolve($token, $request->input('password'));
 
-        $this->assetViewService->record(auth()->user(), $asset);
+        $this->viewService->record(auth()->user(), $asset);
 
         return response()->json($asset);
     }

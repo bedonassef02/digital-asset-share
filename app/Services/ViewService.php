@@ -4,14 +4,14 @@ namespace App\Services;
 
 use App\Models\Asset;
 use App\Models\AssetView;
-use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class ViewService
 {
-    public function record(User $user, Asset $asset): AssetView
+    public function record(Authenticatable $user, Asset $asset): AssetView
     {
         return AssetView::updateOrCreate(
-            ['user_id' => $user->id, 'asset_id' => $asset->id],
+            ['user_id' => $user->getAuthIdentifier(), 'asset_id' => $asset->id],
             ['last_seen_at' => now()]
         );
     }
@@ -21,7 +21,7 @@ class ViewService
         return $asset->views()->with('user')->get();
     }
 
-    public function getByUser(User $user)
+    public function getByUser(Authenticatable $user)
     {
         return $user->assetViews()->with('asset')->get();
     }
