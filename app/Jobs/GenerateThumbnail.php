@@ -24,7 +24,7 @@ class GenerateThumbnail implements ShouldQueue
      * @return void
      */
     public function __construct(
-        private AssetVersion $assetVersion
+        public AssetVersion $assetVersion
     ) {
         $this->assetVersion->load('asset');
     }
