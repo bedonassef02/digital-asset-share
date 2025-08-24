@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Asset;
 use App\Models\AssetVersion;
 use App\Services\ServeService;
@@ -11,6 +12,7 @@ use App\Services\StorageService;
 
 class ServeServiceTest extends TestCase
 {
+    use RefreshDatabase;
     protected ServeService $serveService;
     protected $assetServiceMock;
     protected $storageServiceMock;
