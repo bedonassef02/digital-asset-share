@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AssetVersion;
-use App\Services\AssetStorageService;
+use App\Services\PathService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,11 +20,11 @@ class TranscodeVideo implements ShouldQueue
         public AssetVersion $assetVersion
     ) {}
 
-    public function handle(AssetStorageService $assetStorageService): void
+    public function handle(PathService $pathService): void
     {
-        $originalPath = $assetStorageService->getAssetVersionPath($this->assetVersion->asset_id, $this->assetVersion->version) . '/file';
+        $originalPath = $pathService->getAssetVersionFilePath($this->assetVersion->asset_id, $this->assetVersion->version);
 
-        $transcodedPath = $assetStorageService->getAssetVersionPath($this->assetVersion->asset_id, $this->assetVersion->version) . '/file.mp4';
+        $transcodedPath = $pathService->getAssetVersionFilePath($this->assetVersion->asset_id, $this->assetVersion->version, PathService::DEFAULT_FILENAME . '.mp4');
 
         $ffmpeg = FFMpeg::create();
         $video = $ffmpeg->open(Storage::disk()->path($originalPath));

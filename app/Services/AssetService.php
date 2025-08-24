@@ -58,7 +58,7 @@ class AssetService
             array_merge($this->prepareData($file, $data), ['version' => $versionNumber])
         );
 
-        ($this->assetStorageService)($file, $asset->id, $versionNumber);
+        $this->assetStorageService->store($file, $asset->id, $versionNumber);
 
         if (str_starts_with($version->mime_type, 'image/')) {
             GenerateThumbnail::dispatch($version);

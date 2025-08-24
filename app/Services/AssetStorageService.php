@@ -7,53 +7,39 @@ use Illuminate\Support\Facades\Storage;
 
 class AssetStorageService
 {
-    private const SHARD_SIZE = 1000;
+    public function __construct(
+        private PathService $pathService
+    ) {}
 
-    public function __invoke(UploadedFile $file, int $assetId, int $version): string
+    public function store(UploadedFile $file, int $assetId, int $version): string
     {
-        $assetDirectory = $this->getAssetVersionPath($assetId, $version);
+        $assetDirectory = $this->pathService->getAssetVersionPath($assetId, $version);
         Storage::disk()->makeDirectory($assetDirectory);
 
-        return Storage::disk()->putFileAs($assetDirectory, $file, 'file');
+        return Storage::disk()->putFileAs($assetDirectory, $file, PathService::DEFAULT_FILENAME);
     }
 
     public function deleteDirectory(int $assetId): bool
     {
-        $assetDirectory = $this->getAssetPath($assetId);
+        $assetDirectory = $this->pathService->getAssetPath($assetId);
         return Storage::disk()->deleteDirectory($assetDirectory);
     }
 
     public function deleteVersion(int $assetId, int $version): bool
     {
-        $assetDirectory = $this->getAssetVersionPath($assetId, $version);
+        $assetDirectory = $this->pathService->getAssetVersionPath($assetId, $version);
         return Storage::disk()->deleteDirectory($assetDirectory);
     }
 
-    private function getShardDirectory(int $assetId): string
+    public function getAssetVersionFilePath(int $assetId, int $version): string
     {
-        $shardId = floor(($assetId - 1) / self::SHARD_SIZE);
-        return 'uploads/' . $shardId;
-    }
-
-    private function getAssetPath(int $assetId): string
-    {
-        return $this->getShardDirectory($assetId) . '/' . $assetId;
-    }
-
-    public function getAssetVersionPath(int $assetId, int $version): string
-    {
-        return $this->getAssetPath($assetId) . '/' . $version;
-    }
-
-    public function getAssetVersionFilePath(int $assetId, int $version, string $fileName = 'file'): string
-    {
-        $versionPath = $this->getAssetVersionPath($assetId, $version);
-        $transcodedPath = $versionPath . '/file.mp4';
+        $versionPath = $this->pathService->getAssetVersionPath($assetId, $version);
+        $transcodedPath = $versionPath . '/' . PathService::DEFAULT_FILENAME . '.mp4';
 
         if (Storage::disk()->exists($transcodedPath)) {
             return $transcodedPath;
         }
 
-        return $versionPath . '/' . $fileName;
+        return $this->pathService->getAssetVersionFilePath($assetId, $version);
     }
 }
