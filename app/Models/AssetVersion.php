@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AssetVersion extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'asset_id',
         'version',
@@ -13,6 +15,7 @@ class AssetVersion extends Model
         'mime_type',
         'size',
         'extension',
+        'description',
     ];
 
     public function asset()
