@@ -682,6 +682,200 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "Search Assets",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/search?query=example",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "example",
+									"description": "Search query"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shares",
+			"item": [
+				{
+					"name": "Create Share",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{
+    "asset_id": 1,
+    "expires_at": "2025-12-31 23:59:59",
+    "password": "optional_password"
+}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/assets/{{assetId}}/share",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"assets",
+								"{{assetId}}",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Shares",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/shares",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"shares"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke Share",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+								],
+								"type": "text/javascript"
+							}"
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/shares/{{shareToken}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"shares",
+								"{{shareToken}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resolve Share (Public)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/shares/{{shareToken}}?password=optional_password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"shares",
+								"{{shareToken}}"
+							],
+							"query": [
+								{
+									"key": "password",
+									"value": "optional_password",
+									"description": "Optional password for protected shares"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -726,6 +920,12 @@
 			"value": "1",
 			"type": "string",
 			"description": "Use an actual version number."
+		},
+		{
+			"key": "shareToken",
+			"value": "YOUR_SHARE_TOKEN",
+			"type": "string",
+			"description": "Use an actual share token after creating one."
 		}
 	]
 }
