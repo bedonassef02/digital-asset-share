@@ -40,6 +40,6 @@ class StorageService
             return $transcodedPath;
         }
 
-        return $this->pathService->getAssetVersionFilePath($assetId, $version);
+        return $this->pathService->getAssetVersionFilePath($assetId, $version, PathService::DEFAULT_FILENAME);
     }
 }
