@@ -36,6 +36,8 @@ class AssetService
 
             $asset->update(['latest_version_id' => $version->id]);
 
+            $asset->load('latestVersion'); // Eager load latestVersion
+
             return $asset;
         });
     }
