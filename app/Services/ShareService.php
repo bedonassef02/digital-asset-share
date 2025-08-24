@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Asset;
 use App\Models\Share;
-use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
@@ -41,9 +40,9 @@ class ShareService
         return $share->asset;
     }
 
-    public function list()
+    public function list(int $userId)
     {
-        return auth()->user()->shares;
+        return Share::where('user_id', $userId)->get();
     }
 
     public function revoke(string $token, int $userId)

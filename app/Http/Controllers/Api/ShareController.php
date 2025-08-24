@@ -25,7 +25,7 @@ class ShareController extends Controller
 
     public function list()
     {
-        $shares = $this->shareService->list();
+        $shares = $this->shareService->list(auth()->id());
 
         return response()->json($shares);
     }
