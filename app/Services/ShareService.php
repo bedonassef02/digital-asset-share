@@ -4,12 +4,13 @@ namespace App\Services;
 
 use App\Models\Asset;
 use App\Models\Share;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
 class ShareService
 {
-    public function create(Asset $asset, array $data)
+    public function create(Asset $asset, array $data, int $userId)
     {
         $token = Str::random(32);
         $password = isset($data['password']) ? Hash::make($data['password']) : null;
@@ -17,7 +18,7 @@ class ShareService
         $share = Share::create([
             'token' => $token,
             'asset_id' => $asset->id,
-            'user_id' => auth()->id(),
+            'user_id' => $userId,
             'expires_at' => isset($data['expires_at']) ? now()->parse($data['expires_at']) : null,
             'password' => $password,
         ]);
@@ -45,11 +46,11 @@ class ShareService
         return auth()->user()->shares;
     }
 
-    public function revoke(string $token)
+    public function revoke(string $token, int $userId)
     {
         $share = Share::where('token', $token)->firstOrFail();
 
-        if ($share->user_id !== auth()->id()) {
+        if ($share->user_id !== $userId) {
             abort(403, 'You are not authorized to revoke this share link.');
         }
 
