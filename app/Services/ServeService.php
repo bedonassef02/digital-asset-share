@@ -11,9 +11,9 @@ class ServeService
         private StorageService $storageService
     ) {}
 
-    public function __invoke(string $id): ?Asset
+    public function __invoke(string $id, int $userId): ?Asset
     {
-        return $this->assetService->findOne($id, auth()->id());
+        return $this->assetService->findOne($id, $userId);
     }
 
     public function getAssetPath(Asset $asset): string

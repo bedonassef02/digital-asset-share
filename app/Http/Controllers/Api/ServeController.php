@@ -17,7 +17,7 @@ class ServeController extends Controller
      */
     public function __invoke(string $id)
     {
-        $asset = ($this->serveService)($id);
+        $asset = ($this->serveService)($id, auth()->id());
 
         if (!$asset) {
             return response()->json(['message' => 'Asset not found'], 404);
