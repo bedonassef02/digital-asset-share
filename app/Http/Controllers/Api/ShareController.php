@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Asset;
 use App\Services\ShareService;
-use App\Http\Requests\StoreShareRequest;
 use App\Http\Requests\ResolveShareRequest;
-use Illuminate\Support\Facades\Auth;
+use App\Services\ViewService;
 
 class ShareController extends Controller
 {
     public function __construct(
-        private ShareService $shareService
+        private ShareService $shareService,
+        private ViewService $viewService
     ) {}
 
     public function create(StoreShareRequest $request, Asset $asset)
@@ -32,6 +31,8 @@ class ShareController extends Controller
     public function resolve(ResolveShareRequest $request, string $token)
     {
         $asset = $this->shareService->resolve($token, $request->input('password'));
+
+        $this->assetViewService->record(auth()->user(), $asset);
 
         return response()->json($asset);
     }

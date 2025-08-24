@@ -7,12 +7,14 @@ use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
 use App\Services\AssetService;
+use App\Services\ViewService;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
 {
     public function __construct(
-        private AssetService $assetService
+        private AssetService $assetService,
+        private ViewService $viewService
     ) {}
 
     /**
@@ -45,6 +47,12 @@ class AssetController extends Controller
     {
         $userId = auth()->id();
         $asset = $this->assetService->findOne($id, $userId);
+
+        // Record the asset view
+        if (auth()->check()) {
+            $this->viewService->record(auth()->user(), $asset);
+        }
+
         return new AssetResource($asset);
     }
 

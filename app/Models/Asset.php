@@ -40,4 +40,9 @@ class Asset extends Model
     {
         return $this->hasMany(Share::class);
     }
+
+    public function views(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AssetView::class);
+    }
 }
