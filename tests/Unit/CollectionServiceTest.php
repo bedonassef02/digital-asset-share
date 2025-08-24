@@ -131,7 +131,7 @@ class CollectionServiceTest extends TestCase
 
         $collections = $this->collectionService->findAll($this->user->id);
 
-        $this->assertCount(3, $collections);
+        $this->assertCount(3, $collections->items());
         $this->assertTrue($collections->every(fn ($c) => $c->user_id === $this->user->id));
     }
 
@@ -157,7 +157,7 @@ class CollectionServiceTest extends TestCase
 
         $this->assertCount(3, $collection->assets);
 
-        $this->collectionService->removeAssets($collection->id, [$assets->first()->id]);
+        $this->collectionService->removeAssets($collection->id, [$assets->first()->id], $this->user->id);
 
         $collection->refresh();
         $this->assertCount(2, $collection->assets);
@@ -171,10 +171,10 @@ class CollectionServiceTest extends TestCase
         $assets = Asset::factory()->count(3)->create(['user_id' => $this->user->id]);
         $collection->assets()->attach($assets->pluck('id'));
 
-        $retrievedAssets = $this->collectionService->getCollectionAssets($collection->id);
+        $retrievedAssets = $this->collectionService->getCollectionAssets($collection->id, 15, $this->user->id);
 
-        $this->assertCount(3, $retrievedAssets);
-        $this->assertTrue($retrievedAssets->contains($assets->first()));
+        $this->assertCount(3, $retrievedAssets->items());
+        $this->assertTrue($retrievedAssets->pluck('id')->contains($assets->first()->id));
     }
 
     /** @test */
@@ -203,7 +203,7 @@ class CollectionServiceTest extends TestCase
         Collection::factory()->count(2)->create(['user_id' => $this->user->id, 'parent_id' => $parent->id]);
         Collection::factory()->create(['user_id' => $this->user->id, 'parent_id' => null]); // Another root collection
 
-        $childCollections = $this->collectionService->getChildCollections($parent->id);
+        $childCollections = $this->collectionService->getChildCollections($parent->id, $this->user->id);
 
         $this->assertCount(2, $childCollections);
         $this->assertTrue($childCollections->every(fn ($c) => $c->parent_id === $parent->id));
