@@ -44,4 +44,16 @@ class AssetStorageService
     {
         return $this->getAssetPath($assetId) . '/' . $version;
     }
+
+    public function getAssetVersionFilePath(int $assetId, int $version, string $fileName = 'file'): string
+    {
+        $versionPath = $this->getAssetVersionPath($assetId, $version);
+        $transcodedPath = $versionPath . '/file.mp4';
+
+        if (Storage::disk()->exists($transcodedPath)) {
+            return $transcodedPath;
+        }
+
+        return $versionPath . '/' . $fileName;
+    }
 }

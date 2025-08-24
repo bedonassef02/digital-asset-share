@@ -4,11 +4,11 @@ namespace App\Services;
 
 use App\Jobs\GenerateThumbnail;
 use App\Jobs\ReplaceAssetTags;
+use App\Jobs\TranscodeVideo;
 use App\Models\Asset;
 use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class AssetService
 {
@@ -60,8 +60,11 @@ class AssetService
 
         ($this->assetStorageService)($file, $asset->id, $versionNumber);
 
-        if (str_starts_with($version->mime_type, 'image/') || str_starts_with($version->mime_type, 'video/')) {
+        if (str_starts_with($version->mime_type, 'image/')) {
             GenerateThumbnail::dispatch($version);
+        } elseif (str_starts_with($version->mime_type, 'video/')) {
+            GenerateThumbnail::dispatch($version);
+            TranscodeVideo::dispatch($version);
         }
 
         ($this->metadataService)($file, $version);

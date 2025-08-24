@@ -18,6 +18,6 @@ class ServeService
 
     public function getAssetPath(Asset $asset): string
     {
-        return $this->storageService->getAssetVersionPath($asset->id, $asset->latestVersion->version) . '/file';
+        return $this->storageService->getAssetVersionFilePath($asset->id, $asset->latestVersion->version);
     }
 }
