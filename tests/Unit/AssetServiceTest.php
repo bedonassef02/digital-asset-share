@@ -12,6 +12,10 @@ use App\Services\StorageService;
 use App\Services\MetadataService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Queue;
+use App\Jobs\GenerateThumbnail;
+use App\Jobs\TranscodeVideo;
+use App\Jobs\ReplaceAssetTags;
 
 class AssetServiceTest extends TestCase
 {
@@ -116,6 +120,8 @@ class AssetServiceTest extends TestCase
     /** @test */
     public function it_updates_an_asset_version_details()
     {
+        \Illuminate\Support\Facades\Queue::fake();
+
         $user = User::factory()->create();
         $asset = Asset::factory()->create(['user_id' => $user->id]);
         $assetVersion = AssetVersion::factory()->create(['asset_id' => $asset->id]);
@@ -123,6 +129,7 @@ class AssetServiceTest extends TestCase
         $updatedData = [
             'name' => 'Updated Name',
             'description' => 'Updated Description',
+            'tags' => ['tag1', 'tag2'],
         ];
 
         $updatedAsset = $this->assetService->update($asset->id, $updatedData);
@@ -135,6 +142,35 @@ class AssetServiceTest extends TestCase
             'name' => 'Updated Name',
             'description' => 'Updated Description',
         ]);
+
+        Queue::assertPushed(ReplaceAssetTags::class, function ($job) use ($asset) {
+            return $job->assetId === $asset->id && $job->tags === ['tag1', 'tag2'];
+        });
+    }
+
+    /** @test */
+    public function it_updates_an_asset_version_details_without_tags()
+    {
+        \Illuminate\Support\Facades\Queue::fake();
+
+        $user = User::factory()->create();
+        $asset = Asset::factory()->create(['user_id' => $user->id]);
+        $assetVersion = AssetVersion::factory()->create(['asset_id' => $asset->id]);
+
+        $updatedData = [
+            'name' => 'Updated Name Only',
+        ];
+
+        $updatedAsset = $this->assetService->update($asset->id, $updatedData);
+
+        $this->assertInstanceOf(Asset::class, $updatedAsset);
+        $this->assertEquals('Updated Name Only', $updatedAsset->latestVersion->name);
+        $this->assertDatabaseHas('asset_versions', [
+            'id' => $assetVersion->id,
+            'name' => 'Updated Name Only',
+        ]);
+
+        \Illuminate\Support\Facades\Queue::assertNotPushed(ReplaceAssetTags::class);
     }
 
     /** @test */
@@ -157,8 +193,92 @@ class AssetServiceTest extends TestCase
         // Soft delete first to ensure it's in the trash
         $this->assetService->softDelete($asset->id);
 
+        $this->storageServiceMock->expects($this->once())
+                                 ->method('deleteDirectory')
+                                 ->with($asset->id);
+
         $this->assetService->forceDelete($asset->id);
 
         $this->assertDatabaseMissing('assets', ['id' => $asset->id]);
+    }
+
+    /** @test */
+    public function it_creates_a_new_version_for_an_existing_asset()
+    {
+        $user = User::factory()->create();
+        $asset = Asset::factory()->create(['user_id' => $user->id]);
+        AssetVersion::factory()->create(['asset_id' => $asset->id, 'version' => 1]);
+
+        $file = UploadedFile::fake()->image('new_version.png');
+        $data = [
+            'name' => 'New Version Image',
+            'description' => 'Description for new version.',
+        ];
+
+        // Expect calls to mocked services and jobs
+        $this->storageServiceMock->expects($this->once())
+                                 ->method('store')
+                                 ->with($file, $asset->id, 2); // Expect version 2
+
+        $this->metadataServiceMock->expects($this->once())
+                                  ->method('__invoke')
+                                  ->with($file, $this->isInstanceOf(AssetVersion::class));
+
+        Queue::fake();
+
+        $newVersion = $this->assetService->createNewVersion($asset->id, $file, $data);
+
+        $this->assertInstanceOf(AssetVersion::class, $newVersion);
+        $this->assertEquals($asset->id, $newVersion->asset_id);
+        $this->assertEquals(2, $newVersion->version);
+        $this->assertEquals('New Version Image', $newVersion->name);
+        $this->assertEquals('Description for new version.', $newVersion->description);
+        $this->assertEquals($file->getMimeType(), $newVersion->mime_type);
+        $this->assertEquals($file->getSize(), $newVersion->size);
+        $this->assertEquals($file->extension(), $newVersion->extension);
+
+        // Assert asset's latest_version_id is updated
+        $asset->refresh();
+        $this->assertEquals($newVersion->id, $asset->latest_version_id);
+
+        // Assert jobs dispatched
+        Queue::assertPushed(GenerateThumbnail::class, function ($job) use ($newVersion) {
+            return $job->assetVersion->id === $newVersion->id;
+        });
+        Queue::assertNotPushed(TranscodeVideo::class);
+
+        $this->assertDatabaseHas('asset_versions', [
+            'asset_id' => $asset->id,
+            'version' => 2,
+            'name' => 'New Version Image',
+        ]);
+    }
+
+    /** @test */
+    public function it_dispatches_transcode_video_job_for_video_new_version()
+    {
+        $user = User::factory()->create();
+        $asset = Asset::factory()->create(['user_id' => $user->id]);
+        AssetVersion::factory()->create(['asset_id' => $asset->id, 'version' => 1]);
+
+        $file = UploadedFile::fake()->create('video.mp4', 100, 'video/mp4');
+        $data = ['name' => 'Video Asset'];
+
+        Queue::fake();
+
+        $this->assetService->createNewVersion($asset->id, $file, $data);
+
+        Queue::assertPushed(GenerateThumbnail::class);
+        Queue::assertPushed(TranscodeVideo::class);
+    }
+
+    /** @test */
+    public function it_handles_asset_not_found_when_creating_new_version()
+    {
+        $file = UploadedFile::fake()->image('test.jpg');
+        $data = ['name' => 'Test Image'];
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->assetService->createNewVersion(999, $file, $data);
     }
 }

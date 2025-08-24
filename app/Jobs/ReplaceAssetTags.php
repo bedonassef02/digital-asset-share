@@ -17,8 +17,8 @@ class ReplaceAssetTags implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        private int $assetId,
-        private array $tags
+        public int $assetId,
+        public array $tags
     ) {}
 
     /**
