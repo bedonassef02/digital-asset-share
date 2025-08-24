@@ -69,6 +69,15 @@ class AuthServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_fails_login_with_non_existent_email()
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Invalid credentials');
+
+        $this->authService->login('nonexistent@example.com', 'password');
+    }
+
+    /** @test */
     public function it_logs_out_a_user()
     {
         $user = User::factory()->create();
