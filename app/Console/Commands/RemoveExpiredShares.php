@@ -24,15 +24,26 @@ class RemoveExpiredShares extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
-    {
-        $expiredShares = Share::whereNotNull('expires_at')
+    public function handle(
+        \App\Services\NotificationService $notificationService
+    ) {
+        $expiredShares = Share::with('user', 'asset.latestVersion')
+            ->whereNotNull('expires_at')
             ->where('expires_at', '<=', now())
             ->get();
 
         $count = $expiredShares->count();
 
         if ($count > 0) {
+            foreach ($expiredShares as $share) {
+                $notificationService->createNotification(
+                    $share->user_id,
+                    'info',
+                    'Your shared link for "' . ($share->asset->latestVersion->name ?? '[Asset Name]') . '" has expired and been removed.',
+                    $share->asset
+                );
+            }
+
             Share::whereNotNull('expires_at')
                 ->where('expires_at', '<=', now())
                 ->delete();
