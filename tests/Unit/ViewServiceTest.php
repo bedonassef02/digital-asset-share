@@ -75,6 +75,17 @@ class ViewServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_returns_empty_collection_when_no_views_for_asset()
+    {
+        $asset = Asset::factory()->create();
+
+        $views = $this->viewService->getForAsset($asset);
+
+        $this->assertEmpty($views);
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $views);
+    }
+
+    /** @test */
     public function it_retrieves_views_by_user()
     {
         $user = User::factory()->create();
@@ -93,5 +104,16 @@ class ViewServiceTest extends TestCase
         $this->assertTrue($views->contains(function ($view) use ($asset2) {
             return $view->asset_id === $asset2->id;
         }));
+    }
+
+    /** @test */
+    public function it_returns_empty_collection_when_no_views_for_user()
+    {
+        $user = User::factory()->create();
+
+        $views = $this->viewService->getByUser($user);
+
+        $this->assertEmpty($views);
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $views);
     }
 }
