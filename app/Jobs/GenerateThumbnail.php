@@ -25,7 +25,9 @@ class GenerateThumbnail implements ShouldQueue
      */
     public function __construct(
         private AssetVersion $assetVersion
-    ) {}
+    ) {
+        $this->assetVersion->load('asset');
+    }
 
     /**
      * Execute the job.
@@ -38,7 +40,8 @@ class GenerateThumbnail implements ShouldQueue
     public function handle(
         ImageThumbnail $imageThumbnail,
         VideoThumbnail $videoThumbnail,
-        MetadataService $metadataService
+        MetadataService $metadataService,
+        \App\Services\NotificationService $notificationService
     ): void {
         Log::info('GenerateThumbnail job started for Asset Version ID: ' . $this->assetVersion->id);
 
@@ -53,8 +56,22 @@ class GenerateThumbnail implements ShouldQueue
 
             $metadataService->update($this->assetVersion, ['has_thumbnail' => true]);
             Log::info('Successfully generated thumbnail for Asset Version ID: ' . $this->assetVersion->id);
+
+            $notificationService->create(
+                $this->assetVersion->asset->user_id,
+                'success',
+                'Thumbnail generated successfully for ' . $this->assetVersion->name,
+                $this->assetVersion
+            );
         } catch (\Exception $e) {
             Log::error('Error generating thumbnail for Asset Version ID: ' . $this->assetVersion->id . ': ' . $e->getMessage());
+
+            $notificationService->create(
+                $this->assetVersion->asset->user_id,
+                'error',
+                'Failed to generate thumbnail for ' . $this->assetVersion->name . ': ' . $e->getMessage(),
+                $this->assetVersion
+            );
         }
 
         Log::info('GenerateThumbnail job finished for Asset Version ID: ' . $this->assetVersion->id);
