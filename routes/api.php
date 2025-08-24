@@ -38,4 +38,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/shares', [App\Http\Controllers\Api\ShareController::class, 'list']);
     Route::get('/shares/{token}', [App\Http\Controllers\Api\ShareController::class, 'resolve']);
     Route::delete('/shares/{token}', [App\Http\Controllers\Api\ShareController::class, 'revoke']);
+
+    // Collection routes
+    Route::apiResource('/collections', App\Http\Controllers\Api\CollectionController::class);
+    Route::post('/collections/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'addAssets']);
+    Route::delete('/collections/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'removeAssets']);
+    Route::get('/collections/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'getCollectionAssets']);
+    Route::get('/collections/root', [App\Http\Controllers\Api\CollectionController::class, 'getRootCollections']);
+    Route::get('/collections/{parentId}/children', [App\Http\Controllers\Api\CollectionController::class, 'getChildCollections']);
 });
