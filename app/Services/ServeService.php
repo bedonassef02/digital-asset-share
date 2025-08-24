@@ -8,7 +8,7 @@ class ServeService
 {
     public function __construct(
         private AssetService $assetService,
-        private AssetStorageService $storageService
+        private StorageService $storageService
     ) {}
 
     public function __invoke(string $id): ?Asset

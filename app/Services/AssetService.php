@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class AssetService
 {
     public function __construct(
-        private AssetStorageService $assetStorageService,
+        private StorageService $storageService,
         private MetadataService $metadataService
     ) { }
 
@@ -58,7 +58,7 @@ class AssetService
             array_merge($this->prepareData($file, $data), ['version' => $versionNumber])
         );
 
-        $this->assetStorageService->store($file, $asset->id, $versionNumber);
+        $this->storageService->store($file, $asset->id, $versionNumber);
 
         if (str_starts_with($version->mime_type, 'image/')) {
             GenerateThumbnail::dispatch($version);
@@ -107,7 +107,7 @@ class AssetService
     {
         $asset = Asset::withTrashed()->findOrFail($id);
 
-        $this->assetStorageService->deleteDirectory($id);
+        $this->storageService->deleteDirectory($id);
 
         $asset->forceDelete();
         return true;

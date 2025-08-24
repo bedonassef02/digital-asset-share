@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-class AssetStorageService
+class StorageService
 {
     public function __construct(
         private PathService $pathService
