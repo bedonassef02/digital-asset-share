@@ -24,12 +24,18 @@ class AssetServiceTest extends TestCase
     protected AssetService $assetService;
     protected $storageServiceMock;
     protected $metadataServiceMock;
+    protected $pathServiceMock;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->storageServiceMock = $this->createMock(StorageService::class);
         $this->metadataServiceMock = $this->createMock(MetadataService::class);
+        $this->pathServiceMock = $this->createMock(\App\Services\PathService::class);
+
+        // Bind the mocked PathService to the container
+        $this->app->instance(PathService::class, $this->pathServiceMock);
+
         $this->assetService = new AssetService($this->storageServiceMock, $this->metadataServiceMock);
         Storage::fake('local'); // Mock the storage disk
     }
@@ -53,6 +59,17 @@ class AssetServiceTest extends TestCase
         $this->metadataServiceMock->expects($this->once())
                                   ->method('__invoke')
                                   ->with($file, $this->isInstanceOf(AssetVersion::class));
+
+        // Mock PathService and Storage facade for ImageThumbnail
+        $mockFilePath = 'uploads/1/1/file'; // Example path
+        $this->pathServiceMock->expects($this->any())
+                               ->method('getAssetVersionFilePath')
+                               ->willReturn($mockFilePath);
+
+        Storage::shouldReceive('disk')->andReturnSelf();
+        Storage::shouldReceive('get')
+               ->with($mockFilePath)
+               ->andReturn('dummy image content'); // Provide dummy content for the image
 
         $asset = $this->assetService->create($file, $data);
 
