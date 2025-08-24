@@ -46,4 +46,9 @@ class Asset extends Model
     {
         return $this->hasMany(AssetView::class);
     }
+
+    public function collections(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class);
+    }
 }
