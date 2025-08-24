@@ -69,7 +69,7 @@ class CollectionServiceTest extends TestCase
             'description' => 'Updated description.',
         ];
 
-        $updatedCollection = $this->collectionService->update($collection->id, $updatedData);
+        $updatedCollection = $this->collectionService->update($collection->id, $updatedData, $this->user->id);
 
         $this->assertInstanceOf(Collection::class, $updatedCollection);
         $this->assertEquals('Updated Collection Name', $updatedCollection->name);
@@ -84,7 +84,7 @@ class CollectionServiceTest extends TestCase
     public function it_throws_exception_when_updating_non_existent_collection()
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-        $this->collectionService->update(999, ['name' => 'Non Existent']);
+        $this->collectionService->update(999, ['name' => 'Non Existent'], $this->user->id);
     }
 
     /** @test */
@@ -92,7 +92,7 @@ class CollectionServiceTest extends TestCase
     {
         $collection = Collection::factory()->create(['user_id' => $this->user->id]);
 
-        $result = $this->collectionService->delete($collection->id);
+        $result = $this->collectionService->delete($collection->id, $this->user->id);
 
         $this->assertTrue($result);
         $this->assertDatabaseMissing('collections', ['id' => $collection->id]);
@@ -102,7 +102,7 @@ class CollectionServiceTest extends TestCase
     public function it_throws_exception_when_deleting_non_existent_collection()
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-        $this->collectionService->delete(999);
+        $this->collectionService->delete(999, $this->user->id);
     }
 
     /** @test */
@@ -110,7 +110,7 @@ class CollectionServiceTest extends TestCase
     {
         $collection = Collection::factory()->create(['user_id' => $this->user->id]);
 
-        $foundCollection = $this->collectionService->find($collection->id);
+        $foundCollection = $this->collectionService->find($collection->id, $this->user->id);
 
         $this->assertInstanceOf(Collection::class, $foundCollection);
         $this->assertEquals($collection->id, $foundCollection->id);
@@ -120,7 +120,7 @@ class CollectionServiceTest extends TestCase
     public function it_throws_exception_when_finding_non_existent_collection()
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-        $this->collectionService->find(999);
+        $this->collectionService->find(999, $this->user->id);
     }
 
     /** @test */
@@ -141,7 +141,7 @@ class CollectionServiceTest extends TestCase
         $collection = Collection::factory()->create(['user_id' => $this->user->id]);
         $assets = Asset::factory()->count(2)->create(['user_id' => $this->user->id]);
 
-        $this->collectionService->addAssets($collection->id, $assets->pluck('id')->toArray());
+        $this->collectionService->addAssets($collection->id, $assets->pluck('id')->toArray(), $this->user->id);
 
         $this->assertCount(2, $collection->assets);
         $this->assertTrue($collection->assets->contains($assets->first()));

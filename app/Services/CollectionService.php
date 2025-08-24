@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Collection;
 use App\Models\Asset;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class CollectionService
 {
@@ -13,22 +12,22 @@ class CollectionService
         return Collection::create($data);
     }
 
-    public function update(int $id, array $data): Collection
+    public function update(int $id, array $data, int $userId): Collection
     {
-        $collection = Collection::findOrFail($id);
+        $collection = Collection::where('id', $id)->where('user_id', $userId)->firstOrFail();
         $collection->update($data);
         return $collection;
     }
 
-    public function delete(int $id): bool
+    public function delete(int $id, int $userId): bool
     {
-        $collection = Collection::findOrFail($id);
+        $collection = Collection::where('id', $id)->where('user_id', $userId)->firstOrFail();
         return $collection->delete();
     }
 
-    public function find(int $id): Collection
+    public function find(int $id, int $userId): Collection
     {
-        return Collection::findOrFail($id);
+        return Collection::where('id', $id)->where('user_id', $userId)->firstOrFail();
     }
 
     public function findAll(int $userId, int $perPage = 15)
@@ -36,23 +35,37 @@ class CollectionService
         return Collection::where('user_id', $userId)->paginate($perPage);
     }
 
-    public function addAssets(int $collectionId, array $assetIds): Collection
+    public function addAssets(int $collectionId, array $assetIds, int $userId): Collection
     {
-        $collection = Collection::findOrFail($collectionId);
+        $collection = Collection::where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
+
+        // Verify that all assets belong to the user
+        $userAssetsCount = Asset::whereIn('id', $assetIds)->where('user_id', $userId)->count();
+        if ($userAssetsCount !== count($assetIds)) {
+            throw new \Exception('One or more assets do not belong to the authenticated user.');
+        }
+
         $collection->assets()->syncWithoutDetaching($assetIds);
         return $collection;
     }
 
-    public function removeAssets(int $collectionId, array $assetIds): Collection
+    public function removeAssets(int $collectionId, array $assetIds, int $userId): Collection
     {
-        $collection = Collection::findOrFail($collectionId);
+        $collection = Collection::where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
+
+        // Verify that all assets belong to the user
+        $userAssetsCount = Asset::whereIn('id', $assetIds)->where('user_id', $userId)->count();
+        if ($userAssetsCount !== count($assetIds)) {
+            throw new \Exception('One or more assets do not belong to the authenticated user.');
+        }
+
         $collection->assets()->detach($assetIds);
         return $collection;
     }
 
-    public function getCollectionAssets(int $collectionId, int $perPage = 15)
+    public function getCollectionAssets(int $collectionId, int $perPage = 15, int $userId)
     {
-        $collection = Collection::with('assets.latestVersion')->findOrFail($collectionId);
+        $collection = Collection::with('assets.latestVersion')->where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
         return $collection->assets()->paginate($perPage);
     }
 
@@ -61,8 +74,11 @@ class CollectionService
         return Collection::where('user_id', $userId)->whereNull('parent_id')->get();
     }
 
-    public function getChildCollections(int $parentId)
+    public function getChildCollections(int $parentId, int $userId)
     {
-        return Collection::where('parent_id', $parentId)->get();
+        // Ensure the parent collection belongs to the user
+        Collection::where('id', $parentId)->where('user_id', $userId)->firstOrFail();
+
+        return Collection::where('parent_id', $parentId)->where('user_id', $userId)->get();
     }
 }

@@ -49,13 +49,13 @@ class CollectionController extends Controller
             'parent_id' => 'nullable|exists:collections,id',
         ]);
 
-        $collection = $this->collectionService->update($id, $request->all());
+        $collection = $this->collectionService->update($id, $request->all(), auth()->id());
         return response()->json($collection);
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $this->collectionService->delete($id);
+        $this->collectionService->delete($id, auth()->id());
         return response()->json(null, 204);
     }
 
@@ -66,7 +66,7 @@ class CollectionController extends Controller
             'asset_ids.*' => 'exists:assets,id',
         ]);
 
-        $collection = $this->collectionService->addAssets($id, $request->input('asset_ids'));
+        $collection = $this->collectionService->addAssets($id, $request->input('asset_ids'), auth()->id());
         return response()->json($collection);
     }
 
@@ -77,14 +77,14 @@ class CollectionController extends Controller
             'asset_ids.*' => 'exists:assets,id',
         ]);
 
-        $collection = $this->collectionService->removeAssets($id, $request->input('asset_ids'));
+        $collection = $this->collectionService->removeAssets($id, $request->input('asset_ids'), auth()->id());
         return response()->json($collection);
     }
 
     public function getCollectionAssets(Request $request, int $id): JsonResponse
     {
         $perPage = $request->query('per_page', 15);
-        $assets = $this->collectionService->getCollectionAssets($id, $perPage);
+        $assets = $this->collectionService->getCollectionAssets($id, $perPage, auth()->id());
         return response()->json($assets);
     }
 
@@ -97,7 +97,7 @@ class CollectionController extends Controller
 
     public function getChildCollections(Request $request, int $parentId): JsonResponse
     {
-        $collections = $this->collectionService->getChildCollections($parentId);
+        $collections = $this->collectionService->getChildCollections($parentId, auth()->id());
         return response()->json($collections);
     }
 }
