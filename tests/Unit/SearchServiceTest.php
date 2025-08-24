@@ -53,6 +53,23 @@ class SearchServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_returns_no_results_for_non_matching_query()
+    {
+        $user = User::factory()->create();
+        $asset1 = Asset::factory()->create(['user_id' => $user->id]);
+
+        AssetVersion::factory()->create([
+            'asset_id' => $asset1->id,
+            'name' => 'Document A',
+            'description' => 'This is a test document.',
+        ]);
+
+        $results = $this->searchService->search('nonexistent', $user->id);
+
+        $this->assertCount(0, $results);
+    }
+
+    /** @test */
     public function it_searches_assets_by_tags()
     {
         $user = User::factory()->create();
@@ -102,5 +119,26 @@ class SearchServiceTest extends TestCase
 
         $this->assertCount(1, $results);
         $this->assertEquals('User1 Doc', $results->first()->name);
+    }
+
+    /** @test */
+    public function it_returns_all_assets_for_empty_query()
+    {
+        $user = User::factory()->create();
+        $asset1 = Asset::factory()->create(['user_id' => $user->id]);
+        $asset2 = Asset::factory()->create(['user_id' => $user->id]);
+
+        AssetVersion::factory()->create([
+            'asset_id' => $asset1->id,
+            'name' => 'Doc 1',
+        ]);
+        AssetVersion::factory()->create([
+            'asset_id' => $asset2->id,
+            'name' => 'Doc 2',
+        ]);
+
+        $results = $this->searchService->search('', $user->id);
+
+        $this->assertCount(2, $results);
     }
 }
