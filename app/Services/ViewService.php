@@ -16,12 +16,12 @@ class ViewService
         );
     }
 
-    public function getFor(Model $viewable)
+    public function getFor(Model $viewable): \Illuminate\Database\Eloquent\Collection
     {
         return $viewable->views()->with('user')->get();
     }
 
-    public function getByUser(Authenticatable $user)
+    public function getByUser(Authenticatable $user): \Illuminate\Database\Eloquent\Collection
     {
         return AssetView::where('user_id', $user->getAuthIdentifier())->with('viewable')->get();
     }

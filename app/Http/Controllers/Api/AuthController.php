@@ -15,9 +15,9 @@ class AuthController extends Controller
         private AuthService $authService
     ) {}
 
-    public function register(StoreUserRequest $request) // Use StoreUserRequest
+    public function register(StoreUserRequest $request): \Illuminate\Http\JsonResponse
     {
-        $result = $this->authService->register($request->validated()); // Use validated()
+        $result = $this->authService->register($request->validated());
 
         return response()->json([
             'message' => 'User registered successfully',
@@ -26,10 +26,10 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(LoginRequest $request) // Use LoginRequest
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $result = $this->authService->login(...$request->validated()); // Use validated()
+            $result = $this->authService->login(...$request->validated());
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -44,7 +44,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
@@ -53,7 +53,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function user(Request $request)
+    public function user(Request $request): \Illuminate\Http\JsonResponse
     {
         return response()->json($request->user());
     }

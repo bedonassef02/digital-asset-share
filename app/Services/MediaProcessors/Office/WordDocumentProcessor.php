@@ -19,7 +19,7 @@ class WordDocumentProcessor extends AbstractOfficeProcessor
         ]);
     }
 
-    protected function getDocumentProperties(UploadedFile $file)
+    protected function getDocumentProperties(UploadedFile $file): \PhpOffice\PhpWord\DocInfo
     {
         return IOFactory::load($file->getRealPath())->getDocInfo();
     }

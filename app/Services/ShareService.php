@@ -32,7 +32,7 @@ class ShareService
         return $share;
     }
 
-    public function resolve(string $token, ?string $password = null)
+    public function resolve(string $token, ?string $password = null): \Illuminate\Database\Eloquent\Model
     {
         $share = Share::where('token', $token)->firstOrFail();
 
@@ -49,12 +49,12 @@ class ShareService
         return $share->shareable;
     }
 
-    public function list(int $userId)
+    public function list(int $userId): \Illuminate\Database\Eloquent\Collection
     {
         return Share::where('user_id', $userId)->get();
     }
 
-    public function revoke(string $token, int $userId)
+    public function revoke(string $token, int $userId): bool
     {
         $share = Share::where('token', $token)->firstOrFail();
 

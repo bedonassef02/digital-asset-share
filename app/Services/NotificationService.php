@@ -27,7 +27,7 @@ class NotificationService
         $notification->update(['read_at' => now()]);
     }
 
-    public function getUnread(int $userId)
+    public function getUnread(int $userId): \Illuminate\Database\Eloquent\Collection
     {
         return Notification::where('user_id', $userId)
             ->whereNull('read_at')
@@ -35,7 +35,7 @@ class NotificationService
             ->get();
     }
 
-    public function getAll(int $userId)
+    public function getAll(int $userId): \Illuminate\Database\Eloquent\Collection
     {
         return Notification::where('user_id', $userId)
             ->latest()

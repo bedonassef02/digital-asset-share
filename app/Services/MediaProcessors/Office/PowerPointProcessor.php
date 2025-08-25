@@ -17,7 +17,7 @@ class PowerPointProcessor extends AbstractOfficeProcessor
         ]);
     }
 
-    protected function getDocumentProperties(UploadedFile $file)
+    protected function getDocumentProperties(UploadedFile $file): \PhpOffice\PhpPresentation\DocumentProperties
     {
         return IOFactory::load($file->getRealPath())->getDocumentProperties();
     }

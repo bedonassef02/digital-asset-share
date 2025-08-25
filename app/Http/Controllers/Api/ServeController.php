@@ -14,10 +14,7 @@ class ServeController extends Controller
         private DownloadService $downloadService
     ) {}
 
-    /**
-     * Serve the specified asset file.
-     */
-    public function __invoke(string $id)
+    public function __invoke(string $id): \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         $asset = ($this->serveService)($id, auth()->id());
 

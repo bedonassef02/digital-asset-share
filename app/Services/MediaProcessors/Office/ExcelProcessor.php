@@ -17,7 +17,7 @@ class ExcelProcessor extends AbstractOfficeProcessor
         ]);
     }
 
-    protected function getDocumentProperties(UploadedFile $file)
+    protected function getDocumentProperties(UploadedFile $file): \PhpOffice\PhpSpreadsheet\DocumentProperties
     {
         return IOFactory::load($file->getRealPath())->getProperties();
     }

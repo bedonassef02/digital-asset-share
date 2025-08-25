@@ -20,19 +20,11 @@ class DownloadService
         ]);
     }
 
-    public function getFor(Model $downloadable)
+    public function getFor(Model $downloadable): \Illuminate\Database\Eloquent\Collection
     {
         return $downloadable->downloads()->with('user')->get();
     }
 
-    /**
-     * Creates a zip archive of multiple assets and/or assets from collections.
-     *
-     * @param array $assetIds
-     * @param array $collectionIds
-     * @return string Path to the created zip file.
-     * @throws \Exception
-     */
     public function createBulkDownloadZip(array $assetIds = [], array $collectionIds = []): string
     {
         $assetsToZip = $this->collectAssets($assetIds, $collectionIds);
@@ -111,14 +103,6 @@ class DownloadService
         return $finalZipPath;
     }
 
-    /**
-     * Recursively collects assets from a collection and its children.
-     *
-     * @param \App\Models\Collection $collection
-     * @param array $assetsToZip
-     * @param string $currentPath
-     * @return void
-     */
     private function getAssetsForCollections(\App\Models\Collection $collection, array &$assetsToZip, string $currentPath = '')
     {
         // Add assets directly in this collection

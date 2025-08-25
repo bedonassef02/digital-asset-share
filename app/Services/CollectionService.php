@@ -30,7 +30,7 @@ class CollectionService
         return Collection::where('id', $id)->where('user_id', $userId)->firstOrFail();
     }
 
-    public function findAll(int $userId, int $perPage = 15)
+    public function findAll(int $userId, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return Collection::where('user_id', $userId)->paginate($perPage);
     }
@@ -61,7 +61,7 @@ class CollectionService
         }
     }
 
-    public function getCollectionAssets(int $collectionId, int $userId, int $perPage = 15)
+    public function getCollectionAssets(int $collectionId, int $userId, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $collection = Collection::with(['assets' => function($query) {
             $query->whereNull('deleted_at')->with('latestVersion');
@@ -70,12 +70,12 @@ class CollectionService
         return $collection->assets()->paginate($perPage);
     }
 
-    public function getRootCollections(int $userId)
+    public function getRootCollections(int $userId): \Illuminate\Database\Eloquent\Collection
     {
         return Collection::where('user_id', $userId)->whereNull('parent_id')->get();
     }
 
-    public function getChildCollections(int $parentId, int $userId)
+    public function getChildCollections(int $parentId, int $userId): \Illuminate\Database\Eloquent\Collection
     {
         // Ensure the parent collection belongs to the user
         Collection::where('id', $parentId)->where('user_id', $userId)->firstOrFail();

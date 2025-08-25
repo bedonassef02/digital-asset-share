@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreShareRequest;
 use App\Models\Asset;
 use App\Models\Collection;
-use App\Services\DownloadService;
 use App\Services\ShareService;
 use App\Http\Requests\ResolveShareRequest;
 
@@ -35,7 +34,7 @@ class ShareController extends Controller
         return response()->json($shares);
     }
 
-    public function resolve(ResolveShareRequest $request, string $token)
+    public function resolve(ResolveShareRequest $request, string $token): \Illuminate\Http\JsonResponse
     {
         $shareable = $this->shareService->resolve($token, $request->input('password'));
 

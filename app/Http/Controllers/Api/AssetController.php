@@ -20,20 +20,14 @@ class AssetController extends Controller
         private TagService $tagService
     ) {}
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $perPage = $request->query('per_page', 15);
         $assets = $this->assetService->findAll(auth()->id(), $perPage);
         return AssetResource::collection($assets);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAssetRequest $request)
+    public function store(StoreAssetRequest $request): AssetResource
     {
         $data = $request->validated();
         $file = $data['file'];
@@ -43,29 +37,20 @@ class AssetController extends Controller
         return new AssetResource($asset);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): AssetResource
     {
         $asset = $this->assetService->findOne($id, auth()->id());
 
         return new AssetResource($asset);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAssetRequest $request, string $id)
+    public function update(UpdateAssetRequest $request, string $id): AssetResource
     {
         $asset = $this->assetService->update($id, $request->validated(), auth()->id());
         return new AssetResource($asset);
     }
 
-    /**
-     * Remove the specified resource from storage (soft or hard delete).
-     */
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, string $id): \Illuminate\Http\JsonResponse
     {
         $this->assetService->delete($id, auth()->id(), $request->query('force', false));
         return response()->json(null, 204);

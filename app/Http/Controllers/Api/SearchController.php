@@ -12,7 +12,7 @@ class SearchController extends Controller
         private SearchService $searchService
     ) {}
 
-    public function search(SearchAssetsRequest $request)
+    public function search(SearchAssetsRequest $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
 

@@ -7,9 +7,6 @@ use getID3; // Import the getID3 class
 
 class AudioProcessor implements MediaProcessorInterface
 {
-    /**
-     * Determine if the processor can handle the given file.
-     */
     public function canProcess(UploadedFile $file): bool
     {
         return in_array($file->getMimeType(), [
@@ -21,12 +18,6 @@ class AudioProcessor implements MediaProcessorInterface
         ]);
     }
 
-    /**
-     * Process the audio file and extract metadata.
-     *
-     * @param UploadedFile $file The uploaded audio file.
-     * @param array $metadata A reference to the metadata array to populate.
-     */
     public function process(UploadedFile $file, array &$metadata): void
     {
         $getID3 = new getID3();

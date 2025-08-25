@@ -19,7 +19,7 @@ class AssetService
         private ViewService $viewService
     ) { }
 
-    public function findAll(int $userId, int $perPage = 15, bool $includeTrashed = false, bool $onlyTrashed = false)
+    public function findAll(int $userId, int $perPage = 15, bool $includeTrashed = false, bool $onlyTrashed = false): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = Asset::with('latestVersion')
             ->where('user_id', $userId);
@@ -35,7 +35,7 @@ class AssetService
         return $query->paginate($perPage);
     }
 
-    public function findOne(int $id, int $userId)
+    public function findOne(int $id, int $userId): Asset
     {
         $asset = Asset::withTrashed()->with('latestVersion')->where('user_id', $userId)->findOrFail($id);
 
