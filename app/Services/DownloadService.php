@@ -63,7 +63,7 @@ class DownloadService
 
         $zip = new ZipArchive();
         if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            throw new \Exception('Cannot create zip file: ' . $zipFilePath);
+            throw new ZipCreationException('Cannot create zip file: ' . $zipFilePath);
         }
 
         $addedFiles = []; // To track files already added to the zip to handle duplicates

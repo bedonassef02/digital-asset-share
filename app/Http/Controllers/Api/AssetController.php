@@ -124,8 +124,12 @@ class AssetController extends Controller
             $zipFilePath = $this->downloadService->createBulkDownloadZip($assetIds, $collectionIds);
 
             return response()->download($zipFilePath)->deleteFileAfterSend(true);
+        } catch (ZipCreationException $e) {
+            Log::error('Bulk download zip creation failed: ' . $e->getMessage());
+            return response()->json(['message' => 'Could not create download package. Please try again later.'], 500);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error creating bulk download: ' . $e->getMessage()], 500);
+            Log::critical('An unexpected error occurred during bulk download: ' . $e->getMessage());
+            return response()->json(['message' => 'An unexpected error occurred.'], 500);
         }
     }
 }
