@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/assets/{id}/status', [AssetController::class, 'changeStatus']);
     Route::post('/assets/{id}/restore', [AssetController::class, 'restore']);
+    Route::post('/assets/bulk-download', [AssetController::class, 'bulkDownload']);
 
     Route::get('/assets/{assetId}/versions', [AssetVersionController::class, 'index']);
     Route::get('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'show']);

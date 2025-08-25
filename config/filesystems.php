@@ -60,6 +60,17 @@ return [
             'report' => false,
         ],
 
+        'temp' => [
+            'driver' => 'local',
+            'root' => storage_path('app/temp'),
+            'throw' => false,
+        ],
+        'assets' => [
+            'driver' => 'local',
+            'root' => storage_path('app/assets'), // Assuming assets are stored here
+            'throw' => false,
+        ],
+
     ],
 
     /*

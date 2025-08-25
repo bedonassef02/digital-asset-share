@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkDeleteAssetsRequest;
+use App\Http\Requests\BulkDownloadAssetsRequest;
 use App\Http\Requests\BulkTagAssetsRequest;
 use App\Http\Requests\ChangeAssetStatusRequest;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
 use App\Services\AssetService;
+use App\Services\DownloadService;
 use App\Services\TagService;
 use App\Services\ViewService;
 use Illuminate\Http\Request;
@@ -19,7 +21,8 @@ class AssetController extends Controller
     public function __construct(
         private AssetService $assetService,
         private ViewService $viewService,
-        private TagService $tagService
+        private TagService $tagService,
+        private DownloadService $downloadService
     ) {}
 
     /**
@@ -109,5 +112,20 @@ class AssetController extends Controller
     {
         $this->assetService->restore($id);
         return response()->json(null, 204);
+    }
+
+    public function bulkDownload(BulkDownloadAssetsRequest $request)
+    {
+        $validated = $request->validated();
+        $assetIds = $validated['asset_ids'] ?? [];
+        $collectionIds = $validated['collection_ids'] ?? [];
+
+        try {
+            $zipFilePath = $this->downloadService->createBulkDownloadZip($assetIds, $collectionIds);
+
+            return response()->download($zipFilePath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error creating bulk download: ' . $e->getMessage()], 500);
+        }
     }
 }
