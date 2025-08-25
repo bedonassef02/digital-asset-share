@@ -1,931 +1,1650 @@
 {
-	"info": {
-		"_postman_id": "YOUR_UNIQUE_POSTMAN_COLLECTION_ID",
-		"name": "Digital Asset Share API",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_collection_link": "https://www.postman.com/collections/YOUR_UNIQUE_POSTMAN_COLLECTION_ID"
-	},
-	"item": [
-		{
-			"name": "Utility",
-			"item": [
-				{
-					"name": "Test API",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/test",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"test"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Authentication",
-			"item": [
-				{
-					"name": "Register User",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Login User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"pm.environment.set(\"authToken\", jsonData.access_token);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Authenticated User",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/user",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout User",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.environment.unset(\"authToken\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Assets",
-			"item": [
-				{
-					"name": "Get All Assets",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/assets",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Asset",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/path/to/your/file.jpg"
-								},
-								{
-									"key": "name",
-									"value": "My New Asset",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "A description for my new asset.",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/assets",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Asset",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Asset",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Updated Asset Name\",\n    \"description\": \"Updated description for the asset.\",\n    \"tags\": [\"tag1\", \"tag2\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Asset",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Tags",
-			"item": [
-				{
-					"name": "Add Tag to Asset",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"tag\": \"new_tag\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}/tags",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}",
-								"tags"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Remove Tag from Asset",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"tag\": \"new_tag\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}/tags",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}",
-								"tags"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Asset Versions",
-			"item": [
-				{
-					"name": "Get All Asset Versions",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}/versions",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}",
-								"versions"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Specific Asset Version",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}/versions/{{versionNumber}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}",
-								"versions",
-								"{{versionNumber}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create New Asset Version",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/path/to/your/new_file.jpg"
-								},
-								{
-									"key": "name",
-									"value": "Updated Asset Name",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "Description for the new version.",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}/versions",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}",
-								"versions"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Specific Asset Version",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}/versions/{{versionNumber}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}",
-								"versions",
-								"{{versionNumber}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Serve",
-			"item": [
-				{
-					"name": "Serve Asset by ID",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/serve/{{assetId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"serve",
-								"{{assetId}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Search",
-			"item": [
-				{
-					"name": "Search Assets",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/search?query=example",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"search"
-							],
-							"query": [
-								{
-									"key": "query",
-									"value": "example",
-									"description": "Search query"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Shares",
-			"item": [
-				{
-					"name": "Create Share",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{
-    "asset_id": 1,
-    "expires_at": "2025-12-31 23:59:59",
-    "password": "optional_password"
-}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/assets/{{assetId}}/share",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"assets",
-								"{{assetId}}",
-								"share"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List Shares",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/shares",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"shares"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Revoke Share",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
-								],
-								"type": "text/javascript"
-							}"
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/shares/{{shareToken}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"shares",
-								"{{shareToken}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Resolve Share (Public)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/shares/{{shareToken}}?password=optional_password",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"shares",
-								"{{shareToken}}"
-							],
-							"query": [
-								{
-									"key": "password",
-									"value": "optional_password",
-									"description": "Optional password for protected shares"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:8000/api",
-			"type": "string"
-		},
-		{
-			"key": "authToken",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "assetId",
-			"value": "1",
-			"type": "string",
-			"description": "Use an actual asset ID after creating one."
-		},
-		{
-			"key": "versionNumber",
-			"value": "1",
-			"type": "string",
-			"description": "Use an actual version number."
-		},
-		{
-			"key": "shareToken",
-			"value": "YOUR_SHARE_TOKEN",
-			"type": "string",
-			"description": "Use an actual share token after creating one."
-		}
-	]
+  "info": {
+    "_postman_id": "YOUR_UNIQUE_POSTMAN_COLLECTION_ID",
+    "name": "Digital Asset Share API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_collection_link": "https://www.postman.com/collections/YOUR_UNIQUE_POSTMAN_COLLECTION_ID"
+  },
+  "item": [
+    {
+      "name": "Utility",
+      "item": [
+        {
+          "name": "Test API",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "test"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"authToken\", jsonData.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Authenticated User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.unset(\"authToken\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Assets",
+      "item": [
+        {
+          "name": "Get All Assets",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/assets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Asset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/your/file.jpg"
+                },
+                {
+                  "key": "name",
+                  "value": "My New Asset",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "A description for my new asset.",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Asset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Asset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Asset Name\",\n    \"description\": \"Updated description for the asset.\",\n    \"tags\": [\"tag1\", \"tag2\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Asset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Delete Assets",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"asset_ids\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Tag Assets",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"asset_ids\": [1, 2],\n    \"tags\": [\"new_tag_1\", \"new_tag_2\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "tags"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Asset Status",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"archived\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Asset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/restore",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "restore"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "Add Tag to Asset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tag\": \"new_tag\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "tags"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Tag from Asset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tag\": \"new_tag\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "tags"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Asset Versions",
+      "item": [
+        {
+          "name": "Get All Asset Versions",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/versions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "versions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Specific Asset Version",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/versions/{{versionNumber}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "versions",
+                "{{versionNumber}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Asset Version",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/your/new_file.jpg"
+                },
+                {
+                  "key": "name",
+                  "value": "Updated Asset Name",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Description for the new version.",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/versions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "versions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Specific Asset Version",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/versions/{{versionNumber}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "versions",
+                "{{versionNumber}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Downloads",
+      "item": [
+        {
+          "name": "Bulk Download Assets",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"asset_ids\": [1, 2],\n    \"collection_ids\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/bulk-download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "bulk-download"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Serve",
+      "item": [
+        {
+          "name": "Serve Asset by ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/serve/{{assetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "serve",
+                "{{assetId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Search Assets",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/search?q=example&mime_type=image/jpeg&min_size=1024&max_size=1048576&start_date=2024-01-01&end_date=2024-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "example",
+                  "description": "Search query",
+                  "disabled": false
+                },
+                {
+                  "key": "mime_type",
+                  "value": "image/jpeg",
+                  "description": "Optional: Filter by MIME type",
+                  "disabled": true
+                },
+                {
+                  "key": "min_size",
+                  "value": "1024",
+                  "description": "Optional: Filter by minimum size in bytes",
+                  "disabled": true
+                },
+                {
+                  "key": "max_size",
+                  "value": "1048576",
+                  "description": "Optional: Filter by maximum size in bytes",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01",
+                  "description": "Optional: Filter by creation start date (YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-12-31",
+                  "description": "Optional: Filter by creation end date (YYYY-MM-DD)",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shares",
+      "item": [
+        {
+          "name": "Create Asset Share",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"expires_at\": \"2025-12-31 23:59:59\",\n    \"password\": \"optional_password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assets/{{assetId}}/share",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assets",
+                "{{assetId}}",
+                "share"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Collection Share",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"expires_at\": \"2025-12-31 23:59:59\",\n    \"password\": \"optional_password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{collectionId}}/share",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{collectionId}}",
+                "share"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Shares",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resolve Share (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}?password=optional_password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}"
+              ],
+              "query": [
+                {
+                  "key": "password",
+                  "value": "optional_password",
+                  "description": "Optional password for protected shares"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Revoke Share",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Share Stats",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Collections",
+      "item": [
+        {
+          "name": "Get All Collections",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/collections?per_page=15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Number of items per page",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Collection",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"My New Collection\",\n    \"description\": \"A description for my new collection.\",\n    \"parent_id\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collections",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Collection",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{collectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{collectionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Collection",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Collection Name\",\n    \"description\": \"Updated description for the collection.\",\n    \"parent_id\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{collectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{collectionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Collection",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{collectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{collectionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Assets to Collection",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"asset_ids\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{collectionId}}/assets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{collectionId}}",
+                "assets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Assets from Collection",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"asset_ids\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{collectionId}}/assets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{collectionId}}",
+                "assets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Assets in Collection",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{collectionId}}/assets?per_page=15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{collectionId}}",
+                "assets"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Number of items per page",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Root Collections",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/collections/root",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "root"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Child Collections",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + pm.environment.get('authToken') });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/collections/{{parentId}}/children",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collections",
+                "{{parentId}}",
+                "children"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "assetId",
+      "value": "1",
+      "type": "string",
+      "description": "Use an actual asset ID after creating one."
+    },
+    {
+      "key": "versionNumber",
+      "value": "1",
+      "type": "string",
+      "description": "Use an actual version number."
+    },
+    {
+      "key": "shareToken",
+      "value": "YOUR_SHARE_TOKEN",
+      "type": "string",
+      "description": "Use an actual share token after creating one."
+    },
+    {
+      "key": "collectionId",
+      "value": "1",
+      "type": "string",
+      "description": "Use an actual collection ID after creating one."
+    },
+    {
+      "key": "parentId",
+      "value": "1",
+      "type": "string",
+      "description": "Use an actual parent collection ID."
+    }
+  ]
 }
