@@ -19,15 +19,10 @@ class CollectionController extends Controller
         return response()->json($collections);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreCollectionRequest $request): JsonResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:collections,id',
-        ]);
 
-        $data = $request->all();
+        $data = $request->validated();
         $data['user_id'] = auth()->id();
 
         $collection = $this->collectionService->create($data);
@@ -41,15 +36,10 @@ class CollectionController extends Controller
         return response()->json($collection);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateCollectionRequest $request, int $id): JsonResponse
     {
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:collections,id',
-        ]);
 
-        $collection = $this->collectionService->update($id, $request->all(), auth()->id());
+        $collection = $this->collectionService->update($id, $request->validated(), auth()->id());
         return response()->json($collection);
     }
 
