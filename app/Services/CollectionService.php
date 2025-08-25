@@ -37,13 +37,8 @@ class CollectionService
 
     public function addAssets(int $collectionId, array $assetIds, int $userId): Collection
     {
-        $collection = Collection::where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
-
-        // Verify that all assets belong to the user
-        $userAssetsCount = Asset::whereIn('id', $assetIds)->where('user_id', $userId)->count();
-        if ($userAssetsCount !== count($assetIds)) {
-            throw new \Exception('One or more assets do not belong to the authenticated user.');
-        }
+        $collection = $this->find($collectionId, $userId);
+        $this->verifyAssetsBelongToUser($assetIds, $userId);
 
         $collection->assets()->syncWithoutDetaching($assetIds);
         return $collection;
@@ -51,16 +46,19 @@ class CollectionService
 
     public function removeAssets(int $collectionId, array $assetIds, int $userId): Collection
     {
-        $collection = Collection::where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
+        $collection = $this->find($collectionId, $userId);
+        $this->verifyAssetsBelongToUser($assetIds, $userId);
 
-        // Verify that all assets belong to the user
+        $collection->assets()->detach($assetIds);
+        return $collection;
+    }
+
+    private function verifyAssetsBelongToUser(array $assetIds, int $userId): void
+    {
         $userAssetsCount = Asset::whereIn('id', $assetIds)->where('user_id', $userId)->count();
         if ($userAssetsCount !== count($assetIds)) {
             throw new \Exception('One or more assets do not belong to the authenticated user.');
         }
-
-        $collection->assets()->detach($assetIds);
-        return $collection;
     }
 
     public function getCollectionAssets(int $collectionId, int $perPage = 15, int $userId)
