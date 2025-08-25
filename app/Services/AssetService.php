@@ -50,15 +50,16 @@ class AssetService
 
     public function create(UploadedFile $file, array $data = []): Asset
     {
-        $existingAsset = $this->findExistingAssetByHash($file, $data['user_id']);
+        $fileHash = $this->fileHashService->calculateFileHash($file);
+        $existingAsset = $this->findExistingAssetByHash($fileHash, $data['user_id']);
 
         if ($existingAsset) {
             return $existingAsset;
         }
 
-        return DB::transaction(function () use ($file, $data) {
+        return DB::transaction(function () use ($file, $data, $fileHash) {
             $asset = Asset::create(['user_id' => $data['user_id']]);
-            $version = $this->findOrCreateVersion($asset, $file, $data);
+            $version = $this->findOrCreateVersion($asset, $file, $data, $fileHash);
             $asset->update(['latest_version_id' => $version->id]);
             $asset->load('latestVersion');
 
@@ -66,19 +67,17 @@ class AssetService
         });
     }
 
-    private function findAssetVersionByHash(UploadedFile $file, int $userId): ?AssetVersion
+    private function findAssetVersionByHash(string $fileHash, int $userId): ?AssetVersion
     {
-        $fileHash = $this->fileHashService->calculateFileHash($file);
-
         return AssetVersion::where('file_hash', $fileHash)
             ->whereHas('asset', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })->first();
     }
 
-    private function findExistingAssetByHash(UploadedFile $file, int $userId): ?Asset
+    private function findExistingAssetByHash(string $fileHash, int $userId): ?Asset
     {
-        $existingVersion = $this->findAssetVersionByHash($file, $userId);
+        $existingVersion = $this->findAssetVersionByHash($fileHash, $userId);
 
         return $existingVersion?->asset;
     }
@@ -87,21 +86,20 @@ class AssetService
     {
         return DB::transaction(function () use ($assetId, $file, $data, $userId) {
             $asset = Asset::where('user_id', $userId)->findOrFail($assetId);
-            $version = $this->findOrCreateVersion($asset, $file, $data);
+            $fileHash = $this->fileHashService->calculateFileHash($file);
+            $version = $this->findOrCreateVersion($asset, $file, $data, $fileHash);
             $asset->update(['latest_version_id' => $version->id]);
 
             return $version;
         });
     }
 
-    private function findOrCreateVersion(Asset $asset, UploadedFile $file, array $data): AssetVersion
+    private function findOrCreateVersion(Asset $asset, UploadedFile $file, array $data, string $fileHash): AssetVersion
     {
-        $existingVersion = $this->findAssetVersionByHash($file, $asset->user_id);
+        $existingVersion = $this->findAssetVersionByHash($fileHash, $asset->user_id);
         if ($existingVersion) {
             return $existingVersion;
         }
-
-        $fileHash = $this->fileHashService->calculateFileHash($file);
 
         return $this->createVersion($asset, $file, $data, $fileHash);
     }
