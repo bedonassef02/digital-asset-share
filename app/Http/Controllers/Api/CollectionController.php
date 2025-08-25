@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCollectionRequest;
+use App\Http\Requests\UpdateCollectionRequest;
+use App\Http\Requests\UpdateCollectionAssetsRequest;
 use App\Services\CollectionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -49,24 +52,14 @@ class CollectionController extends Controller
         return response()->json(null, 204);
     }
 
-    public function addAssets(Request $request, int $id): JsonResponse
+    public function addAssets(UpdateCollectionAssetsRequest $request, int $id): JsonResponse
     {
-        $request->validate([
-            'asset_ids' => 'required|array',
-            'asset_ids.*' => 'exists:assets,id',
-        ]);
-
         $collection = $this->collectionService->addAssets($id, $request->input('asset_ids'), auth()->id());
         return response()->json($collection);
     }
 
-    public function removeAssets(Request $request, int $id): JsonResponse
+    public function removeAssets(UpdateCollectionAssetsRequest $request, int $id): JsonResponse
     {
-        $request->validate([
-            'asset_ids' => 'required|array',
-            'asset_ids.*' => 'exists:assets,id',
-        ]);
-
         $collection = $this->collectionService->removeAssets($id, $request->input('asset_ids'), auth()->id());
         return response()->json($collection);
     }
