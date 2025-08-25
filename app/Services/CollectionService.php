@@ -63,7 +63,10 @@ class CollectionService
 
     public function getCollectionAssets(int $collectionId, int $perPage = 15, int $userId)
     {
-        $collection = Collection::with('assets.latestVersion')->where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
+        $collection = Collection::with(['assets' => function($query) {
+            $query->whereNull('deleted_at')->with('latestVersion');
+        }])->where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
+
         return $collection->assets()->paginate($perPage);
     }
 
