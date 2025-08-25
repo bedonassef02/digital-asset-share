@@ -36,14 +36,11 @@ class AssetService
         return $query->paginate($perPage);
     }
 
-    public function findOne(int $id, int $userId)
+    public function findOne(int $id, int $userId, User $user)
     {
         $asset = Asset::withTrashed()->with('latestVersion')->where('user_id', $userId)->findOrFail($id);
 
-        $user = auth()->user();
-        if ($user) {
-            $this->viewService->record($user, $asset);
-        }
+        $this->viewService->record($user, $asset);
 
         return $asset;
     }

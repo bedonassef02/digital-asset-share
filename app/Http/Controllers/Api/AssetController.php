@@ -53,13 +53,9 @@ class AssetController extends Controller
      */
     public function show(string $id)
     {
+        $userId = auth()->id();
         $user = auth()->user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
-        }
-
-        $userId = $user->id;
-        $asset = $this->assetService->findOne($id, $userId);
+        $asset = $this->assetService->findOne($id, $userId, $user);
 
         return new AssetResource($asset);
     }
