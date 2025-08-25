@@ -48,29 +48,10 @@ class AssetService
     public function create(UploadedFile $file, array $data = []): Asset
     {
         return DB::transaction(function () use ($file, $data) {
-            $fileHash = $this->fileHashService->calculateFileHash($file);
-
-            $existingVersion = AssetVersion::where('file_hash', $fileHash)
-                ->whereHas('asset', function ($query) use ($data) {
-                    $query->where('user_id', $data['user_id']);
-                })
-                ->first();
-
-            if ($existingVersion) {
-                $asset = Asset::create(['user_id' => $data['user_id']]);
-                $asset->update(['latest_version_id' => $existingVersion->id]);
-                $asset->load('latestVersion');
-                return $asset;
-            }
-
             $asset = Asset::create(['user_id' => $data['user_id']]);
-
-            $version = $this->createVersion($asset, $file, $data, $fileHash);
-
+            $version = $this->findOrCreateVersion($asset, $file, $data);
             $asset->update(['latest_version_id' => $version->id]);
-
-            $asset->load('latestVersion'); // Eager load latestVersion
-
+            $asset->load('latestVersion');
             return $asset;
         });
     }
@@ -79,23 +60,27 @@ class AssetService
     {
         return DB::transaction(function () use ($assetId, $file, $data) {
             $asset = Asset::findOrFail($assetId);
-            $fileHash = $this->fileHashService->calculateFileHash($file);
-
-            $existingVersion = AssetVersion::where('file_hash', $fileHash)
-                ->whereHas('asset', function ($query) use ($asset) {
-                    $query->where('user_id', $asset->user_id);
-                })
-                ->first();
-
-            if ($existingVersion) {
-                $asset->update(['latest_version_id' => $existingVersion->id]);
-                return $existingVersion;
-            }
-
-            $version = $this->createVersion($asset, $file, $data, $fileHash);
+            $version = $this->findOrCreateVersion($asset, $file, $data);
             $asset->update(['latest_version_id' => $version->id]);
             return $version;
         });
+    }
+
+    private function findOrCreateVersion(Asset $asset, UploadedFile $file, array $data): AssetVersion
+    {
+        $fileHash = $this->fileHashService->calculateFileHash($file);
+
+        $existingVersion = AssetVersion::where('file_hash', $fileHash)
+            ->whereHas('asset', function ($query) use ($asset) {
+                $query->where('user_id', $asset->user_id);
+            })
+            ->first();
+
+        if ($existingVersion) {
+            return $existingVersion;
+        }
+
+        return $this->createVersion($asset, $file, $data, $fileHash);
     }
 
     private function createVersion(Asset $asset, UploadedFile $file, array $data, string $fileHash): AssetVersion
@@ -111,16 +96,21 @@ class AssetService
 
         $this->storageService->store($file, $asset->id, $versionNumber);
 
+        $this->dispatchMediaJobs($version);
+
+        ($this->metadataService)($file, $version);
+
+        return $version;
+    }
+
+    private function dispatchMediaJobs(AssetVersion $version): void
+    {
         if (str_starts_with($version->mime_type, 'image/')) {
             GenerateThumbnail::dispatch($version);
         } elseif (str_starts_with($version->mime_type, 'video/')) {
             GenerateThumbnail::dispatch($version);
             TranscodeVideo::dispatch($version);
         }
-
-        ($this->metadataService)($file, $version);
-
-        return $version;
     }
 
     private function prepareData(UploadedFile $file, array $data): array
@@ -182,14 +172,5 @@ class AssetService
     public function bulkSoftDelete(array $assetIds): void
     {
         Asset::destroy($assetIds); // Uses SoftDeletes trait
-    }
-
-    public function delete(int $id, bool $force = false): bool
-    {
-        if ($force) {
-            return $this->forceDelete($id);
-        }
-
-        return $this->softDelete($id);
     }
 }
