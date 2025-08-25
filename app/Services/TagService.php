@@ -10,11 +10,7 @@ class TagService
     public function replaceAll(int $assetId, array $tags): void
     {
         $asset = Asset::findOrFail($assetId);
-        $tagIds = [];
-        foreach ($tags as $tagName) {
-            $tag = Tag::firstOrCreate(['name' => $tagName]);
-            $tagIds[] = $tag->id;
-        }
+        $tagIds = $this->getTagIds($tags);
         $asset->tags()->sync($tagIds);
     }
 
@@ -35,11 +31,7 @@ class TagService
 
     public function bulkTag(array $assetIds, array $tags): void
     {
-        $tagIds = [];
-        foreach ($tags as $tagName) {
-            $tag = Tag::firstOrCreate(['name' => $tagName]);
-            $tagIds[] = $tag->id;
-        }
+        $tagIds = $this->getTagIds($tags);
 
         foreach ($assetIds as $assetId) {
             $asset = Asset::find($assetId);
@@ -47,5 +39,15 @@ class TagService
                 $asset->tags()->syncWithoutDetaching($tagIds);
             }
         }
+    }
+
+    private function getTagIds(array $tags): array
+    {
+        $tagIds = [];
+        foreach ($tags as $tagName) {
+            $tag = Tag::firstOrCreate(['name' => $tagName]);
+            $tagIds[] = $tag->id;
+        }
+        return $tagIds;
     }
 }
