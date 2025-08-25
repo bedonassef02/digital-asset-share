@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreShareRequest;
 use App\Models\Asset;
+use App\Models\Collection;
 use App\Services\ShareService;
 use App\Http\Requests\ResolveShareRequest;
 use App\Services\ViewService;
@@ -16,9 +17,18 @@ class ShareController extends Controller
         private ViewService $viewService
     ) {}
 
-    public function create(StoreShareRequest $request, Asset $asset)
+    public function shareAsset(StoreShareRequest $request, Asset $asset)
     {
+        $this->authorize('share', $asset);
         $share = $this->shareService->create($asset, $request->validated(), auth()->id());
+
+        return response()->json($share, 201);
+    }
+
+    public function shareCollection(StoreShareRequest $request, Collection $collection)
+    {
+        $this->authorize('share', $collection);
+        $share = $this->shareService->create($collection, $request->validated(), auth()->id());
 
         return response()->json($share, 201);
     }
@@ -32,11 +42,13 @@ class ShareController extends Controller
 
     public function resolve(ResolveShareRequest $request, string $token)
     {
-        $asset = $this->shareService->resolve($token, $request->input('password'));
+        $shareable = $this->shareService->resolve($token, $request->input('password'));
 
-        $this->viewService->record(auth()->user(), $asset);
+        if ($shareable instanceof Asset) {
+            $this->viewService->record(auth()->user(), $shareable);
+        }
 
-        return response()->json($asset);
+        return response()->json($shareable);
     }
 
     public function revoke(string $token)
