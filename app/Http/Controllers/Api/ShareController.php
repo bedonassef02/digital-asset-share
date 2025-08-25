@@ -21,17 +21,18 @@ class ShareController extends Controller
 
     public function shareAsset(StoreShareRequest $request, Asset $asset)
     {
-        $this->authorize('share', $asset);
-        $share = $this->shareService->create($asset, $request->validated(), auth()->id());
-
-        return response()->json($share, 201);
+        return $this->createShare($request, $asset);
     }
 
     public function shareCollection(StoreShareRequest $request, Collection $collection)
     {
-        $this->authorize('share', $collection);
-        $share = $this->shareService->create($collection, $request->validated(), auth()->id());
+        return $this->createShare($request, $collection);
+    }
 
+    private function createShare(StoreShareRequest $request, Model $shareable)
+    {
+        $this->authorize('share', $shareable);
+        $share = $this->shareService->create($shareable, $request->validated(), auth()->id());
         return response()->json($share, 201);
     }
 
