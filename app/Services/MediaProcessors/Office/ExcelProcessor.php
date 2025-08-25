@@ -1,16 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors\Office;
 
 use Illuminate\Http\UploadedFile;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ExcelProcessor extends AbstractOfficeProcessor
 {
     public function canProcess(UploadedFile $file): bool
     {
         $mimeType = $file->getMimeType();
+
         return in_array($mimeType, [
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'application/vnd.ms-excel',
@@ -31,7 +34,7 @@ class ExcelProcessor extends AbstractOfficeProcessor
             $metadata['sheet_count'] = $spreadsheet->getSheetCount();
 
         } catch (\Exception $e) {
-            Log::error('Failed to process XLSX specific properties: ' . $e->getMessage());
+            Log::error('Failed to process XLSX specific properties: '.$e->getMessage());
         }
     }
 }

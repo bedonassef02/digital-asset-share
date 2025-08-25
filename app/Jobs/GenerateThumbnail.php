@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\AssetVersion;
@@ -20,7 +22,6 @@ class GenerateThumbnail implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  \App\Models\AssetVersion  $assetVersion
      * @return void
      */
     public function __construct(
@@ -34,8 +35,6 @@ class GenerateThumbnail implements ShouldQueue
      *
      * @param  \App\Services\Thumbnail\ImageThumbnail  $thumbnailService
      * @param  \App\Services\Thumbnail\VideoThumbnail  $videoThumbnailService
-     * @param  \App\Services\MetadataService  $metadataService
-     * @return void
      */
     public function handle(
         ImageThumbnail $imageThumbnail,
@@ -43,37 +42,37 @@ class GenerateThumbnail implements ShouldQueue
         MetadataService $metadataService,
         \App\Services\NotificationService $notificationService
     ): void {
-        Log::info('GenerateThumbnail job started for Asset Version ID: ' . $this->assetVersion->id);
+        Log::info('GenerateThumbnail job started for Asset Version ID: '.$this->assetVersion->id);
 
         Log::info($this->assetVersion);
         try {
             if (str_starts_with($this->assetVersion->mime_type, 'image/')) {
                 $imageThumbnail->generate($this->assetVersion);
             } elseif (str_starts_with($this->assetVersion->mime_type, 'video/')) {
-                Log::info("Generating video thumbnail for Asset Version ID: " . $this->assetVersion->id);
+                Log::info('Generating video thumbnail for Asset Version ID: '.$this->assetVersion->id);
                 $videoThumbnail->generate($this->assetVersion);
             }
 
             $metadataService->update($this->assetVersion, ['has_thumbnail' => true]);
-            Log::info('Successfully generated thumbnail for Asset Version ID: ' . $this->assetVersion->id);
+            Log::info('Successfully generated thumbnail for Asset Version ID: '.$this->assetVersion->id);
 
             $notificationService->create(
                 $this->assetVersion->asset->user_id,
                 'success',
-                'Thumbnail generated successfully for ' . $this->assetVersion->name,
+                'Thumbnail generated successfully for '.$this->assetVersion->name,
                 $this->assetVersion
             );
         } catch (\Exception $e) {
-            Log::error('Error generating thumbnail for Asset Version ID: ' . $this->assetVersion->id . ': ' . $e->getMessage());
+            Log::error('Error generating thumbnail for Asset Version ID: '.$this->assetVersion->id.': '.$e->getMessage());
 
             $notificationService->create(
                 $this->assetVersion->asset->user_id,
                 'error',
-                'Failed to generate thumbnail for ' . $this->assetVersion->name . ': ' . $e->getMessage(),
+                'Failed to generate thumbnail for '.$this->assetVersion->name.': '.$e->getMessage(),
                 $this->assetVersion
             );
         }
 
-        Log::info('GenerateThumbnail job finished for Asset Version ID: ' . $this->assetVersion->id);
+        Log::info('GenerateThumbnail job finished for Asset Version ID: '.$this->assetVersion->id);
     }
 }

@@ -2,13 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use App\Models\Asset;
 use App\Models\Share;
+use App\Models\User;
 use App\Services\ShareService;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ShareServiceTest extends TestCase
 {
@@ -19,7 +18,7 @@ class ShareServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->shareService = new ShareService();
+        $this->shareService = new ShareService;
     }
 
     /** @test */

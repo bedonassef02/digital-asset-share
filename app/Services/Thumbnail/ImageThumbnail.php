@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Thumbnail;
 
 use App\Models\AssetVersion;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 use App\Services\PathService;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class ImageThumbnail
 {
@@ -14,7 +16,7 @@ class ImageThumbnail
         private PathService $pathService,
         private ?ImageManager $imageManager = null
     ) {
-        $this->imageManager ??= new ImageManager(new Driver());
+        $this->imageManager ??= new ImageManager(new Driver);
     }
 
     public function generate(AssetVersion $assetVersion): ?string
@@ -30,7 +32,7 @@ class ImageThumbnail
         $image->cover(150, 150);
 
         $assetDirectory = $this->pathService->getAssetVersionPath($assetId, $version);
-        $thumbnailPath = $assetDirectory . '/thumbnail';
+        $thumbnailPath = $assetDirectory.'/thumbnail';
 
         Storage::disk()->put($thumbnailPath, $image->encode());
 

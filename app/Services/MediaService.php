@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
-use Illuminate\Http\UploadedFile;
 use App\Services\MediaProcessors\MediaProcessorInterface;
+use Illuminate\Http\UploadedFile;
 
 class MediaService
 {
@@ -22,6 +24,7 @@ class MediaService
         foreach ($this->processors as $processor) {
             if ($processor->canProcess($file)) {
                 $processor->process($file, $metadata);
+
                 return;
             }
         }

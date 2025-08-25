@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors\Office;
 
+use App\Services\MediaProcessors\MediaProcessorInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
-use App\Services\MediaProcessors\MediaProcessorInterface;
 
 abstract class AbstractOfficeProcessor implements MediaProcessorInterface
 {
@@ -12,7 +14,6 @@ abstract class AbstractOfficeProcessor implements MediaProcessorInterface
      * Abstract method to get the document properties object from the file.
      * Each concrete processor will implement this based on its specific library.
      *
-     * @param UploadedFile $file
      * @return mixed The document properties object (e.g., PhpWord\DocInfo, PhpSpreadsheet\DocumentProperties)
      */
     abstract protected function getDocumentProperties(UploadedFile $file);
@@ -33,7 +34,7 @@ abstract class AbstractOfficeProcessor implements MediaProcessorInterface
             $metadata['modified_at'] = $properties->getModified();
 
         } catch (\Exception $e) {
-            Log::error('Failed to process Office file: ' . $e->getMessage());
+            Log::error('Failed to process Office file: '.$e->getMessage());
         }
     }
 }

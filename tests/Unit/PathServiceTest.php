@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Services\PathService;
+use Tests\TestCase;
 
 class PathServiceTest extends TestCase
 {
@@ -12,7 +12,7 @@ class PathServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->pathService = new PathService();
+        $this->pathService = new PathService;
     }
 
     /** @test */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
@@ -7,5 +9,6 @@ use Illuminate\Http\UploadedFile;
 interface MediaProcessorInterface
 {
     public function canProcess(UploadedFile $file): bool;
+
     public function process(UploadedFile $file, array &$metadata): void;
 }

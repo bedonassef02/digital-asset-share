@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Share;
-use App\Models\Asset;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

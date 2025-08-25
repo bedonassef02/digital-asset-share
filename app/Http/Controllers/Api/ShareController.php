@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ResolveShareRequest;
 use App\Http\Requests\StoreShareRequest;
 use App\Models\Asset;
 use App\Models\Collection;
 use App\Services\ShareService;
-use App\Http\Requests\ResolveShareRequest;
 
 class ShareController extends Controller
 {
@@ -18,12 +20,14 @@ class ShareController extends Controller
     public function shareAsset(StoreShareRequest $request, Asset $asset): \Illuminate\Http\JsonResponse
     {
         $share = $this->shareService->create($asset, $request->validated(), auth()->id());
+
         return response()->json($share, 201);
     }
 
     public function shareCollection(StoreShareRequest $request, Collection $collection): \Illuminate\Http\JsonResponse
     {
         $share = $this->shareService->create($collection, $request->validated(), auth()->id());
+
         return response()->json($share, 201);
     }
 

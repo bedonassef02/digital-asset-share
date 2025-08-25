@@ -2,24 +2,25 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
-use App\Models\Collection;
 use App\Models\Asset;
+use App\Models\Collection;
+use App\Models\User;
 use App\Services\CollectionService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CollectionServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected CollectionService $collectionService;
+
     protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->collectionService = new CollectionService();
+        $this->collectionService = new CollectionService;
         $this->user = User::factory()->create();
     }
 

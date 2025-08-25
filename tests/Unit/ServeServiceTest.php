@@ -2,19 +2,22 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Asset;
 use App\Models\AssetVersion;
-use App\Services\ServeService;
 use App\Services\AssetService;
+use App\Services\ServeService;
 use App\Services\StorageService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ServeServiceTest extends TestCase
 {
     use RefreshDatabase;
+
     protected ServeService $serveService;
+
     protected $assetServiceMock;
+
     protected $storageServiceMock;
 
     protected function setUp(): void
@@ -33,9 +36,9 @@ class ServeServiceTest extends TestCase
         $mockAsset = $this->createMock(Asset::class);
 
         $this->assetServiceMock->expects($this->once())
-                               ->method('findOne')
-                               ->with($assetId, $userId)
-                               ->willReturn($mockAsset);
+            ->method('findOne')
+            ->with($assetId, $userId)
+            ->willReturn($mockAsset);
 
         $result = ($this->serveService)($assetId, $userId);
 
@@ -52,9 +55,9 @@ class ServeServiceTest extends TestCase
         $expectedPath = 'path/to/asset/version/file';
 
         $this->storageServiceMock->expects($this->once())
-                                 ->method('getAssetVersionFilePath')
-                                 ->with($asset->id, $assetVersion->version, 'file') // 'file' is the default filename
-                                 ->willReturn($expectedPath);
+            ->method('getAssetVersionFilePath')
+            ->with($asset->id, $assetVersion->version, 'file') // 'file' is the default filename
+            ->willReturn($expectedPath);
 
         $result = $this->serveService->getAssetPath($asset);
 

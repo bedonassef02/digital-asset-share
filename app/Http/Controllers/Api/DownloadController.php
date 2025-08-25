@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\ZipCreationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkDownloadAssetsRequest;
 use App\Services\DownloadService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Illuminate\Http\JsonResponse;
 
 class DownloadController extends Controller
 {
@@ -27,10 +29,12 @@ class DownloadController extends Controller
 
             return response()->download($zipFilePath)->deleteFileAfterSend(true);
         } catch (ZipCreationException $e) {
-            Log::error('Bulk download zip creation failed: ' . $e->getMessage());
+            Log::error('Bulk download zip creation failed: '.$e->getMessage());
+
             return response()->json(['message' => 'Could not create download package. Please try again later.'], 500);
         } catch (\Exception $e) {
-            Log::critical('An unexpected error occurred during bulk download: ' . $e->getMessage());
+            Log::critical('An unexpected error occurred during bulk download: '.$e->getMessage());
+
             return response()->json(['message' => 'An unexpected error occurred.'], 500);
         }
     }

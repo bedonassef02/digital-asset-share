@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exceptions;
 
-use Exception;
-
-class ZipCreationException extends Exception
+class ZipCreationException extends \Exception
 {
     //
 }

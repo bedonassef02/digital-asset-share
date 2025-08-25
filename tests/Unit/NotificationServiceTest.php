@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
-use App\Models\Notification;
 use App\Models\Asset;
+use App\Models\Notification;
+use App\Models\User;
 use App\Services\NotificationService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
 {
@@ -18,7 +18,7 @@ class NotificationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->notificationService = new NotificationService();
+        $this->notificationService = new NotificationService;
     }
 
     /** @test */
@@ -128,7 +128,7 @@ class NotificationServiceTest extends TestCase
         // This test is no longer directly applicable as markAsRead now takes a Notification model.
         // The service method itself will throw an error if the model is not found before it's passed.
         // However, we can test that passing a non-existent notification object (e.g., a mock that doesn't exist in DB) doesn't cause issues.
-        $nonExistentNotification = new Notification();
+        $nonExistentNotification = new Notification;
         $nonExistentNotification->id = 999; // Simulate a non-existent ID
 
         // Expect no database changes or exceptions from the service method itself

@@ -2,18 +2,17 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Asset;
 use App\Models\AssetVersion;
-use App\Services\MetadataService;
 use App\Services\MediaService;
+use App\Services\MetadataService;
 use App\Services\StorageService;
+use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Mockery;
-use App\Services\MediaProcessors\MediaProcessorInterface;
+use Tests\TestCase;
 
 class MockMediaServiceForMetadataTest extends MediaService
 {
@@ -35,14 +34,17 @@ class MetadataServiceTest extends TestCase
     use RefreshDatabase;
 
     protected MetadataService $metadataService;
+
     protected $mediaServiceMock;
+
     protected $storageServiceMock;
+
     protected $mockDisk;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mediaServiceMock = new MockMediaServiceForMetadataTest();
+        $this->mediaServiceMock = new MockMediaServiceForMetadataTest;
         $this->storageServiceMock = $this->createMock(StorageService::class);
 
         // Mock the Storage facade and its disk method
@@ -71,13 +73,13 @@ class MetadataServiceTest extends TestCase
 
         // Mock the store method to prevent actual file system interaction during __invoke test
         $metadataService = $this->getMockBuilder(MetadataService::class)
-                                      ->setConstructorArgs([$this->mediaServiceMock, $this->storageServiceMock])
-                                      ->onlyMethods(['store'])
-                                      ->getMock();
+            ->setConstructorArgs([$this->mediaServiceMock, $this->storageServiceMock])
+            ->onlyMethods(['store'])
+            ->getMock();
 
         $metadataService->expects($this->once())
-                              ->method('store')
-                              ->with($assetVersion, $expectedMetadataForStore);
+            ->method('store')
+            ->with($assetVersion, $expectedMetadataForStore);
 
         ($metadataService)($file, $assetVersion);
     }
@@ -90,9 +92,9 @@ class MetadataServiceTest extends TestCase
         $expectedPath = "assets/{$assetVersion->asset_id}/{$assetVersion->version}/metadata.json";
 
         $this->storageServiceMock->expects($this->once())
-                                 ->method('getAssetVersionFilePath')
-                                 ->with($assetVersion->asset_id, $assetVersion->version, 'metadata.json')
-                                 ->willReturn($expectedPath);
+            ->method('getAssetVersionFilePath')
+            ->with($assetVersion->asset_id, $assetVersion->version, 'metadata.json')
+            ->willReturn($expectedPath);
 
         // The mockDisk is already set up in setUp to return true for put
         // No need to mock Storage::disk() or Storage::put() here again
@@ -112,29 +114,29 @@ class MetadataServiceTest extends TestCase
         $expectedPath = "assets/{$assetVersion->asset_id}/{$assetVersion->version}/metadata.json";
 
         $this->storageServiceMock->expects($this->once())
-                                 ->method('getAssetVersionFilePath')
-                                 ->with($assetVersion->asset_id, $assetVersion->version, 'metadata.json')
-                                 ->willReturn($expectedPath);
+            ->method('getAssetVersionFilePath')
+            ->with($assetVersion->asset_id, $assetVersion->version, 'metadata.json')
+            ->willReturn($expectedPath);
 
         $this->mockDisk->shouldReceive('exists')
-                        ->once()
-                        ->with($expectedPath)
-                        ->andReturn(true);
+            ->once()
+            ->with($expectedPath)
+            ->andReturn(true);
 
         $this->mockDisk->shouldReceive('get')
-                        ->once()
-                        ->with($expectedPath)
-                        ->andReturn(json_encode($originalMetadata));
+            ->once()
+            ->with($expectedPath)
+            ->andReturn(json_encode($originalMetadata));
 
         // Mock the store method to prevent actual file system interaction during update test
         $this->metadataService = $this->getMockBuilder(MetadataService::class)
-                                      ->setConstructorArgs([$this->mediaServiceMock, $this->storageServiceMock])
-                                      ->onlyMethods(['store'])
-                                      ->getMock();
+            ->setConstructorArgs([$this->mediaServiceMock, $this->storageServiceMock])
+            ->onlyMethods(['store'])
+            ->getMock();
 
         $this->metadataService->expects($this->once())
-                              ->method('store')
-                              ->with($assetVersion, $expectedMergedMetadata);
+            ->method('store')
+            ->with($assetVersion, $expectedMergedMetadata);
 
         $this->metadataService->update($assetVersion, $updatedData);
     }
@@ -147,25 +149,25 @@ class MetadataServiceTest extends TestCase
         $expectedPath = "assets/{$assetVersion->asset_id}/{$assetVersion->version}/metadata.json";
 
         $this->storageServiceMock->expects($this->once())
-                                 ->method('getAssetVersionFilePath')
-                                 ->with($assetVersion->asset_id, $assetVersion->version, 'metadata.json')
-                                 ->willReturn($expectedPath);
+            ->method('getAssetVersionFilePath')
+            ->with($assetVersion->asset_id, $assetVersion->version, 'metadata.json')
+            ->willReturn($expectedPath);
 
         $this->mockDisk->shouldReceive('exists')
-                        ->once()
-                        ->with($expectedPath)
-                        ->andReturn(false);
+            ->once()
+            ->with($expectedPath)
+            ->andReturn(false);
 
         $this->mockDisk->shouldNotReceive('get');
 
         // Ensure store method is not called
         $this->metadataService = $this->getMockBuilder(MetadataService::class)
-                                      ->setConstructorArgs([$this->mediaServiceMock, $this->storageServiceMock])
-                                      ->onlyMethods(['store'])
-                                      ->getMock();
+            ->setConstructorArgs([$this->mediaServiceMock, $this->storageServiceMock])
+            ->onlyMethods(['store'])
+            ->getMock();
 
         $this->metadataService->expects($this->never())
-                              ->method('store');
+            ->method('store');
 
         $this->metadataService->update($assetVersion, $updatedData);
     }
@@ -181,19 +183,19 @@ class MetadataServiceTest extends TestCase
         $expectedPath = "assets/{$asset->id}/{$assetVersion->version}/metadata.json";
 
         $this->storageServiceMock->expects($this->once())
-                                 ->method('getAssetVersionFilePath')
-                                 ->with($asset->id, $assetVersion->version, 'metadata.json')
-                                 ->willReturn($expectedPath);
+            ->method('getAssetVersionFilePath')
+            ->with($asset->id, $assetVersion->version, 'metadata.json')
+            ->willReturn($expectedPath);
 
         $this->mockDisk->shouldReceive('exists')
-                        ->once()
-                        ->with($expectedPath)
-                        ->andReturn(true);
+            ->once()
+            ->with($expectedPath)
+            ->andReturn(true);
 
         $this->mockDisk->shouldReceive('get')
-                        ->once()
-                        ->with($expectedPath)
-                        ->andReturn(json_encode($metadata));
+            ->once()
+            ->with($expectedPath)
+            ->andReturn(json_encode($metadata));
 
         $result = $this->metadataService->get($asset);
 
@@ -206,7 +208,7 @@ class MetadataServiceTest extends TestCase
         $asset = Asset::factory()->create(['latest_version_id' => null]);
 
         $this->storageServiceMock->expects($this->never())
-                                 ->method('getAssetVersionFilePath');
+            ->method('getAssetVersionFilePath');
 
         $this->mockDisk->shouldNotReceive('exists');
         $this->mockDisk->shouldNotReceive('get');
@@ -226,14 +228,14 @@ class MetadataServiceTest extends TestCase
         $expectedPath = "assets/{$asset->id}/{$assetVersion->version}/metadata.json";
 
         $this->storageServiceMock->expects($this->once())
-                                 ->method('getAssetVersionFilePath')
-                                 ->with($asset->id, $assetVersion->version, 'metadata.json')
-                                 ->willReturn($expectedPath);
+            ->method('getAssetVersionFilePath')
+            ->with($asset->id, $assetVersion->version, 'metadata.json')
+            ->willReturn($expectedPath);
 
         $this->mockDisk->shouldReceive('exists')
-                        ->once()
-                        ->with($expectedPath)
-                        ->andReturn(false);
+            ->once()
+            ->with($expectedPath)
+            ->andReturn(false);
 
         $this->mockDisk->shouldNotReceive('get');
 

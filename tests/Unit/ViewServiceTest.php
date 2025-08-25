@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use App\Models\Asset;
 use App\Models\AssetView;
+use App\Models\User;
 use App\Services\ViewService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ViewServiceTest extends TestCase
 {
@@ -18,7 +18,7 @@ class ViewServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->viewService = new ViewService();
+        $this->viewService = new ViewService;
     }
 
     /** @test */

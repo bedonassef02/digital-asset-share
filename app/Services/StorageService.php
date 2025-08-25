@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
@@ -22,19 +24,21 @@ class StorageService
     public function deleteDirectory(int $assetId): bool
     {
         $assetDirectory = $this->pathService->getAssetPath($assetId);
+
         return Storage::disk()->deleteDirectory($assetDirectory);
     }
 
     public function deleteVersion(int $assetId, int $version): bool
     {
         $assetDirectory = $this->pathService->getAssetVersionPath($assetId, $version);
+
         return Storage::disk()->deleteDirectory($assetDirectory);
     }
 
     public function getAssetVersionFilePath(int $assetId, int $version): string
     {
         $versionPath = $this->pathService->getAssetVersionPath($assetId, $version);
-        $transcodedPath = $versionPath . '/' . PathService::DEFAULT_FILENAME . '.mp4';
+        $transcodedPath = $versionPath.'/'.PathService::DEFAULT_FILENAME.'.mp4';
 
         if (Storage::disk()->exists($transcodedPath)) {
             return $transcodedPath;

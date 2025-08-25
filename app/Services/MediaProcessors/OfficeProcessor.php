@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
@@ -23,6 +25,7 @@ class OfficeProcessor implements MediaProcessorInterface
                 return true;
             }
         }
+
         return false;
     }
 
@@ -31,6 +34,7 @@ class OfficeProcessor implements MediaProcessorInterface
         foreach ($this->processors as $processor) {
             if ($processor->canProcess($file)) {
                 $processor->process($file, $metadata);
+
                 return;
             }
         }

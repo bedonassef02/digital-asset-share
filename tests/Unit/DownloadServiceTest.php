@@ -2,14 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use App\Models\Asset;
 use App\Models\Collection;
 use App\Models\Download;
+use App\Models\User;
 use App\Services\DownloadService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 use ZipArchive;
 
 class DownloadServiceTest extends TestCase
@@ -17,12 +17,13 @@ class DownloadServiceTest extends TestCase
     use RefreshDatabase;
 
     protected DownloadService $downloadService;
+
     protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->downloadService = new DownloadService();
+        $this->downloadService = new DownloadService;
         $this->user = User::factory()->create();
 
         Storage::fake('assets');
@@ -110,23 +111,23 @@ class DownloadServiceTest extends TestCase
 
         // Mock ZipArchive
         $zipMock = $this->getMockBuilder(ZipArchive::class)
-                        ->onlyMethods(['open', 'addFile', 'close'])
-                        ->getMock();
+            ->onlyMethods(['open', 'addFile', 'close'])
+            ->getMock();
 
         $zipMock->expects($this->once())
-                ->method('open')
-                ->willReturn(true);
+            ->method('open')
+            ->willReturn(true);
 
         $zipMock->expects($this->exactly(2))
-                ->method('addFile')
-                ->withConsecutive(
-                    [Storage::disk('assets')->path('path/to/file1.txt'), 'file1.txt'],
-                    [Storage::disk('assets')->path('path/to/file2.jpg'), 'file2.jpg']
-                );
+            ->method('addFile')
+            ->withConsecutive(
+                [Storage::disk('assets')->path('path/to/file1.txt'), 'file1.txt'],
+                [Storage::disk('assets')->path('path/to/file2.jpg'), 'file2.jpg']
+            );
 
         $zipMock->expects($this->once())
-                ->method('close')
-                ->willReturn(true);
+            ->method('close')
+            ->willReturn(true);
 
         // Replace the ZipArchive instance with our mock
         $this->app->instance(ZipArchive::class, $zipMock);
@@ -153,23 +154,23 @@ class DownloadServiceTest extends TestCase
 
         // Mock ZipArchive
         $zipMock = $this->getMockBuilder(ZipArchive::class)
-                        ->onlyMethods(['open', 'addFile', 'close'])
-                        ->getMock();
+            ->onlyMethods(['open', 'addFile', 'close'])
+            ->getMock();
 
         $zipMock->expects($this->once())
-                ->method('open')
-                ->willReturn(true);
+            ->method('open')
+            ->willReturn(true);
 
         $zipMock->expects($this->exactly(2))
-                ->method('addFile')
-                ->withConsecutive(
-                    [Storage::disk('assets')->path('path/to/col_file1.txt'), $collection->name . '/col_file1.txt'],
-                    [Storage::disk('assets')->path('path/to/col_file2.jpg'), $collection->name . '/col_file2.jpg']
-                );
+            ->method('addFile')
+            ->withConsecutive(
+                [Storage::disk('assets')->path('path/to/col_file1.txt'), $collection->name.'/col_file1.txt'],
+                [Storage::disk('assets')->path('path/to/col_file2.jpg'), $collection->name.'/col_file2.jpg']
+            );
 
         $zipMock->expects($this->once())
-                ->method('close')
-                ->willReturn(true);
+            ->method('close')
+            ->willReturn(true);
 
         // Replace the ZipArchive instance with our mock
         $this->app->instance(ZipArchive::class, $zipMock);
@@ -200,23 +201,23 @@ class DownloadServiceTest extends TestCase
 
         // Mock ZipArchive
         $zipMock = $this->getMockBuilder(ZipArchive::class)
-                        ->onlyMethods(['open', 'addFile', 'close'])
-                        ->getMock();
+            ->onlyMethods(['open', 'addFile', 'close'])
+            ->getMock();
 
         $zipMock->expects($this->once())
-                ->method('open')
-                ->willReturn(true);
+            ->method('open')
+            ->willReturn(true);
 
         $zipMock->expects($this->exactly(2))
-                ->method('addFile')
-                ->withConsecutive(
-                    [Storage::disk('assets')->path('path/to/nested_file1.txt'), 'ParentCol/nested_file1.txt'],
-                    [Storage::disk('assets')->path('path/to/nested_file2.jpg'), 'ParentCol/ChildCol/nested_file2.jpg']
-                );
+            ->method('addFile')
+            ->withConsecutive(
+                [Storage::disk('assets')->path('path/to/nested_file1.txt'), 'ParentCol/nested_file1.txt'],
+                [Storage::disk('assets')->path('path/to/nested_file2.jpg'), 'ParentCol/ChildCol/nested_file2.jpg']
+            );
 
         $zipMock->expects($this->once())
-                ->method('close')
-                ->willReturn(true);
+            ->method('close')
+            ->willReturn(true);
 
         // Replace the ZipArchive instance with our mock
         $this->app->instance(ZipArchive::class, $zipMock);
@@ -250,23 +251,23 @@ class DownloadServiceTest extends TestCase
 
         // Mock ZipArchive
         $zipMock = $this->getMockBuilder(ZipArchive::class)
-                        ->onlyMethods(['open', 'addFile', 'close'])
-                        ->getMock();
+            ->onlyMethods(['open', 'addFile', 'close'])
+            ->getMock();
 
         $zipMock->expects($this->once())
-                ->method('open')
-                ->willReturn(true);
+            ->method('open')
+            ->willReturn(true);
 
         $zipMock->expects($this->exactly(2))
-                ->method('addFile')
-                ->withConsecutive(
-                    [Storage::disk('assets')->path('path/to/duplicate_file1.txt'), 'duplicate_file.txt'],
-                    [Storage::disk('assets')->path('path/to/duplicate_file2.txt'), 'duplicate_file_1.txt'] // Expect renamed
-                );
+            ->method('addFile')
+            ->withConsecutive(
+                [Storage::disk('assets')->path('path/to/duplicate_file1.txt'), 'duplicate_file.txt'],
+                [Storage::disk('assets')->path('path/to/duplicate_file2.txt'), 'duplicate_file_1.txt'] // Expect renamed
+            );
 
         $zipMock->expects($this->once())
-                ->method('close')
-                ->willReturn(true);
+            ->method('close')
+            ->willReturn(true);
 
         // Replace the ZipArchive instance with our mock
         $this->app->instance(ZipArchive::class, $zipMock);
@@ -293,23 +294,23 @@ class DownloadServiceTest extends TestCase
 
         // Mock ZipArchive
         $zipMock = $this->getMockBuilder(ZipArchive::class)
-                        ->onlyMethods(['open', 'addFile', 'close'])
-                        ->getMock();
+            ->onlyMethods(['open', 'addFile', 'close'])
+            ->getMock();
 
         $zipMock->expects($this->once())
-                ->method('open')
-                ->willReturn(true);
+            ->method('open')
+            ->willReturn(true);
 
         $zipMock->expects($this->exactly(2))
-                ->method('addFile')
-                ->withConsecutive(
-                    [Storage::disk('assets')->path('path/to/direct_file.txt'), 'direct_file.txt'],
-                    [Storage::disk('assets')->path('path/to/collection_file.jpg'), 'MixedCol/collection_file.jpg']
-                );
+            ->method('addFile')
+            ->withConsecutive(
+                [Storage::disk('assets')->path('path/to/direct_file.txt'), 'direct_file.txt'],
+                [Storage::disk('assets')->path('path/to/collection_file.jpg'), 'MixedCol/collection_file.jpg']
+            );
 
         $zipMock->expects($this->once())
-                ->method('close')
-                ->willReturn(true);
+            ->method('close')
+            ->willReturn(true);
 
         // Replace the ZipArchive instance with our mock
         $this->app->instance(ZipArchive::class, $zipMock);

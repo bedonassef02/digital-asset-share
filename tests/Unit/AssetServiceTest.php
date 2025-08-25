@@ -2,29 +2,31 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
+use App\Jobs\GenerateThumbnail;
+use App\Jobs\ReplaceAssetTags;
+use App\Jobs\TranscodeVideo;
 use App\Models\Asset;
 use App\Models\AssetVersion;
+use App\Models\User;
 use App\Services\AssetService;
-use App\Services\StorageService;
 use App\Services\MetadataService;
+use App\Services\StorageService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Queue;
-use App\Jobs\GenerateThumbnail;
-use App\Jobs\TranscodeVideo;
-use App\Jobs\ReplaceAssetTags;
-use App\Services\FileHashService;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class AssetServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected AssetService $assetService;
+
     protected $storageServiceMock;
+
     protected $metadataServiceMock;
+
     protected $pathServiceMock;
 
     protected function setUp(): void
@@ -55,23 +57,23 @@ class AssetServiceTest extends TestCase
 
         // Expect calls to mocked services
         $this->storageServiceMock->expects($this->once())
-                                 ->method('store')
-                                 ->with($file, $this->anything(), 1); // Asset ID will be dynamic
+            ->method('store')
+            ->with($file, $this->anything(), 1); // Asset ID will be dynamic
 
         $this->metadataServiceMock->expects($this->once())
-                                  ->method('__invoke')
-                                  ->with($file, $this->isInstanceOf(AssetVersion::class));
+            ->method('__invoke')
+            ->with($file, $this->isInstanceOf(AssetVersion::class));
 
         // Mock PathService and Storage facade for ImageThumbnail
         $mockFilePath = 'uploads/1/1/file'; // Example path
         $this->pathServiceMock->expects($this->any())
-                               ->method('getAssetVersionFilePath')
-                               ->willReturn($mockFilePath);
+            ->method('getAssetVersionFilePath')
+            ->willReturn($mockFilePath);
 
         Storage::shouldReceive('disk')->andReturnSelf();
         Storage::shouldReceive('get')
-               ->with($mockFilePath)
-               ->andReturn('dummy image content'); // Provide dummy content for the image
+            ->with($mockFilePath)
+            ->andReturn('dummy image content'); // Provide dummy content for the image
 
         $asset = $this->assetService->create($file, $data);
 
@@ -215,8 +217,8 @@ class AssetServiceTest extends TestCase
         $this->assetService->softDelete($asset->id);
 
         $this->storageServiceMock->expects($this->once())
-                                 ->method('deleteDirectory')
-                                 ->with($asset->id);
+            ->method('deleteDirectory')
+            ->with($asset->id);
 
         $this->assetService->forceDelete($asset->id);
 
@@ -238,12 +240,12 @@ class AssetServiceTest extends TestCase
 
         // Expect calls to mocked services and jobs
         $this->storageServiceMock->expects($this->once())
-                                 ->method('store')
-                                 ->with($file, $asset->id, 2); // Expect version 2
+            ->method('store')
+            ->with($file, $asset->id, 2); // Expect version 2
 
         $this->metadataServiceMock->expects($this->once())
-                                  ->method('__invoke')
-                                  ->with($file, $this->isInstanceOf(AssetVersion::class));
+            ->method('__invoke')
+            ->with($file, $this->isInstanceOf(AssetVersion::class));
 
         Queue::fake();
 
@@ -311,7 +313,7 @@ class AssetServiceTest extends TestCase
         $existingVersion = AssetVersion::factory()->create([
             'asset_id' => $existingAsset->id,
             'file_hash' => 'existing_hash',
-            'version' => 1
+            'version' => 1,
         ]);
         $existingAsset->update(['latest_version_id' => $existingVersion->id]);
 
@@ -319,15 +321,15 @@ class AssetServiceTest extends TestCase
         $data = ['user_id' => $user->id];
 
         $this->fileHashServiceMock->expects($this->once())
-                                 ->method('calculateFileHash')
-                                 ->with($file)
-                                 ->willReturn('existing_hash');
+            ->method('calculateFileHash')
+            ->with($file)
+            ->willReturn('existing_hash');
 
         // Expect no calls to store or metadata service for the new asset
         $this->storageServiceMock->expects($this->never())
-                                 ->method('store');
+            ->method('store');
         $this->metadataServiceMock->expects($this->never())
-                                  ->method('__invoke');
+            ->method('__invoke');
 
         $newAsset = $this->assetService->create($file, $data);
         $newAsset = Asset::find($newAsset->id);
@@ -361,7 +363,7 @@ class AssetServiceTest extends TestCase
         $existingVersion = AssetVersion::factory()->create([
             'asset_id' => $asset->id,
             'file_hash' => 'existing_hash',
-            'version' => 1
+            'version' => 1,
         ]);
         $asset->update(['latest_version_id' => $existingVersion->id]);
 
@@ -369,15 +371,15 @@ class AssetServiceTest extends TestCase
         $data = [];
 
         $this->fileHashServiceMock->expects($this->once())
-                                 ->method('calculateFileHash')
-                                 ->with($file)
-                                 ->willReturn('existing_hash');
+            ->method('calculateFileHash')
+            ->with($file)
+            ->willReturn('existing_hash');
 
         // Expect no calls to store or metadata service for the new version
         $this->storageServiceMock->expects($this->never())
-                                 ->method('store');
+            ->method('store');
         $this->metadataServiceMock->expects($this->never())
-                                  ->method('__invoke');
+            ->method('__invoke');
 
         $newVersion = $this->assetService->createNewVersion($asset->id, $file, $data);
 
@@ -441,8 +443,8 @@ class AssetServiceTest extends TestCase
         $data = ['user_id' => $user->id];
 
         $this->fileHashServiceMock->expects($this->once())
-                                 ->method('calculateFileHash')
-                                 ->willReturn('unique_hash');
+            ->method('calculateFileHash')
+            ->willReturn('unique_hash');
 
         $this->assetService->create($file, $data);
 
@@ -460,8 +462,8 @@ class AssetServiceTest extends TestCase
         $data = ['user_id' => $user->id];
 
         $this->fileHashServiceMock->expects($this->once())
-                                 ->method('calculateFileHash')
-                                 ->willReturn('unique_hash');
+            ->method('calculateFileHash')
+            ->willReturn('unique_hash');
 
         $this->assetService->create($file, $data);
 

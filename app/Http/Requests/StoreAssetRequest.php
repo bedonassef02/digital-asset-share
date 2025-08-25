@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -25,11 +27,11 @@ class StoreAssetRequest extends FormRequest
             'file' => [
                 'required',
                 'file',
-                'mimetypes:' . implode(',', config('assets.allowed_file_types')),
+                'mimetypes:'.implode(',', config('assets.allowed_file_types')),
                 function ($attribute, $value, $fail) {
-                    $maxSizeKb = config('assets.max_file_sizes_kb.' . $value->getMimeType(), config('assets.max_file_sizes_kb.default'));
+                    $maxSizeKb = config('assets.max_file_sizes_kb.'.$value->getMimeType(), config('assets.max_file_sizes_kb.default'));
                     if ($value->getSize() / 1024 > $maxSizeKb) {
-                        $fail("The {$attribute} must not be greater than " . ($maxSizeKb / 1024) . " MB for this file type.");
+                        $fail("The {$attribute} must not be greater than ".($maxSizeKb / 1024).' MB for this file type.');
                     }
                 },
             ],

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\Share;
@@ -39,7 +41,7 @@ class RemoveExpiredShares extends Command
                 $notificationService->createNotification(
                     $share->user_id,
                     'info',
-                    'Your shared link for "' . ($share->asset->latestVersion->name ?? '[Asset Name]') . '" has expired and been removed.',
+                    'Your shared link for "'.($share->asset->latestVersion->name ?? '[Asset Name]').'" has expired and been removed.',
                     $share->asset
                 );
             }
@@ -49,7 +51,7 @@ class RemoveExpiredShares extends Command
                 ->delete();
             $this->info("Successfully removed {$count} expired share links.");
         } else {
-            $this->info("No expired share links found.");
+            $this->info('No expired share links found.');
         }
     }
 }

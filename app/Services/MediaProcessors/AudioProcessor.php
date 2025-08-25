@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors;
 
-use Illuminate\Http\UploadedFile;
-use getID3; // Import the getID3 class
+use getID3;
+use Illuminate\Http\UploadedFile; // Import the getID3 class
 
 class AudioProcessor implements MediaProcessorInterface
 {
@@ -20,7 +22,7 @@ class AudioProcessor implements MediaProcessorInterface
 
     public function process(UploadedFile $file, array &$metadata): void
     {
-        $getID3 = new getID3();
+        $getID3 = new getID3;
         $fileInfo = $getID3->analyze($file->getPathname());
 
         // Populate metadata array with relevant audio information

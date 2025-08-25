@@ -48,7 +48,6 @@ class NotificationFactory extends Factory
     /**
      * Indicate that the notification is associated with a notifiable model.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $notifiable
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
     public function forNotifiable(\Illuminate\Database\Eloquent\Model $notifiable)

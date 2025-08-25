@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors\Office;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
-use Illuminate\Support\Facades\Log;
 
 class WordDocumentProcessor extends AbstractOfficeProcessor
 {
@@ -13,13 +15,14 @@ class WordDocumentProcessor extends AbstractOfficeProcessor
     {
         // Check for common DOCX MIME types
         $mimeType = $file->getMimeType();
+
         return in_array($mimeType, [
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/zip', // Sometimes DOCX files are identified as zip
         ]);
     }
 
-    protected function getDocumentProperties(UploadedFile $file): \PhpOffice\PhpWord\DocInfo
+    protected function getDocumentProperties(UploadedFile $file): \PhpOffice\PhpWord\Metadata\DocInfo
     {
         return IOFactory::load($file->getRealPath())->getDocInfo();
     }
@@ -33,7 +36,7 @@ class WordDocumentProcessor extends AbstractOfficeProcessor
             $metadata['word_count'] = $this->getWordCount($phpWord);
 
         } catch (\Exception $e) {
-            Log::error('Failed to process DOCX specific properties: ' . $e->getMessage());
+            Log::error('Failed to process DOCX specific properties: '.$e->getMessage());
         }
     }
 
@@ -53,6 +56,7 @@ class WordDocumentProcessor extends AbstractOfficeProcessor
                 }
             }
         }
+
         return $wordCount;
     }
 }

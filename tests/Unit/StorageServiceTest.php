@@ -2,18 +2,19 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\StorageService;
 use App\Services\PathService;
+use App\Services\StorageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
-use Illuminate\Filesystem\FilesystemAdapter;
+use Tests\TestCase;
 
 class StorageServiceTest extends TestCase
 {
     protected StorageService $storageService;
+
     protected $pathServiceMock;
+
     protected $mockDisk;
 
     protected function setUp(): void
@@ -41,20 +42,20 @@ class StorageServiceTest extends TestCase
         $file = UploadedFile::fake()->image($fileName);
 
         $this->pathServiceMock->expects($this->once())
-                               ->method('getAssetVersionPath')
-                               ->with($assetId, $version)
-                               ->willReturn($assetDirectory);
+            ->method('getAssetVersionPath')
+            ->with($assetId, $version)
+            ->willReturn($assetDirectory);
 
         Storage::shouldReceive('disk')->andReturnSelf();
         Storage::shouldReceive('makeDirectory')
-                       ->once()
-                       ->with($assetDirectory)
-                       ->andReturn(true);
+            ->once()
+            ->with($assetDirectory)
+            ->andReturn(true);
 
         Storage::shouldReceive('putFileAs')
-                       ->once()
-                       ->with($assetDirectory, $file, PathService::DEFAULT_FILENAME)
-                       ->andReturn('path/to/stored/file.jpg');
+            ->once()
+            ->with($assetDirectory, $file, PathService::DEFAULT_FILENAME)
+            ->andReturn('path/to/stored/file.jpg');
 
         $result = $this->storageService->store($file, $assetId, $version);
 
@@ -68,15 +69,15 @@ class StorageServiceTest extends TestCase
         $assetPath = 'uploads/0/1';
 
         $this->pathServiceMock->expects($this->once())
-                               ->method('getAssetPath')
-                               ->with($assetId)
-                               ->willReturn($assetPath);
+            ->method('getAssetPath')
+            ->with($assetId)
+            ->willReturn($assetPath);
 
         Storage::shouldReceive('disk')->andReturnSelf();
         Storage::shouldReceive('deleteDirectory')
-                       ->once()
-                       ->with($assetPath)
-                       ->andReturn(true);
+            ->once()
+            ->with($assetPath)
+            ->andReturn(true);
 
         $result = $this->storageService->deleteDirectory($assetId);
 
@@ -91,15 +92,15 @@ class StorageServiceTest extends TestCase
         $assetVersionPath = 'uploads/0/1/1';
 
         $this->pathServiceMock->expects($this->once())
-                               ->method('getAssetVersionPath')
-                               ->with($assetId, $version)
-                               ->willReturn($assetVersionPath);
+            ->method('getAssetVersionPath')
+            ->with($assetId, $version)
+            ->willReturn($assetVersionPath);
 
         Storage::shouldReceive('disk')->andReturnSelf();
         Storage::shouldReceive('deleteDirectory')
-                       ->once()
-                       ->with($assetVersionPath)
-                       ->andReturn(true);
+            ->once()
+            ->with($assetVersionPath)
+            ->andReturn(true);
 
         $result = $this->storageService->deleteVersion($assetId, $version);
 
@@ -112,22 +113,22 @@ class StorageServiceTest extends TestCase
         $assetId = 1;
         $version = 1;
         $versionPath = 'uploads/0/1/1';
-        $transcodedPath = $versionPath . '/' . PathService::DEFAULT_FILENAME . '.mp4';
-        $defaultFilePath = $versionPath . '/' . PathService::DEFAULT_FILENAME;
+        $transcodedPath = $versionPath.'/'.PathService::DEFAULT_FILENAME.'.mp4';
+        $defaultFilePath = $versionPath.'/'.PathService::DEFAULT_FILENAME;
 
         $this->pathServiceMock->expects($this->once())
-                               ->method('getAssetVersionPath')
-                               ->with($assetId, $version)
-                               ->willReturn($versionPath);
+            ->method('getAssetVersionPath')
+            ->with($assetId, $version)
+            ->willReturn($versionPath);
 
         Storage::shouldReceive('disk')->andReturnSelf();
         Storage::shouldReceive('exists')
-                       ->once()
-                       ->with($transcodedPath)
-                       ->andReturn(true);
+            ->once()
+            ->with($transcodedPath)
+            ->andReturn(true);
 
         $this->pathServiceMock->expects($this->never())
-                               ->method('getAssetVersionFilePath');
+            ->method('getAssetVersionFilePath');
 
         $result = $this->storageService->getAssetVersionFilePath($assetId, $version);
 
@@ -140,24 +141,24 @@ class StorageServiceTest extends TestCase
         $assetId = 1;
         $version = 1;
         $versionPath = 'uploads/0/1/1';
-        $transcodedPath = $versionPath . '/' . PathService::DEFAULT_FILENAME . '.mp4';
-        $defaultFilePath = $versionPath . '/' . PathService::DEFAULT_FILENAME;
+        $transcodedPath = $versionPath.'/'.PathService::DEFAULT_FILENAME.'.mp4';
+        $defaultFilePath = $versionPath.'/'.PathService::DEFAULT_FILENAME;
 
         $this->pathServiceMock->expects($this->once())
-                               ->method('getAssetVersionPath')
-                               ->with($assetId, $version)
-                               ->willReturn($versionPath);
+            ->method('getAssetVersionPath')
+            ->with($assetId, $version)
+            ->willReturn($versionPath);
 
         Storage::shouldReceive('disk')->andReturnSelf();
         Storage::shouldReceive('exists')
-                       ->once()
-                       ->with($transcodedPath)
-                       ->andReturn(false);
+            ->once()
+            ->with($transcodedPath)
+            ->andReturn(false);
 
         $this->pathServiceMock->expects($this->once())
-                               ->method('getAssetVersionFilePath')
-                               ->with($assetId, $version, PathService::DEFAULT_FILENAME)
-                               ->willReturn($defaultFilePath);
+            ->method('getAssetVersionFilePath')
+            ->with($assetId, $version, PathService::DEFAULT_FILENAME)
+            ->willReturn($defaultFilePath);
 
         $result = $this->storageService->getAssetVersionFilePath($assetId, $version);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -18,7 +20,7 @@ class ServeController extends Controller
     {
         $asset = ($this->serveService)($id, auth()->id());
 
-        if (!$asset) {
+        if (! $asset) {
             return response()->json(['message' => 'Asset not found'], 404);
         }
 
@@ -26,6 +28,6 @@ class ServeController extends Controller
 
         $path = $this->serveService->getAssetPath($asset);
 
-        return response()->file(Storage::disk()->path($path), ['Content-Disposition' => 'inline; filename="' . $asset->latestVersion->name . '"']);
+        return response()->file(Storage::disk()->path($path), ['Content-Disposition' => 'inline; filename="'.$asset->latestVersion->name.'"']);
     }
 }

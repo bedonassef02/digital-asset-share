@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Jobs\GenerateThumbnail;
@@ -17,7 +19,7 @@ class AssetService
         private MetadataService $metadataService,
         private FileHashService $fileHashService,
         private ViewService $viewService
-    ) { }
+    ) {}
 
     public function findAll(int $userId, int $perPage = 15, bool $includeTrashed = false, bool $onlyTrashed = false): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
@@ -51,6 +53,7 @@ class AssetService
             $version = $this->findOrCreateVersion($asset, $file, $data);
             $asset->update(['latest_version_id' => $version->id]);
             $asset->load('latestVersion');
+
             return $asset;
         });
     }
@@ -61,6 +64,7 @@ class AssetService
             $asset = Asset::where('user_id', $userId)->findOrFail($assetId);
             $version = $this->findOrCreateVersion($asset, $file, $data);
             $asset->update(['latest_version_id' => $version->id]);
+
             return $version;
         });
     }
@@ -140,6 +144,7 @@ class AssetService
     {
         $asset = Asset::withTrashed()->where('user_id', $userId)->findOrFail($id);
         $asset->update(['status' => $status]);
+
         return true;
     }
 
@@ -147,6 +152,7 @@ class AssetService
     {
         $asset = Asset::where('user_id', $userId)->findOrFail($id);
         $asset->delete(); // Uses SoftDeletes trait
+
         return true;
     }
 
@@ -155,6 +161,7 @@ class AssetService
         $asset = Asset::onlyTrashed()->where('user_id', $userId)->findOrFail($id);
         $asset->restore(); // Uses SoftDeletes trait
         $asset->update(['status' => Asset::STATUS_ACTIVE]);
+
         return true;
     }
 
@@ -165,6 +172,7 @@ class AssetService
         $this->storageService->deleteDirectory($id);
 
         $asset->forceDelete();
+
         return true;
     }
 

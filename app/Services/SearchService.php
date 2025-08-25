@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\AssetVersion;
@@ -12,16 +14,16 @@ class SearchService
         $results = AssetVersion::whereHas('asset', function (Builder $assetQuery) use ($userId) {
             $assetQuery->where('user_id', $userId);
         })
-        ->where(function (Builder $versionQuery) use ($query) {
-            $versionQuery->where('name', 'like', '%' . $query . '%')
-                ->orWhere('description', 'like', '%' . $query . '%')
-                ->orWhereHas('asset.tags', function (Builder $tagQuery) use ($query) {
-                    $tagQuery->where('name', 'like', '%' . $query . '%');
-                });
-        });
+            ->where(function (Builder $versionQuery) use ($query) {
+                $versionQuery->where('name', 'like', '%'.$query.'%')
+                    ->orWhere('description', 'like', '%'.$query.'%')
+                    ->orWhereHas('asset.tags', function (Builder $tagQuery) use ($query) {
+                        $tagQuery->where('name', 'like', '%'.$query.'%');
+                    });
+            });
 
         if ($mimeType) {
-            $results->where('mime_type', 'like', $mimeType . '%');
+            $results->where('mime_type', 'like', $mimeType.'%');
         }
 
         if ($minSize) {

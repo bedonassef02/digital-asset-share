@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\Log;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class ImageProcessor implements MediaProcessorInterface
 {
     public function __construct(
         private ?ImageManager $imageManager = null
     ) {
-        $this->imageManager ??= new ImageManager(new Driver());
+        $this->imageManager ??= new ImageManager(new Driver);
     }
 
     public function canProcess(UploadedFile $file): bool
@@ -31,11 +33,11 @@ class ImageProcessor implements MediaProcessorInterface
             $exifData = $image->exif();
             if ($exifData) {
                 foreach ($exifData as $key => $value) {
-                    $metadata['exif_' . strtolower($key)] = $value;
+                    $metadata['exif_'.strtolower($key)] = $value;
                 }
             }
         } catch (\Exception $e) {
-            Log::warning('Could not read EXIF data for image: ' . $e->getMessage());
+            Log::warning('Could not read EXIF data for image: '.$e->getMessage());
         }
     }
 }

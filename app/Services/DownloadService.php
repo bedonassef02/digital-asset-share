@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Exceptions\ZipCreationException;
@@ -43,7 +45,7 @@ class DownloadService
         $directAssets = Asset::whereIn('id', $assetIds)->with('latestVersion')->get();
         foreach ($directAssets as $asset) {
             if ($asset->latestVersion) {
-                $fileName = $asset->latestVersion->name . '.' . $asset->latestVersion->extension;
+                $fileName = $asset->latestVersion->name.'.'.$asset->latestVersion->extension;
                 $assetsToZip[$fileName] = Storage::disk('assets')->path($asset->latestVersion->file_path);
             }
         }
@@ -60,13 +62,13 @@ class DownloadService
 
     private function createZipFile(array $assetsToZip): string
     {
-        $zipFileName = 'bulk_download_' . now()->format('YmdHis') . '.zip';
+        $zipFileName = 'bulk_download_'.now()->format('YmdHis').'.zip';
         $tempDisk = Storage::disk('temp');
         $zipFilePath = $tempDisk->path($zipFileName);
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            throw new ZipCreationException('Cannot create zip file: ' . $zipFilePath);
+            throw new ZipCreationException('Cannot create zip file: '.$zipFilePath);
         }
 
         $addedFiles = [];
@@ -97,9 +99,10 @@ class DownloadService
         $counter = 1;
         while (in_array($finalZipPath, $addedFiles)) {
             $pathInfo = pathinfo($zipPath);
-            $finalZipPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_' . $counter . '.' . $pathInfo['extension'];
+            $finalZipPath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'_'.$counter.'.'.$pathInfo['extension'];
             $counter++;
         }
+
         return $finalZipPath;
     }
 
@@ -108,17 +111,16 @@ class DownloadService
         // Add assets directly in this collection
         foreach ($collection->assets as $asset) {
             if ($asset->latestVersion) {
-                $fileName = $asset->latestVersion->name . '.' . $asset->latestVersion->extension;
-                $fullZipPath = trim($currentPath . '/' . $fileName, '/');
+                $fileName = $asset->latestVersion->name.'.'.$asset->latestVersion->extension;
+                $fullZipPath = trim($currentPath.'/'.$fileName, '/');
                 $assetsToZip[$fullZipPath] = Storage::disk('assets')->path($asset->latestVersion->file_path);
             }
         }
 
         // Recursively add assets from child collections
         foreach ($collection->children as $childCollection) {
-            $newPath = trim($currentPath . '/' . $childCollection->name, '/');
+            $newPath = trim($currentPath.'/'.$childCollection->name, '/');
             $this->getAssetsForCollections($childCollection, $assetsToZip, $newPath);
         }
     }
 }
-

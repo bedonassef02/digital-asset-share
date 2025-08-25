@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Asset;
-use App\Models\Share;
 use App\Models\AssetView;
+use App\Models\Share;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ShareControllerTest extends TestCase
 {
@@ -67,9 +66,9 @@ class ShareControllerTest extends TestCase
         sleep(2);
 
         $oldLastSeenAt = AssetView::where('user_id', $user->id)
-                                  ->where('asset_id', $asset->id)
-                                  ->first()
-                                  ->last_seen_at;
+            ->where('asset_id', $asset->id)
+            ->first()
+            ->last_seen_at;
 
         // Second view
         $response = $this->getJson("/api/shares/{$share->token}");
@@ -77,9 +76,9 @@ class ShareControllerTest extends TestCase
         $response->assertStatus(200);
 
         $newLastSeenAt = AssetView::where('user_id', $user->id)
-                                  ->where('asset_id', $asset->id)
-                                  ->first()
-                                  ->last_seen_at;
+            ->where('asset_id', $asset->id)
+            ->first()
+            ->last_seen_at;
 
         $this->assertGreaterThan($oldLastSeenAt, $newLastSeenAt);
     }

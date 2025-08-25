@@ -1,16 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors\Office;
 
 use Illuminate\Http\UploadedFile;
-use PhpOffice\PhpPresentation\IOFactory;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpPresentation\IOFactory;
 
 class PowerPointProcessor extends AbstractOfficeProcessor
 {
     public function canProcess(UploadedFile $file): bool
     {
         $mimeType = $file->getMimeType();
+
         return in_array($mimeType, [
             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'application/vnd.ms-powerpoint',
@@ -31,7 +34,7 @@ class PowerPointProcessor extends AbstractOfficeProcessor
             $metadata['slide_count'] = $presentation->getSlideCount();
 
         } catch (\Exception $e) {
-            Log::error('Failed to process PPTX specific properties: ' . $e->getMessage());
+            Log::error('Failed to process PPTX specific properties: '.$e->getMessage());
         }
     }
 }

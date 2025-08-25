@@ -1,15 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors;
 
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class VideoProcessor implements MediaProcessorInterface
 {
     protected FFMpeg $ffmpeg;
+
     protected FFProbe $ffprobe;
 
     public function __construct(FFMpeg $ffmpeg, FFProbe $ffprobe)
@@ -41,7 +44,7 @@ class VideoProcessor implements MediaProcessorInterface
             $metadata['video_size'] = $file->getSize(); // in bytes
 
         } catch (\Exception $e) {
-            Log::warning('Could not process video file: ' . $e->getMessage());
+            Log::warning('Could not process video file: '.$e->getMessage());
         }
     }
 }

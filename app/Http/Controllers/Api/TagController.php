@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -12,14 +14,14 @@ class TagController extends Controller
         private TagService $tagService
     ) {}
 
-    public function add(TagRequest $request, string $id): \Illuminate\Http\JsonResponse
+    public function add(TagRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
         $this->tagService->add($id, $request->input('tag'));
 
         return response()->json(null, 204);
     }
 
-    public function remove(TagRequest $request, string $id): \Illuminate\Http\JsonResponse
+    public function remove(TagRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
         $this->tagService->remove($id, $request->input('tag'));
 

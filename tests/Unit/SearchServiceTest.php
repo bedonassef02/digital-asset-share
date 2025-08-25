@@ -2,13 +2,13 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use App\Models\Asset;
 use App\Models\AssetVersion;
 use App\Models\Tag;
+use App\Models\User;
 use App\Services\SearchService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SearchServiceTest extends TestCase
 {
@@ -19,7 +19,7 @@ class SearchServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->searchService = new SearchService();
+        $this->searchService = new SearchService;
     }
 
     /** @test */

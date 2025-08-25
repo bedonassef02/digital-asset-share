@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
@@ -26,7 +28,7 @@ class TextProcessor implements MediaProcessorInterface
             $metadata['text_encoding'] = mb_detect_encoding($content, mb_detect_order(), true);
 
         } catch (\Exception $e) {
-            Log::warning('Could not process text file: ' . $e->getMessage());
+            Log::warning('Could not process text file: '.$e->getMessage());
         }
     }
 }

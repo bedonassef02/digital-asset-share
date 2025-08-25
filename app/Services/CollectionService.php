@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
-use App\Models\Collection;
 use App\Models\Asset;
+use App\Models\Collection;
 
 class CollectionService
 {
@@ -16,12 +18,14 @@ class CollectionService
     {
         $collection = Collection::where('id', $id)->where('user_id', $userId)->firstOrFail();
         $collection->update($data);
+
         return $collection;
     }
 
     public function delete(int $id, int $userId): bool
     {
         $collection = Collection::where('id', $id)->where('user_id', $userId)->firstOrFail();
+
         return $collection->delete();
     }
 
@@ -41,6 +45,7 @@ class CollectionService
         $this->verifyAssetsBelongToUser($assetIds, $userId);
 
         $collection->assets()->syncWithoutDetaching($assetIds);
+
         return $collection;
     }
 
@@ -50,6 +55,7 @@ class CollectionService
         $this->verifyAssetsBelongToUser($assetIds, $userId);
 
         $collection->assets()->detach($assetIds);
+
         return $collection;
     }
 
@@ -63,7 +69,7 @@ class CollectionService
 
     public function getCollectionAssets(int $collectionId, int $userId, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        $collection = Collection::with(['assets' => function($query) {
+        $collection = Collection::with(['assets' => function ($query) {
             $query->whereNull('deleted_at')->with('latestVersion');
         }])->where('id', $collectionId)->where('user_id', $userId)->firstOrFail();
 

@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use App\Models\Asset;
 use App\Models\Tag;
+use App\Models\User;
 use App\Services\TagService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class TagServiceTest extends TestCase
 {
@@ -18,7 +18,7 @@ class TagServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tagService = new TagService();
+        $this->tagService = new TagService;
     }
 
     /** @test */

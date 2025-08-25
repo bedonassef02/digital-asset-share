@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\MediaService;
 use App\Services\MediaProcessors\MediaProcessorInterface;
+use App\Services\MediaService;
 use Illuminate\Http\UploadedFile;
+use Tests\TestCase;
 
 class MediaServiceTest extends TestCase
 {
@@ -20,7 +20,7 @@ class MediaServiceTest extends TestCase
         $mockProcessor = $this->createMock(MediaProcessorInterface::class);
         $mockProcessor->method('canProcess')->willReturn(true);
         $mockProcessor->expects($this->once())
-                      ->method('process');
+            ->method('process');
 
         $mediaService = new MediaService($mockProcessor);
         $file = UploadedFile::fake()->image('test.jpg');
@@ -35,7 +35,7 @@ class MediaServiceTest extends TestCase
         $mockProcessor = $this->createMock(MediaProcessorInterface::class);
         $mockProcessor->method('canProcess')->willReturn(false);
         $mockProcessor->expects($this->never())
-                      ->method('process');
+            ->method('process');
 
         $mediaService = new MediaService($mockProcessor);
         $file = UploadedFile::fake()->image('test.jpg');
@@ -50,12 +50,12 @@ class MediaServiceTest extends TestCase
         $mockProcessor1 = $this->createMock(MediaProcessorInterface::class);
         $mockProcessor1->method('canProcess')->willReturn(true);
         $mockProcessor1->expects($this->once())
-                       ->method('process');
+            ->method('process');
 
         $mockProcessor2 = $this->createMock(MediaProcessorInterface::class);
         $mockProcessor2->method('canProcess')->willReturn(true);
         $mockProcessor2->expects($this->never())
-                       ->method('process');
+            ->method('process');
 
         $mediaService = new MediaService($mockProcessor1, $mockProcessor2);
         $file = UploadedFile::fake()->image('test.jpg');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Notification;
@@ -11,7 +13,7 @@ class NotificationService
         int $userId,
         string $type,
         string $message,
-        Model $notifiable = null
+        ?Model $notifiable = null
     ): Notification {
         return Notification::create([
             'user_id' => $userId,

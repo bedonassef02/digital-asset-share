@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Models\Asset;
@@ -8,17 +10,17 @@ use App\Models\Share;
 use App\Policies\AssetPolicy;
 use App\Policies\CollectionPolicy;
 use App\Policies\SharePolicy;
-use App\Services\MediaService;
-use App\Services\MediaProcessors\ImageProcessor;
-use App\Services\MediaProcessors\PdfProcessor;
-use App\Services\MediaProcessors\AudioProcessor;
-use App\Services\MediaProcessors\TextProcessor;
 use App\Services\MediaProcessors\ArchiveProcessor;
-use App\Services\MediaProcessors\VideoProcessor;
-use App\Services\MediaProcessors\OfficeProcessor;
+use App\Services\MediaProcessors\AudioProcessor;
+use App\Services\MediaProcessors\ImageProcessor;
 use App\Services\MediaProcessors\Office\ExcelProcessor;
 use App\Services\MediaProcessors\Office\PowerPointProcessor;
 use App\Services\MediaProcessors\Office\WordDocumentProcessor;
+use App\Services\MediaProcessors\OfficeProcessor;
+use App\Services\MediaProcessors\PdfProcessor;
+use App\Services\MediaProcessors\TextProcessor;
+use App\Services\MediaProcessors\VideoProcessor;
+use App\Services\MediaService;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
 use Illuminate\Support\Facades\Gate;
@@ -33,19 +35,19 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(FFMpeg::class, function ($app) {
             return FFMpeg::create([
-                'ffmpeg.binaries'  => config('ffmpeg.ffmpeg_binary_path'),
+                'ffmpeg.binaries' => config('ffmpeg.ffmpeg_binary_path'),
                 'ffprobe.binaries' => config('ffmpeg.ffprobe_binary_path'),
-                'timeout'          => 3600,
-                'ffmpeg.threads'   => 12,
+                'timeout' => 3600,
+                'ffmpeg.threads' => 12,
             ]);
         });
 
         $this->app->singleton(FFProbe::class, function ($app) {
             return FFProbe::create([
-                'ffmpeg.binaries'  => config('ffmpeg.ffmpeg_binary_path'),
+                'ffmpeg.binaries' => config('ffmpeg.ffmpeg_binary_path'),
                 'ffprobe.binaries' => config('ffmpeg.ffprobe_binary_path'),
-                'timeout'          => 3600,
-                'ffmpeg.threads'   => 12,
+                'timeout' => 3600,
+                'ffmpeg.threads' => 12,
             ]);
         });
 
