@@ -34,7 +34,7 @@ class ShareService
         return $share;
     }
 
-    public function resolve(string $token, ?string $password = null): \Illuminate\Database\Eloquent\Model
+    public function resolve(string $token, int $userId, ?string $password = null): \Illuminate\Database\Eloquent\Model
     {
         $share = Share::where('token', $token)->firstOrFail();
 
@@ -46,7 +46,7 @@ class ShareService
             abort(403, 'Incorrect password.');
         }
 
-        $this->viewService->record(auth()->user(), $share->shareable);
+        $this->viewService->record($userId, $share->shareable);
 
         return $share->shareable;
     }
