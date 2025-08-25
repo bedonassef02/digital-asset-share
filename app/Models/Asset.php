@@ -10,9 +10,14 @@ class Asset extends Model
 {
     use SoftDeletes, HasFactory;
 
+    const STATUS_ACTIVE = 'active';
+    const STATUS_ARCHIVED = 'archived';
+    const STATUS_DELETED = 'deleted';
+
     protected $fillable = [
         'user_id',
         'latest_version_id',
+        'status',
     ];
 
     
