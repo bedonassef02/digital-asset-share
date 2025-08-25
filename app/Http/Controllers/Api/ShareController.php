@@ -40,7 +40,7 @@ class ShareController extends Controller
 
     public function resolve(ResolveShareRequest $request, string $token): \Illuminate\Http\JsonResponse
     {
-        $shareable = $this->shareService->resolve($token, $request->input('password'));
+        $shareable = $this->shareService->resolve($token, auth()->id(), $request->input('password'));
 
         return response()->json($shareable);
     }
