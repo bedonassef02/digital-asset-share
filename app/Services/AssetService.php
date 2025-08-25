@@ -9,29 +9,40 @@ use App\Models\Asset;
 use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class AssetService
 {
     public function __construct(
         private StorageService $storageService,
-        private MetadataService $metadataService
+        private MetadataService $metadataService,
+        private FileHashService $fileHashService
     ) { }
 
-    public function findAll(int $userId, int $perPage = 15)
+    public function findAll(int $userId, int $perPage = 15, bool $includeTrashed = false, bool $onlyTrashed = false)
     {
-        return Asset::with('latestVersion')->where('user_id', $userId)->paginate($perPage);
+        $query = Asset::with('latestVersion')
+            ->where('user_id', $userId);
+
+        if ($includeTrashed) {
+            $query->withTrashed();
+        }
+
+        if ($onlyTrashed) {
+            $query->onlyTrashed();
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function findOne(int $id, int $userId)
     {
-        return Asset::with('latestVersion')->where('user_id', $userId)->findOrFail($id);
+        return Asset::withTrashed()->with('latestVersion')->where('user_id', $userId)->findOrFail($id);
     }
 
     public function create(UploadedFile $file, array $data = []): Asset
     {
         return DB::transaction(function () use ($file, $data) {
-            $fileHash = $this->calculateFileHash($file);
+            $fileHash = $this->fileHashService->calculateFileHash($file);
 
             $existingVersion = AssetVersion::where('file_hash', $fileHash)
                 ->whereHas('asset', function ($query) use ($data) {
@@ -62,7 +73,7 @@ class AssetService
     {
         return DB::transaction(function () use ($assetId, $file, $data) {
             $asset = Asset::findOrFail($assetId);
-            $fileHash = $this->calculateFileHash($file);
+            $fileHash = $this->fileHashService->calculateFileHash($file);
 
             $existingVersion = AssetVersion::where('file_hash', $fileHash)
                 ->whereHas('asset', function ($query) use ($asset) {
@@ -117,11 +128,6 @@ class AssetService
         ];
     }
 
-    private function calculateFileHash(UploadedFile $file): string
-    {
-        return hash_file('sha256', $file->getRealPath());
-    }
-
     public function update(int $id, array $data): Asset
     {
         $asset = Asset::findOrFail($id);
@@ -135,10 +141,25 @@ class AssetService
         return $asset;
     }
 
+    public function changeStatus(int $id, string $status): bool
+    {
+        $asset = Asset::withTrashed()->findOrFail($id);
+        $asset->update(['status' => $status]);
+        return true;
+    }
+
     public function softDelete(int $id): bool
     {
         $asset = Asset::findOrFail($id);
-        $asset->delete();
+        $asset->delete(); // Uses SoftDeletes trait
+        return true;
+    }
+
+    public function restore(int $id): bool
+    {
+        $asset = Asset::onlyTrashed()->findOrFail($id);
+        $asset->restore(); // Uses SoftDeletes trait
+        $asset->update(['status' => Asset::STATUS_ACTIVE]);
         return true;
     }
 
@@ -154,6 +175,6 @@ class AssetService
 
     public function bulkSoftDelete(array $assetIds): void
     {
-        Asset::whereIn('id', $assetIds)->delete();
+        Asset::destroy($assetIds); // Uses SoftDeletes trait
     }
 }
