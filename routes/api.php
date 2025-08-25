@@ -20,27 +20,32 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
     Route::get('/user', [App\Http\Controllers\Api\AuthController::class, 'user']);
 
+    // Asset Routes
     Route::apiResource('/assets', AssetController::class);
-    Route::delete('/assets', [AssetController::class, 'bulkDestroy']);
-    Route::post('/assets/tags', [AssetController::class, 'bulkTag']);
-    Route::post('/assets/{id}/tags', [TagController::class, 'add']);
-    Route::delete('/assets/{id}/tags', [TagController::class, 'remove']);
+    Route::prefix('assets')->group(function () {
+        Route::delete('/', [AssetController::class, 'bulkDestroy']);
+        Route::post('/tags', [AssetController::class, 'bulkTag']);
+        Route::post('/{id}/status', [AssetController::class, 'changeStatus']);
+        Route::post('/{id}/restore', [AssetController::class, 'restore']);
 
-    Route::post('/assets/{id}/status', [AssetController::class, 'changeStatus']);
-    Route::post('/assets/{id}/restore', [AssetController::class, 'restore']);
+        // Nested Asset Tags
+        Route::post('/{id}/tags', [TagController::class, 'add']);
+        Route::delete('/{id}/tags', [TagController::class, 'remove']);
+    });
+
+    // Nested Asset Versions
+    Route::apiResource('assets.versions', AssetVersionController::class);
+
+    // Download Route
     Route::post('/assets/bulk-download', [DownloadController::class, 'bulkDownload']);
 
-    Route::get('/assets/{assetId}/versions', [AssetVersionController::class, 'index']);
-    Route::get('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'show']);
-    Route::post('/assets/{assetId}/versions', [AssetVersionController::class, 'store']);
-    Route::delete('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'destroy']);
-
+    // Serve Route
     Route::get('/serve/{id}', ServeController::class);
 
-    // Search route
+    // Search Route
     Route::get('/search', [App\Http\Controllers\Api\SearchController::class, 'search']);
 
-    // Share routes
+    // Share Routes
     Route::post('/assets/{asset}/share', [App\Http\Controllers\Api\ShareController::class, 'shareAsset']);
     Route::post('/collections/{collection}/share', [App\Http\Controllers\Api\ShareController::class, 'shareCollection']);
     Route::get('/shares', [App\Http\Controllers\Api\ShareController::class, 'list']);
@@ -48,11 +53,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/shares/{token}', [App\Http\Controllers\Api\ShareController::class, 'revoke']);
     Route::get('/shares/{token}/stats', [App\Http\Controllers\Api\ShareController::class, 'stats']);
 
-    // Collection routes
+    // Collection Routes
     Route::apiResource('/collections', App\Http\Controllers\Api\CollectionController::class);
-    Route::post('/collections/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'addAssets']);
-    Route::delete('/collections/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'removeAssets']);
-    Route::get('/collections/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'getCollectionAssets']);
-    Route::get('/collections/root', [App\Http\Controllers\Api\CollectionController::class, 'getRootCollections']);
-    Route::get('/collections/{parentId}/children', [App\Http\Controllers\Api\CollectionController::class, 'getChildCollections']);
+    Route::prefix('collections')->group(function () {
+        Route::post('/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'addAssets']);
+        Route::delete('/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'removeAssets']);
+        Route::get('/{id}/assets', [App\Http\Controllers\Api\CollectionController::class, 'getCollectionAssets']);
+        Route::get('/root', [App\Http\Controllers\Api\CollectionController::class, 'getRootCollections']);
+        Route::get('/{parentId}/children', [App\Http\Controllers\Api\CollectionController::class, 'getChildCollections']);
+    });
 });
