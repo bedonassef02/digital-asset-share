@@ -9,6 +9,7 @@ use App\Models\Asset;
 use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AssetService
 {
@@ -30,9 +31,24 @@ class AssetService
     public function create(UploadedFile $file, array $data = []): Asset
     {
         return DB::transaction(function () use ($file, $data) {
+            $fileHash = $this->calculateFileHash($file);
+
+            $existingVersion = AssetVersion::where('file_hash', $fileHash)
+                ->whereHas('asset', function ($query) use ($data) {
+                    $query->where('user_id', $data['user_id']);
+                })
+                ->first();
+
+            if ($existingVersion) {
+                $asset = Asset::create(['user_id' => $data['user_id']]);
+                $asset->update(['latest_version_id' => $existingVersion->id]);
+                $asset->load('latestVersion');
+                return $asset;
+            }
+
             $asset = Asset::create(['user_id' => $data['user_id']]);
 
-            $version = $this->createVersion($asset, $file, $data);
+            $version = $this->createVersion($asset, $file, $data, $fileHash);
 
             $asset->update(['latest_version_id' => $version->id]);
 
@@ -46,18 +62,34 @@ class AssetService
     {
         return DB::transaction(function () use ($assetId, $file, $data) {
             $asset = Asset::findOrFail($assetId);
-            $version = $this->createVersion($asset, $file, $data);
+            $fileHash = $this->calculateFileHash($file);
+
+            $existingVersion = AssetVersion::where('file_hash', $fileHash)
+                ->whereHas('asset', function ($query) use ($asset) {
+                    $query->where('user_id', $asset->user_id);
+                })
+                ->first();
+
+            if ($existingVersion) {
+                $asset->update(['latest_version_id' => $existingVersion->id]);
+                return $existingVersion;
+            }
+
+            $version = $this->createVersion($asset, $file, $data, $fileHash);
             $asset->update(['latest_version_id' => $version->id]);
             return $version;
         });
     }
 
-    private function createVersion(Asset $asset, UploadedFile $file, array $data): AssetVersion
+    private function createVersion(Asset $asset, UploadedFile $file, array $data, string $fileHash): AssetVersion
     {
         $versionNumber = ($asset->versions()->max('version') ?? 0) + 1;
 
         $version = $asset->versions()->create(
-            array_merge($this->prepareData($file, $data), ['version' => $versionNumber])
+            array_merge($this->prepareData($file, $data), [
+                'version' => $versionNumber,
+                'file_hash' => $fileHash,
+            ])
         );
 
         $this->storageService->store($file, $asset->id, $versionNumber);
@@ -83,6 +115,11 @@ class AssetService
             'size' => $file->getSize(),
             'extension' => $file->getClientOriginalExtension(),
         ];
+    }
+
+    private function calculateFileHash(UploadedFile $file): string
+    {
+        return hash_file('sha256', $file->getRealPath());
     }
 
     public function update(int $id, array $data): Asset

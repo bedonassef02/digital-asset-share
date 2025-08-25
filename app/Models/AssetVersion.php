@@ -17,6 +17,7 @@ class AssetVersion extends Model
         'extension',
         'description',
         'metadata',
+        'file_hash',
     ];
 
     protected $casts = [
