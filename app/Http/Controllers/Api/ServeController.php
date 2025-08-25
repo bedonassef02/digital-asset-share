@@ -13,20 +13,14 @@ class ServeController extends Controller
 {
     public function __construct(
         private ServeService $serveService,
-        private DownloadService $downloadService
     ) {}
 
     public function __invoke(int $id): \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
     {
-        $asset = ($this->serveService)($id, auth()->id());
+        $result = $this->serveService->serveAsset($id, auth()->id(), auth()->user());
 
-        if (! $asset) {
-            return response()->json(['message' => 'Asset not found'], 404);
-        }
-
-        $this->downloadService->record(auth()->user(), $asset);
-
-        $path = $this->serveService->getAssetPath($asset);
+        $asset = $result['asset'];
+        $path = $result['path'];
 
         return response()->file(Storage::disk()->path($path), ['Content-Disposition' => 'inline; filename="'.$asset->latestVersion->name.'"']);
     }

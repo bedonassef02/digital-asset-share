@@ -41,7 +41,9 @@ class AssetService
     {
         $asset = Asset::withTrashed()->with('latestVersion')->where('user_id', $userId)->findOrFail($id);
 
-        $this->viewService->record(auth()->user(), $asset);
+        if ($userId !== $asset->user_id) {
+            $this->viewService->record($userId, $asset);
+        }
 
         return $asset;
     }

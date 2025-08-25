@@ -10,12 +10,21 @@ class ServeService
 {
     public function __construct(
         private AssetService $assetService,
-        private StorageService $storageService
+        private StorageService $storageService,
+        private DownloadService $downloadService
     ) {}
 
-    public function __invoke(int $id, int $userId): ?Asset
+    public function __invoke(int $assetId, int $userId, \Illuminate\Contracts\Auth\Authenticatable $authenticatedUser): array
     {
-        return $this->assetService->findOne($id, $userId);
+        $asset = $this->assetService->findOne($assetId, $userId);
+
+        if ($authenticatedUser->getAuthIdentifier() !== $asset->user_id) {
+            $this->downloadService->record($authenticatedUser, $asset);
+        }
+
+        $path = $this->storageService->getAssetVersionFilePath($asset->id, $asset->latestVersion->version, PathService::DEFAULT_FILENAME);
+
+        return ['asset' => $asset, 'path' => $path];
     }
 
     public function getAssetPath(Asset $asset): string
