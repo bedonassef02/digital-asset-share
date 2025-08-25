@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Asset;
+use App\Models\Collection;
+use App\Policies\AssetPolicy;
+use App\Policies\CollectionPolicy;
 use App\Services\MediaService;
 use App\Services\MediaProcessors\ImageProcessor;
 use App\Services\MediaProcessors\PdfProcessor;
@@ -15,6 +19,7 @@ use App\Services\MediaProcessors\Office\PowerPointProcessor;
 use App\Services\MediaProcessors\Office\WordDocumentProcessor;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -64,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Asset::class, AssetPolicy::class);
+        Gate::policy(Collection::class, CollectionPolicy::class);
     }
 }
