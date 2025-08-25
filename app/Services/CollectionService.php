@@ -61,7 +61,7 @@ class CollectionService
         }
     }
 
-    public function getCollectionAssets(int $collectionId, int $perPage = 15, int $userId)
+    public function getCollectionAssets(int $collectionId, int $userId, int $perPage = 15)
     {
         $collection = Collection::with(['assets' => function($query) {
             $query->whereNull('deleted_at')->with('latestVersion');

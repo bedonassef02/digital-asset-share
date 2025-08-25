@@ -67,7 +67,7 @@ class CollectionController extends Controller
     public function getCollectionAssets(Request $request, int $id): JsonResponse
     {
         $perPage = $request->query('per_page', 15);
-        $assets = $this->collectionService->getCollectionAssets($id, $perPage, auth()->id());
+        $assets = $this->collectionService->getCollectionAssets($id, auth()->id(), $perPage);
         return response()->json($assets);
     }
 
