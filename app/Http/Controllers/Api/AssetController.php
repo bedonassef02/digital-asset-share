@@ -59,7 +59,7 @@ class AssetController extends Controller
         }
 
         $userId = $user->id;
-        $asset = $this->assetService->findOne($id, $userId, $user);
+        $asset = $this->assetService->findOne($id, $userId);
 
         return new AssetResource($asset);
     }
