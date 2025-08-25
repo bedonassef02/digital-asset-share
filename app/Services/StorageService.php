@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class StorageService
 {
     public function __construct(
-        private PathService $pathService
+        public PathService $pathService
     ) {}
 
     public function store(UploadedFile $file, int $assetId, int $version): string
