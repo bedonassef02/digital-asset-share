@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\DownloadService;
 use App\Services\ServeService;
 use Illuminate\Support\Facades\Storage;
 
 class ServeController extends Controller
 {
     public function __construct(
-        private ServeService $serveService
+        private ServeService $serveService,
+        private DownloadService $downloadService
     ) {}
 
     /**
@@ -22,6 +24,8 @@ class ServeController extends Controller
         if (!$asset) {
             return response()->json(['message' => 'Asset not found'], 404);
         }
+
+        $this->downloadService->record(auth()->user(), $asset);
 
         $path = $this->serveService->getAssetPath($asset);
 
