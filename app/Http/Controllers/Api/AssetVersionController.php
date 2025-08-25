@@ -32,7 +32,7 @@ class AssetVersionController extends Controller
         $file = $data['file'];
         unset($data['file']);
 
-        $version = $this->assetService->createNewVersion($assetId, $file, $data);
+        $version = $this->assetService->createNewVersion($assetId, $file, auth()->id(), $data);
 
         return response()->json($version, 201);
     }

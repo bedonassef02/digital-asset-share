@@ -9,7 +9,6 @@ use App\Models\Asset;
 use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
 
 class AssetService
 {
@@ -56,7 +55,7 @@ class AssetService
         });
     }
 
-    public function createNewVersion(int $assetId, UploadedFile $file, array $data = [], int $userId): AssetVersion
+    public function createNewVersion(int $assetId, UploadedFile $file, int $userId, array $data = []): AssetVersion
     {
         return DB::transaction(function () use ($assetId, $file, $data, $userId) {
             $asset = Asset::where('user_id', $userId)->findOrFail($assetId);
@@ -174,7 +173,7 @@ class AssetService
         Asset::whereIn('id', $assetIds)->where('user_id', $userId)->delete(); // Uses SoftDeletes trait
     }
 
-    public function delete(int $id, bool $force = false, int $userId): bool
+    public function delete(int $id, int $userId, bool $force = false): bool
     {
         if ($force) {
             return $this->forceDelete($id, $userId);
