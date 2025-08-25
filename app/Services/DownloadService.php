@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\ZipCreationException;
 use App\Models\Asset;
 use App\Models\Collection;
 use App\Models\Download;
@@ -34,9 +35,19 @@ class DownloadService
      */
     public function createBulkDownloadZip(array $assetIds = [], array $collectionIds = []): string
     {
-        $assetsToZip = []; // This will store ['zip_path' => 'actual_file_path']
+        $assetsToZip = $this->collectAssets($assetIds, $collectionIds);
 
-        // Add directly specified assets
+        if (empty($assetsToZip)) {
+            throw new \Exception('No assets found for the given IDs or collections.');
+        }
+
+        return $this->createZipFile($assetsToZip);
+    }
+
+    private function collectAssets(array $assetIds, array $collectionIds): array
+    {
+        $assetsToZip = [];
+
         $directAssets = Asset::whereIn('id', $assetIds)->with('latestVersion')->get();
         foreach ($directAssets as $asset) {
             if ($asset->latestVersion) {
@@ -45,7 +56,6 @@ class DownloadService
             }
         }
 
-        // Add assets from collections and their children
         foreach ($collectionIds as $collectionId) {
             $collection = Collection::with('assets.latestVersion', 'children')->find($collectionId);
             if ($collection) {
@@ -53,10 +63,11 @@ class DownloadService
             }
         }
 
-        if (empty($assetsToZip)) {
-            throw new \Exception('No assets found for the given IDs or collections.');
-        }
+        return $assetsToZip;
+    }
 
+    private function createZipFile(array $assetsToZip): string
+    {
         $zipFileName = 'bulk_download_' . now()->format('YmdHis') . '.zip';
         $tempDisk = Storage::disk('temp');
         $zipFilePath = $tempDisk->path($zipFileName);
@@ -66,28 +77,38 @@ class DownloadService
             throw new ZipCreationException('Cannot create zip file: ' . $zipFilePath);
         }
 
-        $addedFiles = []; // To track files already added to the zip to handle duplicates
+        $addedFiles = [];
 
         foreach ($assetsToZip as $zipPath => $actualFilePath) {
-            if (file_exists($actualFilePath)) {
-                $finalZipPath = $zipPath;
-                $counter = 1;
-                // Handle duplicate names within the zip
-                while (in_array($finalZipPath, $addedFiles)) {
-                    $pathInfo = pathinfo($zipPath);
-                    $finalZipPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_' . $counter . '.' . $pathInfo['extension'];
-                    $counter++;
-                }
-                $zip->addFile($actualFilePath, $finalZipPath);
-                $addedFiles[] = $finalZipPath;
-            } else {
-                \Log::warning("File not found for path: {$actualFilePath}");
-            }
+            $this->addFileToZip($zip, $zipPath, $actualFilePath, $addedFiles);
         }
 
         $zip->close();
 
         return $zipFilePath;
+    }
+
+    private function addFileToZip(ZipArchive $zip, string $zipPath, string $actualFilePath, array &$addedFiles): void
+    {
+        if (file_exists($actualFilePath)) {
+            $finalZipPath = $this->getUniqueZipPath($zipPath, $addedFiles);
+            $zip->addFile($actualFilePath, $finalZipPath);
+            $addedFiles[] = $finalZipPath;
+        } else {
+            \Log::warning("File not found for path: {$actualFilePath}");
+        }
+    }
+
+    private function getUniqueZipPath(string $zipPath, array $addedFiles): string
+    {
+        $finalZipPath = $zipPath;
+        $counter = 1;
+        while (in_array($finalZipPath, $addedFiles)) {
+            $pathInfo = pathinfo($zipPath);
+            $finalZipPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_' . $counter . '.' . $pathInfo['extension'];
+            $counter++;
+        }
+        return $finalZipPath;
     }
 
     /**
