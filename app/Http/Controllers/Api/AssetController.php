@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ZipCreationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkDeleteAssetsRequest;
 use App\Http\Requests\BulkDownloadAssetsRequest;
@@ -13,14 +14,13 @@ use App\Http\Resources\AssetResource;
 use App\Services\AssetService;
 use App\Services\DownloadService;
 use App\Services\TagService;
-use App\Services\ViewService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AssetController extends Controller
 {
     public function __construct(
         private AssetService $assetService,
-        private ViewService $viewService,
         private TagService $tagService,
         private DownloadService $downloadService
     ) {}
@@ -54,12 +54,7 @@ class AssetController extends Controller
     public function show(string $id)
     {
         $userId = auth()->id();
-        $asset = $this->assetService->findOne($id, $userId);
-
-        // Record the asset view
-        if (auth()->check()) {
-            $this->viewService->record(auth()->user(), $asset);
-        }
+        $asset = $this->assetService->findOne($id, $userId, auth()->user());
 
         return new AssetResource($asset);
     }
@@ -78,11 +73,7 @@ class AssetController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        if ($request->query('force')) {
-            $this->assetService->forceDelete($id);
-        } else {
-            $this->assetService->softDelete($id);
-        }
+        $this->assetService->delete($id, $request->query('force'));
         return response()->json(null, 204);
     }
 

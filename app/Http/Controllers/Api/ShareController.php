@@ -9,34 +9,26 @@ use App\Models\Collection;
 use App\Services\DownloadService;
 use App\Services\ShareService;
 use App\Http\Requests\ResolveShareRequest;
-use App\Services\ViewService;
 
 class ShareController extends Controller
 {
     public function __construct(
         private ShareService $shareService,
-        private ViewService $viewService,
-        private DownloadService $downloadService
     ) {}
 
-    public function shareAsset(StoreShareRequest $request, Asset $asset)
+    public function shareAsset(StoreShareRequest $request, Asset $asset): \Illuminate\Http\JsonResponse
     {
-        return $this->createShare($request, $asset);
-    }
-
-    public function shareCollection(StoreShareRequest $request, Collection $collection)
-    {
-        return $this->createShare($request, $collection);
-    }
-
-    private function createShare(StoreShareRequest $request, Model $shareable)
-    {
-        $this->authorize('share', $shareable);
-        $share = $this->shareService->create($shareable, $request->validated(), auth()->id());
+        $share = $this->shareService->create($asset, $request->validated(), auth()->id());
         return response()->json($share, 201);
     }
 
-    public function list()
+    public function shareCollection(StoreShareRequest $request, Collection $collection): \Illuminate\Http\JsonResponse
+    {
+        $share = $this->shareService->create($collection, $request->validated(), auth()->id());
+        return response()->json($share, 201);
+    }
+
+    public function list(): \Illuminate\Http\JsonResponse
     {
         $shares = $this->shareService->list(auth()->id());
 
@@ -47,31 +39,20 @@ class ShareController extends Controller
     {
         $shareable = $this->shareService->resolve($token, $request->input('password'));
 
-        $this->viewService->record(auth()->user(), $shareable);
-
         return response()->json($shareable);
     }
 
-    public function revoke(string $token)
+    public function revoke(string $token): \Illuminate\Http\JsonResponse
     {
         $this->shareService->revoke($token, auth()->id());
 
         return response()->json(null, 204);
     }
 
-    public function stats(string $token)
+    public function stats(string $token): \Illuminate\Http\JsonResponse
     {
-        $share = \App\Models\Share::where('token', $token)->firstOrFail();
-        $this->authorize('view', $share);
+        $stats = $this->shareService->getStats($token);
 
-        $views = $this->viewService->getFor($share->shareable);
-        $downloads = $this->downloadService->getFor($share->shareable);
-
-        return response()->json([
-            'views' => $views,
-            'view_count' => $views->count(),
-            'downloads' => $downloads,
-            'download_count' => $downloads->count(),
-        ]);
+        return response()->json($stats);
     }
 }

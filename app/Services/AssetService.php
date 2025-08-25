@@ -9,13 +9,15 @@ use App\Models\Asset;
 use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class AssetService
 {
     public function __construct(
         private StorageService $storageService,
         private MetadataService $metadataService,
-        private FileHashService $fileHashService
+        private FileHashService $fileHashService,
+        private ViewService $viewService
     ) { }
 
     public function findAll(int $userId, int $perPage = 15, bool $includeTrashed = false, bool $onlyTrashed = false)
@@ -34,9 +36,13 @@ class AssetService
         return $query->paginate($perPage);
     }
 
-    public function findOne(int $id, int $userId)
+    public function findOne(int $id, int $userId, User $user)
     {
-        return Asset::withTrashed()->with('latestVersion')->where('user_id', $userId)->findOrFail($id);
+        $asset = Asset::withTrashed()->with('latestVersion')->where('user_id', $userId)->findOrFail($id);
+
+        $this->viewService->record($user, $asset);
+
+        return $asset;
     }
 
     public function create(UploadedFile $file, array $data = []): Asset
@@ -176,5 +182,14 @@ class AssetService
     public function bulkSoftDelete(array $assetIds): void
     {
         Asset::destroy($assetIds); // Uses SoftDeletes trait
+    }
+
+    public function delete(int $id, bool $force = false): bool
+    {
+        if ($force) {
+            return $this->forceDelete($id);
+        }
+
+        return $this->softDelete($id);
     }
 }

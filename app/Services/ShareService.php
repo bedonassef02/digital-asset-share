@@ -4,13 +4,21 @@ namespace App\Services;
 
 use App\Models\Share;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
 class ShareService
 {
+    public function __construct(
+        private ViewService $viewService,
+        private DownloadService $downloadService
+    ) {}
+
     public function create(Model $shareable, array $data, int $userId): Share
     {
+        Gate::authorize('share', $shareable);
+
         $token = Str::random(32);
         $password = isset($data['password']) ? Hash::make($data['password']) : null;
 
@@ -36,6 +44,8 @@ class ShareService
             abort(403, 'Incorrect password.');
         }
 
+        $this->viewService->record(auth()->user(), $share->shareable);
+
         return $share->shareable;
     }
 
@@ -55,5 +65,21 @@ class ShareService
         $share->delete();
 
         return true;
+    }
+
+    public function getStats(string $token): array
+    {
+        $share = Share::where('token', $token)->firstOrFail();
+        Gate::authorize('view', $share);
+
+        $views = $this->viewService->getFor($share->shareable);
+        $downloads = $this->downloadService->getFor($share->shareable);
+
+        return [
+            'views' => $views,
+            'view_count' => $views->count(),
+            'downloads' => $downloads,
+            'download_count' => $downloads->count(),
+        ];
     }
 }
