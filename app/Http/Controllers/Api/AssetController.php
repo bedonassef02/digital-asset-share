@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkDeleteAssetsRequest;
+use App\Http\Requests\BulkTagAssetsRequest;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
 use App\Services\AssetService;
+use App\Services\TagService;
 use App\Services\ViewService;
 use Illuminate\Http\Request;
 
@@ -15,7 +17,8 @@ class AssetController extends Controller
 {
     public function __construct(
         private AssetService $assetService,
-        private ViewService $viewService
+        private ViewService $viewService,
+        private TagService $tagService
     ) {}
 
     /**
@@ -83,6 +86,15 @@ class AssetController extends Controller
     {
         $assetIds = $request->validated('asset_ids');
         $this->assetService->bulkSoftDelete($assetIds);
+        return response()->json(null, 204);
+    }
+
+    public function bulkTag(BulkTagAssetsRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validated();
+        $assetIds = $validated['asset_ids'];
+        $tags = $validated['tags'];
+        $this->tagService->bulkTag($assetIds, $tags);
         return response()->json(null, 204);
     }
 }

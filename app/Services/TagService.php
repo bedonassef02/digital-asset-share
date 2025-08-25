@@ -32,4 +32,20 @@ class TagService
             $asset->tags()->detach($tag->id);
         }
     }
+
+    public function bulkTag(array $assetIds, array $tags): void
+    {
+        $tagIds = [];
+        foreach ($tags as $tagName) {
+            $tag = Tag::firstOrCreate(['name' => $tagName]);
+            $tagIds[] = $tag->id;
+        }
+
+        foreach ($assetIds as $assetId) {
+            $asset = Asset::find($assetId);
+            if ($asset) {
+                $asset->tags()->syncWithoutDetaching($tagIds);
+            }
+        }
+    }
 }

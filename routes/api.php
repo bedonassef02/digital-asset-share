@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('/assets', AssetController::class);
     Route::delete('/assets', [AssetController::class, 'bulkDestroy']);
+    Route::post('/assets/tags', [AssetController::class, 'bulkTag']);
     Route::post('/assets/{id}/tags', [TagController::class, 'add']);
     Route::delete('/assets/{id}/tags', [TagController::class, 'remove']);
 
