@@ -56,10 +56,10 @@ class AssetService
         });
     }
 
-    public function createNewVersion(int $assetId, UploadedFile $file, array $data = []): AssetVersion
+    public function createNewVersion(int $assetId, UploadedFile $file, array $data = [], int $userId): AssetVersion
     {
-        return DB::transaction(function () use ($assetId, $file, $data) {
-            $asset = Asset::findOrFail($assetId);
+        return DB::transaction(function () use ($assetId, $file, $data, $userId) {
+            $asset = Asset::where('user_id', $userId)->findOrFail($assetId);
             $version = $this->findOrCreateVersion($asset, $file, $data);
             $asset->update(['latest_version_id' => $version->id]);
             return $version;
@@ -124,9 +124,9 @@ class AssetService
         ];
     }
 
-    public function update(int $id, array $data): Asset
+    public function update(int $id, array $data, int $userId): Asset
     {
-        $asset = Asset::findOrFail($id);
+        $asset = Asset::where('user_id', $userId)->findOrFail($id);
 
         $asset->latestVersion->update($data);
 
@@ -137,31 +137,31 @@ class AssetService
         return $asset;
     }
 
-    public function changeStatus(int $id, string $status): bool
+    public function changeStatus(int $id, string $status, int $userId): bool
     {
-        $asset = Asset::withTrashed()->findOrFail($id);
+        $asset = Asset::withTrashed()->where('user_id', $userId)->findOrFail($id);
         $asset->update(['status' => $status]);
         return true;
     }
 
-    public function softDelete(int $id): bool
+    public function softDelete(int $id, int $userId): bool
     {
-        $asset = Asset::findOrFail($id);
+        $asset = Asset::where('user_id', $userId)->findOrFail($id);
         $asset->delete(); // Uses SoftDeletes trait
         return true;
     }
 
-    public function restore(int $id): bool
+    public function restore(int $id, int $userId): bool
     {
-        $asset = Asset::onlyTrashed()->findOrFail($id);
+        $asset = Asset::onlyTrashed()->where('user_id', $userId)->findOrFail($id);
         $asset->restore(); // Uses SoftDeletes trait
         $asset->update(['status' => Asset::STATUS_ACTIVE]);
         return true;
     }
 
-    public function forceDelete(int $id): bool
+    public function forceDelete(int $id, int $userId): bool
     {
-        $asset = Asset::withTrashed()->findOrFail($id);
+        $asset = Asset::withTrashed()->where('user_id', $userId)->findOrFail($id);
 
         $this->storageService->deleteDirectory($id);
 
@@ -169,17 +169,17 @@ class AssetService
         return true;
     }
 
-    public function bulkSoftDelete(array $assetIds): void
+    public function bulkSoftDelete(array $assetIds, int $userId): void
     {
-        Asset::destroy($assetIds); // Uses SoftDeletes trait
+        Asset::whereIn('id', $assetIds)->where('user_id', $userId)->delete(); // Uses SoftDeletes trait
     }
 
-    public function delete(int $id, bool $force = false): bool
+    public function delete(int $id, bool $force = false, int $userId): bool
     {
         if ($force) {
-            return $this->forceDelete($id);
+            return $this->forceDelete($id, $userId);
         }
 
-        return $this->softDelete($id);
+        return $this->softDelete($id, $userId);
     }
 }
