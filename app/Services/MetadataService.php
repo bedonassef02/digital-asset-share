@@ -3,9 +3,7 @@
 namespace App\Services;
 
 use App\Models\AssetVersion;
-use App\Models\Asset;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class MetadataService
 {
