@@ -16,7 +16,7 @@ class ServeController extends Controller
 
     public function __invoke(int $id): \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
     {
-        $result = $this->serveService->serveAsset($id, auth()->id(), auth()->user());
+        $result = ($this->serveService)($id, auth()->id(), auth()->user());
 
         $asset = $result['asset'];
         $path = $result['path'];

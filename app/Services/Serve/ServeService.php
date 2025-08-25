@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Serve;
 
 use App\Models\Asset;
+use App\Services\Asset\AssetService;
+use App\Services\Asset\StorageService;
+use App\Services\Download\DownloadService;
 
 class ServeService
 {
@@ -22,13 +25,8 @@ class ServeService
             $this->downloadService->record($authenticatedUser, $asset);
         }
 
-        $path = $this->storageService->getAssetVersionFilePath($asset->id, $asset->latestVersion->version, PathService::DEFAULT_FILENAME);
+        $path = $this->storageService->getAssetVersionFilePath($asset->id, $asset->latestVersion->version);
 
         return ['asset' => $asset, 'path' => $path];
-    }
-
-    public function getAssetPath(Asset $asset): string
-    {
-        return $this->storageService->getAssetVersionFilePath($asset->id, $asset->latestVersion->version, PathService::DEFAULT_FILENAME);
     }
 }

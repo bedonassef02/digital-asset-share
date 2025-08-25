@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\Asset\MediaProcessors;
 
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 
-class VideoProcessor implements MediaProcessorInterface
+class VideoProcessor implements \App\Services\Asset\MediaProcessors\MediaProcessorInterface
 {
     protected FFMpeg $ffmpeg;
 

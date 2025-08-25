@@ -6,6 +6,7 @@ namespace App\Services\Asset;
 
 use App\Jobs\ReplaceAssetTags;
 use App\Models\Asset;
+use App\Services\View\ViewService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 

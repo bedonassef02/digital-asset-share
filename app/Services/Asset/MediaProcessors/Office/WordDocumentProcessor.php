@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors\Office;
+namespace App\Services\Asset\MediaProcessors\Office;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;

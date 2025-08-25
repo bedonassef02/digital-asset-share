@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\Asset\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
 

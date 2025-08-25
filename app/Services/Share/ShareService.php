@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Share;
 
 use App\Models\Share;
+use App\Services\Download\DownloadService;
+use App\Services\View\ViewService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;

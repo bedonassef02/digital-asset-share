@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\Asset\MediaProcessors;
 
 use getID3;
-use Illuminate\Http\UploadedFile; // Import the getID3 class
+use Illuminate\Http\UploadedFile;
 
-class AudioProcessor implements MediaProcessorInterface
+class AudioProcessor implements \App\Services\Asset\MediaProcessors\MediaProcessorInterface
 {
     public function canProcess(UploadedFile $file): bool
     {

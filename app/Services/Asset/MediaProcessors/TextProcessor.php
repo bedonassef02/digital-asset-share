@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\Asset\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 
-class TextProcessor implements MediaProcessorInterface
+class TextProcessor implements \App\Services\Asset\MediaProcessors\MediaProcessorInterface
 {
     public function canProcess(UploadedFile $file): bool
     {

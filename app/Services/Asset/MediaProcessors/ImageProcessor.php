@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\Asset\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 
-class ImageProcessor implements MediaProcessorInterface
+class ImageProcessor implements \App\Services\Asset\MediaProcessors\MediaProcessorInterface
 {
     public function __construct(
         private ?ImageManager $imageManager = null

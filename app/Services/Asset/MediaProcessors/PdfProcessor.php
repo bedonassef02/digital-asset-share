@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\Asset\MediaProcessors;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Smalot\PdfParser\Parser;
 
-class PdfProcessor implements MediaProcessorInterface
+class PdfProcessor implements \App\Services\Asset\MediaProcessors\MediaProcessorInterface
 {
     public function __construct(
         private ?Parser $pdfParser = null

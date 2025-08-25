@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Services\MediaProcessors;
+namespace App\Services\Asset\MediaProcessors;
 
+use App\Services\Asset\MediaProcessors\MediaProcessorInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
