@@ -2,27 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\ZipCreationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkDeleteAssetsRequest;
-use App\Http\Requests\BulkDownloadAssetsRequest;
 use App\Http\Requests\BulkTagAssetsRequest;
 use App\Http\Requests\ChangeAssetStatusRequest;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
 use App\Services\AssetService;
-use App\Services\DownloadService;
 use App\Services\TagService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class AssetController extends Controller
 {
     public function __construct(
         private AssetService $assetService,
-        private TagService $tagService,
-        private DownloadService $downloadService
+        private TagService $tagService
     ) {}
 
     /**
@@ -72,7 +67,7 @@ class AssetController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $this->assetService->delete($id, $request->query('force'), auth()->id());
+        $this->assetService->delete($id, auth()->id(), $request->query('force', false));
         return response()->json(null, 204);
     }
 
@@ -102,24 +97,5 @@ class AssetController extends Controller
     {
         $this->assetService->restore($id, auth()->id());
         return response()->json(null, 204);
-    }
-
-    public function bulkDownload(BulkDownloadAssetsRequest $request): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
-    {
-        $validated = $request->validated();
-        $assetIds = $validated['asset_ids'] ?? [];
-        $collectionIds = $validated['collection_ids'] ?? [];
-
-        try {
-            $zipFilePath = $this->downloadService->createBulkDownloadZip($assetIds, $collectionIds);
-
-            return response()->download($zipFilePath)->deleteFileAfterSend(true);
-        } catch (ZipCreationException $e) {
-            Log::error('Bulk download zip creation failed: ' . $e->getMessage());
-            return response()->json(['message' => 'Could not create download package. Please try again later.'], 500);
-        } catch (\Exception $e) {
-            Log::critical('An unexpected error occurred during bulk download: ' . $e->getMessage());
-            return response()->json(['message' => 'An unexpected error occurred.'], 500);
-        }
     }
 }
