@@ -28,11 +28,11 @@ class StorageService
         return Storage::disk()->deleteDirectory($assetDirectory);
     }
 
-    public function deleteFile(int $assetId, int $version): bool
+    public function deleteVersion(int $assetId, int $version): bool
     {
-        $filePath = $this->pathService->getAssetVersionFilePath($assetId, $version, PathService::DEFAULT_FILENAME);
+        $assetDirectory = $this->pathService->getAssetVersionPath($assetId, $version);
 
-        return Storage::disk()->delete($filePath);
+        return Storage::disk()->deleteDirectory($assetDirectory);
     }
 
     public function getAssetVersionFilePath(int $assetId, int $version): string
