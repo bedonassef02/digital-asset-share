@@ -50,6 +50,12 @@ class AssetService
 
     public function create(UploadedFile $file, array $data = []): Asset
     {
+        $existingAsset = $this->findExistingAssetByHash($file, $data['user_id']);
+
+        if ($existingAsset) {
+            return $existingAsset;
+        }
+
         return DB::transaction(function () use ($file, $data) {
             $asset = Asset::create(['user_id' => $data['user_id']]);
             $version = $this->findOrCreateVersion($asset, $file, $data);
@@ -58,6 +64,22 @@ class AssetService
 
             return $asset;
         });
+    }
+
+    private function findExistingAssetByHash(UploadedFile $file, int $userId): ?Asset
+    {
+        $fileHash = $this->fileHashService->calculateFileHash($file);
+
+        $existingVersion = AssetVersion::where('file_hash', $fileHash)
+            ->whereHas('asset', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })->first();
+
+        if ($existingVersion) {
+            return $existingVersion->asset;
+        }
+
+        return null;
     }
 
     public function createNewVersion(int $assetId, UploadedFile $file, int $userId, array $data = []): AssetVersion
@@ -78,8 +100,7 @@ class AssetService
         $existingVersion = AssetVersion::where('file_hash', $fileHash)
             ->whereHas('asset', function ($query) use ($asset) {
                 $query->where('user_id', $asset->user_id);
-            })
-            ->first();
+            })->first();
 
         if ($existingVersion) {
             return $existingVersion;
