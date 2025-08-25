@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AssetController;
 use App\Http\Controllers\Api\AssetVersionController;
+use App\Http\Controllers\Api\DownloadController;
 use App\Http\Controllers\Api\ServeController;
 use App\Http\Controllers\Api\TagController;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/assets/{id}/status', [AssetController::class, 'changeStatus']);
     Route::post('/assets/{id}/restore', [AssetController::class, 'restore']);
-    Route::post('/assets/bulk-download', [AssetController::class, 'bulkDownload']);
+    Route::post('/assets/bulk-download', [DownloadController::class, 'bulkDownload']);
 
     Route::get('/assets/{assetId}/versions', [AssetVersionController::class, 'index']);
     Route::get('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'show']);
