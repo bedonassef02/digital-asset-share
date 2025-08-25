@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Asset;
 use App\Models\Collection;
+use App\Models\Share;
 use App\Policies\AssetPolicy;
 use App\Policies\CollectionPolicy;
+use App\Policies\SharePolicy;
 use App\Services\MediaService;
 use App\Services\MediaProcessors\ImageProcessor;
 use App\Services\MediaProcessors\PdfProcessor;
@@ -71,5 +73,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Asset::class, AssetPolicy::class);
         Gate::policy(Collection::class, CollectionPolicy::class);
+        Gate::policy(Share::class, SharePolicy::class);
     }
 }

@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/shares', [App\Http\Controllers\Api\ShareController::class, 'list']);
     Route::get('/shares/{token}', [App\Http\Controllers\Api\ShareController::class, 'resolve']);
     Route::delete('/shares/{token}', [App\Http\Controllers\Api\ShareController::class, 'revoke']);
+    Route::get('/shares/{token}/stats', [App\Http\Controllers\Api\ShareController::class, 'stats']);
 
     // Collection routes
     Route::apiResource('/collections', App\Http\Controllers\Api\CollectionController::class);
