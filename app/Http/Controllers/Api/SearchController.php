@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SearchAssetsRequest;
 use App\Services\SearchService;
-use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
@@ -12,13 +12,19 @@ class SearchController extends Controller
         private SearchService $searchService
     ) {}
 
-    public function search(Request $request)
+    public function search(SearchAssetsRequest $request)
     {
-        $request->validate([
-            'q' => 'required|string|min:1',
-        ]);
+        $validated = $request->validated();
 
-        $results = $this->searchService->search($request->input('q'));
+        $results = $this->searchService->search(
+            $validated['q'],
+            auth()->id(),
+            $validated['mime_type'] ?? null,
+            $validated['min_size'] ?? null,
+            $validated['max_size'] ?? null,
+            $validated['start_date'] ?? null,
+            $validated['end_date'] ?? null
+        );
 
         return response()->json($results);
     }
