@@ -34,4 +34,9 @@ class Collection extends Model
     {
         return $this->hasMany(Collection::class, 'parent_id');
     }
+
+    public function shares(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Share::class, 'shareable');
+    }
 }

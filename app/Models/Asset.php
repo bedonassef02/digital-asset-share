@@ -37,9 +37,9 @@ class Asset extends Model
         return $this->hasOne(AssetVersion::class)->latest('version');
     }
 
-    public function shares(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function shares(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
-        return $this->hasMany(Share::class);
+        return $this->morphMany(Share::class, 'shareable');
     }
 
     public function views(): \Illuminate\Database\Eloquent\Relations\HasMany

@@ -10,7 +10,8 @@ class Share extends Model
     use HasFactory;
     protected $fillable = [
         'token',
-        'asset_id',
+        'shareable_id',
+        'shareable_type',
         'user_id',
         'expires_at',
         'password',
@@ -20,9 +21,9 @@ class Share extends Model
         'expires_at' => 'datetime',
     ];
 
-    public function asset()
+    public function shareable()
     {
-        return $this->belongsTo(Asset::class);
+        return $this->morphTo();
     }
 
     public function user()

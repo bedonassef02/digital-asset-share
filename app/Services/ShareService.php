@@ -2,21 +2,20 @@
 
 namespace App\Services;
 
-use App\Models\Asset;
 use App\Models\Share;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
 class ShareService
 {
-    public function create(Asset $asset, array $data, int $userId)
+    public function create(Model $shareable, array $data, int $userId): Share
     {
         $token = Str::random(32);
         $password = isset($data['password']) ? Hash::make($data['password']) : null;
 
-        $share = Share::create([
+        $share = $shareable->shares()->create([
             'token' => $token,
-            'asset_id' => $asset->id,
             'user_id' => $userId,
             'expires_at' => isset($data['expires_at']) ? now()->parse($data['expires_at']) : null,
             'password' => $password,
@@ -37,7 +36,7 @@ class ShareService
             abort(403, 'Incorrect password.');
         }
 
-        return $share->asset;
+        return $share->shareable;
     }
 
     public function list(int $userId)
