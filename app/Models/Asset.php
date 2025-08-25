@@ -42,13 +42,18 @@ class Asset extends Model
         return $this->morphMany(Share::class, 'shareable');
     }
 
-    public function views(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function views(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
-        return $this->hasMany(AssetView::class);
+        return $this->morphMany(AssetView::class, 'viewable');
     }
 
     public function collections(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Collection::class);
+    }
+
+    public function downloads(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Download::class, 'downloadable');
     }
 }

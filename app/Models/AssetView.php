@@ -8,7 +8,8 @@ class AssetView extends Model
 {
     protected $fillable = [
         'user_id',
-        'asset_id',
+        'viewable_id',
+        'viewable_type',
         'last_seen_at',
     ];
 
@@ -21,8 +22,8 @@ class AssetView extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function asset()
+    public function viewable()
     {
-        return $this->belongsTo(Asset::class);
+        return $this->morphTo();
     }
 }

@@ -2,27 +2,27 @@
 
 namespace App\Services;
 
-use App\Models\Asset;
 use App\Models\AssetView;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
 class ViewService
 {
-    public function record(Authenticatable $user, Asset $asset): AssetView
+    public function record(Authenticatable $user, Model $viewable): AssetView
     {
-        return AssetView::updateOrCreate(
-            ['user_id' => $user->getAuthIdentifier(), 'asset_id' => $asset->id],
+        return $viewable->views()->updateOrCreate(
+            ['user_id' => $user->getAuthIdentifier()],
             ['last_seen_at' => now()]
         );
     }
 
-    public function getForAsset(Asset $asset)
+    public function getFor(Model $viewable)
     {
-        return $asset->views()->with('user')->get();
+        return $viewable->views()->with('user')->get();
     }
 
     public function getByUser(Authenticatable $user)
     {
-        return $user->assetViews()->with('asset')->get();
+        return AssetView::where('user_id', $user->getAuthIdentifier())->with('viewable')->get();
     }
 }

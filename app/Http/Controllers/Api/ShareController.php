@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreShareRequest;
 use App\Models\Asset;
 use App\Models\Collection;
+use App\Services\DownloadService;
 use App\Services\ShareService;
 use App\Http\Requests\ResolveShareRequest;
 use App\Services\ViewService;
@@ -14,7 +15,8 @@ class ShareController extends Controller
 {
     public function __construct(
         private ShareService $shareService,
-        private ViewService $viewService
+        private ViewService $viewService,
+        private DownloadService $downloadService
     ) {}
 
     public function shareAsset(StoreShareRequest $request, Asset $asset)
@@ -44,9 +46,7 @@ class ShareController extends Controller
     {
         $shareable = $this->shareService->resolve($token, $request->input('password'));
 
-        if ($shareable instanceof Asset) {
-            $this->viewService->record(auth()->user(), $shareable);
-        }
+        $this->viewService->record(auth()->user(), $shareable);
 
         return response()->json($shareable);
     }
@@ -56,5 +56,21 @@ class ShareController extends Controller
         $this->shareService->revoke($token, auth()->id());
 
         return response()->json(null, 204);
+    }
+
+    public function stats(string $token)
+    {
+        $share = \App\Models\Share::where('token', $token)->firstOrFail();
+        $this->authorize('view', $share);
+
+        $views = $this->viewService->getFor($share->shareable);
+        $downloads = $this->downloadService->getFor($share->shareable);
+
+        return response()->json([
+            'views' => $views,
+            'view_count' => $views->count(),
+            'downloads' => $downloads,
+            'download_count' => $downloads->count(),
+        ]);
     }
 }

@@ -58,8 +58,5 @@ class User extends Authenticatable
         return $this->hasMany(Share::class);
     }
 
-    public function assetViews()
-    {
-        return $this->hasMany(AssetView::class);
-    }
+    
 }

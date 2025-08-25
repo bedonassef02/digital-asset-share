@@ -39,4 +39,14 @@ class Collection extends Model
     {
         return $this->morphMany(Share::class, 'shareable');
     }
+
+    public function views(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(AssetView::class, 'viewable');
+    }
+
+    public function downloads(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Download::class, 'downloadable');
+    }
 }
