@@ -53,9 +53,7 @@ class AssetController extends Controller
      */
     public function show(string $id)
     {
-        $userId = auth()->id();
-        $user = auth()->user();
-        $asset = $this->assetService->findOne($id, $userId, $user);
+        $asset = $this->assetService->findOne($id, auth()->id());
 
         return new AssetResource($asset);
     }
