@@ -16,7 +16,7 @@ class ServeController extends Controller
         private DownloadService $downloadService
     ) {}
 
-    public function __invoke(string $id): \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function __invoke(int $id): \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         $asset = ($this->serveService)($id, auth()->id());
 

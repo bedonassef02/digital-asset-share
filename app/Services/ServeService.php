@@ -13,7 +13,7 @@ class ServeService
         private StorageService $storageService
     ) {}
 
-    public function __invoke(string $id, int $userId): ?Asset
+    public function __invoke(int $id, int $userId): ?Asset
     {
         return $this->assetService->findOne($id, $userId);
     }
