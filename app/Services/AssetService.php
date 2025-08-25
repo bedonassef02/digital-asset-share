@@ -173,4 +173,13 @@ class AssetService
     {
         Asset::destroy($assetIds); // Uses SoftDeletes trait
     }
+
+    public function delete(int $id, bool $force = false): bool
+    {
+        if ($force) {
+            return $this->forceDelete($id);
+        }
+
+        return $this->softDelete($id);
+    }
 }
