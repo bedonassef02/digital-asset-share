@@ -24,7 +24,14 @@ class ShareFactory extends Factory
     public function definition()
     {
         return [
-            'asset_id' => Asset::factory(),
+            'shareable_id' => $this->faker->randomElement([
+                \App\Models\Asset::factory(),
+                \App\Models\Collection::factory(),
+            ]),
+            'shareable_type' => $this->faker->randomElement([
+                'App\\Models\\Asset',
+                'App\\Models\\Collection',
+            ]),
             'user_id' => \App\Models\User::factory(),
             'token' => Str::random(32),
             'expires_at' => now()->addDays(7),
