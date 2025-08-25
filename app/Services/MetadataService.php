@@ -49,7 +49,7 @@ class MetadataService
             return [];
         }
 
-        $metadataFilePath = $this->storageService->getAssetVersionFilePath($asset->id, $asset->latestVersion->version, 'metadata.json');
+        $metadataFilePath = $this->storageService->pathService->getAssetVersionPath($asset->id, $asset->latestVersion->version) . '/metadata.json';
 
         if (Storage::disk()->exists($metadataFilePath)) {
             $metadataContent = Storage::disk()->get($metadataFilePath);
@@ -61,6 +61,6 @@ class MetadataService
 
     private function getMetadataFilePath(AssetVersion $assetVersion): string
     {
-        return $this->storageService->getAssetVersionFilePath($assetVersion->asset_id, $assetVersion->version, 'metadata.json');
+        return $this->storageService->pathService->getAssetVersionPath($assetVersion->asset_id, $assetVersion->version) . '/metadata.json';
     }
 }
