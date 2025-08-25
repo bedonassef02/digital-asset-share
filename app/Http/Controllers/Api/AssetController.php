@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BulkDeleteAssetsRequest;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
@@ -75,6 +76,13 @@ class AssetController extends Controller
         } else {
             $this->assetService->softDelete($id);
         }
+        return response()->json(null, 204);
+    }
+
+    public function bulkDestroy(BulkDeleteAssetsRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $assetIds = $request->validated('asset_ids');
+        $this->assetService->bulkSoftDelete($assetIds);
         return response()->json(null, 204);
     }
 }

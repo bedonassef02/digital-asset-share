@@ -151,4 +151,9 @@ class AssetService
         $asset->forceDelete();
         return true;
     }
+
+    public function bulkSoftDelete(array $assetIds): void
+    {
+        Asset::whereIn('id', $assetIds)->delete();
+    }
 }
