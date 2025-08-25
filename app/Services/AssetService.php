@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Jobs\GenerateThumbnail;
 use App\Jobs\ReplaceAssetTags;
-use App\Jobs\TranscodeVideo;
 use App\Models\Asset;
-use App\Models\AssetVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class AssetService
 {
     public function __construct(
-        private StorageService $storageService,
-        private MetadataService $metadataService,
         private FileHashService $fileHashService,
-        private ViewService $viewService
+        private ViewService $viewService,
+        private StorageService $storageService,
+        private AssetVersionService $assetVersionService
     ) {}
 
     public function findAll(int $userId, int $perPage = 15, bool $includeTrashed = false, bool $onlyTrashed = false): \Illuminate\Contracts\Pagination\LengthAwarePaginator
@@ -59,7 +56,7 @@ class AssetService
 
         return DB::transaction(function () use ($file, $data, $fileHash) {
             $asset = Asset::create(['user_id' => $data['user_id']]);
-            $version = $this->findOrCreateVersion($asset, $file, $data, $fileHash);
+            $version = $this->assetVersionService->findOrCreateVersion($asset, $file, $data, $fileHash);
             $asset->update(['latest_version_id' => $version->id]);
             $asset->load('latestVersion');
 
@@ -67,82 +64,11 @@ class AssetService
         });
     }
 
-    private function findAssetVersionByHash(string $fileHash, int $userId): ?AssetVersion
-    {
-        return AssetVersion::where('file_hash', $fileHash)
-            ->whereHas('asset', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })->first();
-    }
-
     private function findExistingAssetByHash(string $fileHash, int $userId): ?Asset
     {
-        $existingVersion = $this->findAssetVersionByHash($fileHash, $userId);
+        $existingVersion = $this->assetVersionService->findAssetVersionByHash($fileHash, $userId);
 
         return $existingVersion?->asset;
-    }
-
-    public function createNewVersion(int $assetId, UploadedFile $file, int $userId, array $data = []): AssetVersion
-    {
-        return DB::transaction(function () use ($assetId, $file, $data, $userId) {
-            $asset = Asset::where('user_id', $userId)->findOrFail($assetId);
-            $fileHash = $this->fileHashService->calculateFileHash($file);
-            $version = $this->findOrCreateVersion($asset, $file, $data, $fileHash);
-            $asset->update(['latest_version_id' => $version->id]);
-
-            return $version;
-        });
-    }
-
-    private function findOrCreateVersion(Asset $asset, UploadedFile $file, array $data, string $fileHash): AssetVersion
-    {
-        $existingVersion = $this->findAssetVersionByHash($fileHash, $asset->user_id);
-        if ($existingVersion) {
-            return $existingVersion;
-        }
-
-        return $this->createVersion($asset, $file, $data, $fileHash);
-    }
-
-    private function createVersion(Asset $asset, UploadedFile $file, array $data, string $fileHash): AssetVersion
-    {
-        $versionNumber = ($asset->versions()->max('version') ?? 0) + 1;
-
-        $version = $asset->versions()->create(
-            array_merge($this->prepareData($file, $data), [
-                'version' => $versionNumber,
-                'file_hash' => $fileHash,
-            ])
-        );
-
-        $this->storageService->store($file, $asset->id, $versionNumber);
-
-        $this->dispatchMediaJobs($version);
-
-        ($this->metadataService)($file, $version);
-
-        return $version;
-    }
-
-    private function dispatchMediaJobs(AssetVersion $version): void
-    {
-        if (str_starts_with($version->mime_type, 'image/')) {
-            GenerateThumbnail::dispatch($version);
-        } elseif (str_starts_with($version->mime_type, 'video/')) {
-            GenerateThumbnail::dispatch($version);
-            TranscodeVideo::dispatch($version);
-        }
-    }
-
-    private function prepareData(UploadedFile $file, array $data): array
-    {
-        return [
-            'name' => $data['name'] ?? $file->getClientOriginalName(),
-            'description' => $data['description'] ?? null,
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize(),
-            'extension' => $file->getClientOriginalExtension(),
-        ];
     }
 
     public function update(int $id, array $data, int $userId): Asset

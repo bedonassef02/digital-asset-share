@@ -6,26 +6,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAssetRequest;
-use App\Models\Asset;
-use App\Services\AssetService;
+use App\Services\AssetVersionService;
 
 class AssetVersionController extends Controller
 {
     public function __construct(
-        private AssetService $assetService
+        private AssetVersionService $assetVersionService
     ) {}
 
     public function index(int $assetId): \Illuminate\Http\JsonResponse
     {
-        $asset = Asset::with('versions')->findOrFail($assetId);
+        $versions = $this->assetVersionService->getVersionsForAsset($assetId);
 
-        return response()->json($asset->versions);
+        return response()->json($versions);
     }
 
     public function show(int $assetId, string $version): \Illuminate\Http\JsonResponse
     {
-        $asset = Asset::findOrFail($assetId);
-        $assetVersion = $asset->versions()->where('version', $version)->firstOrFail();
+        $assetVersion = $this->assetVersionService->getSpecificVersion($assetId, $version);
 
         return response()->json($assetVersion);
     }
@@ -36,14 +34,19 @@ class AssetVersionController extends Controller
         $file = $data['file'];
         unset($data['file']);
 
-        $version = $this->assetService->createNewVersion($assetId, $file, auth()->id(), $data);
+        $version = $this->assetVersionService->createNewVersion($assetId, $file, auth()->id(), $data);
 
         return response()->json($version, 201);
     }
 
     public function destroy(int $assetId, int $version): \Illuminate\Http\JsonResponse
     {
-        // TODO: Implement delete version logic
-        return response()->json(null, 204);
+        try {
+            $this->assetVersionService->deleteVersion($assetId, $version);
+
+            return response()->json(null, 204);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
     }
 }
