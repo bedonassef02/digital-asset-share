@@ -53,8 +53,13 @@ class AssetController extends Controller
      */
     public function show(string $id)
     {
-        $userId = auth()->id();
-        $asset = $this->assetService->findOne($id, $userId, auth()->user());
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $userId = $user->id;
+        $asset = $this->assetService->findOne($id, $userId, $user);
 
         return new AssetResource($asset);
     }
@@ -64,7 +69,7 @@ class AssetController extends Controller
      */
     public function update(UpdateAssetRequest $request, string $id)
     {
-        $asset = $this->assetService->update($id, $request->validated());
+        $asset = $this->assetService->update($id, $request->validated(), auth()->id());
         return new AssetResource($asset);
     }
 
@@ -73,14 +78,14 @@ class AssetController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $this->assetService->delete($id, $request->query('force'));
+        $this->assetService->delete($id, $request->query('force'), auth()->id());
         return response()->json(null, 204);
     }
 
     public function bulkDestroy(BulkDeleteAssetsRequest $request): \Illuminate\Http\JsonResponse
     {
         $assetIds = $request->validated('asset_ids');
-        $this->assetService->bulkSoftDelete($assetIds);
+        $this->assetService->bulkSoftDelete($assetIds, auth()->id());
         return response()->json(null, 204);
     }
 
@@ -95,17 +100,17 @@ class AssetController extends Controller
 
     public function changeStatus(ChangeAssetStatusRequest $request, string $id): \Illuminate\Http\JsonResponse
     {
-        $this->assetService->changeStatus($id, $request->validated('status'));
+        $this->assetService->changeStatus($id, $request->validated('status'), auth()->id());
         return response()->json(null, 204);
     }
 
     public function restore(string $id): \Illuminate\Http\JsonResponse
     {
-        $this->assetService->restore($id);
+        $this->assetService->restore($id, auth()->id());
         return response()->json(null, 204);
     }
 
-    public function bulkDownload(BulkDownloadAssetsRequest $request)
+    public function bulkDownload(BulkDownloadAssetsRequest $request): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
         $assetIds = $validated['asset_ids'] ?? [];
