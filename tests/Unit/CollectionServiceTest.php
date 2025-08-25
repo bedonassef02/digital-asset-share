@@ -88,6 +88,16 @@ class CollectionServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_throws_exception_when_updating_collection_of_another_user()
+    {
+        $anotherUser = User::factory()->create();
+        $collection = Collection::factory()->create(['user_id' => $anotherUser->id]);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->collectionService->update($collection->id, ['name' => 'Attempted Update'], $this->user->id);
+    }
+
+    /** @test */
     public function it_deletes_a_collection()
     {
         $collection = Collection::factory()->create(['user_id' => $this->user->id]);
@@ -106,6 +116,16 @@ class CollectionServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_throws_exception_when_deleting_collection_of_another_user()
+    {
+        $anotherUser = User::factory()->create();
+        $collection = Collection::factory()->create(['user_id' => $anotherUser->id]);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->collectionService->delete($collection->id, $this->user->id);
+    }
+
+    /** @test */
     public function it_finds_a_collection_by_id()
     {
         $collection = Collection::factory()->create(['user_id' => $this->user->id]);
@@ -121,6 +141,16 @@ class CollectionServiceTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
         $this->collectionService->find(999, $this->user->id);
+    }
+
+    /** @test */
+    public function it_throws_exception_when_finding_collection_of_another_user()
+    {
+        $anotherUser = User::factory()->create();
+        $collection = Collection::factory()->create(['user_id' => $anotherUser->id]);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->collectionService->find($collection->id, $this->user->id);
     }
 
     /** @test */
@@ -149,6 +179,31 @@ class CollectionServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_throws_exception_when_adding_assets_to_collection_of_another_user()
+    {
+        $anotherUser = User::factory()->create();
+        $collection = Collection::factory()->create(['user_id' => $anotherUser->id]);
+        $assets = Asset::factory()->count(2)->create(['user_id' => $this->user->id]);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->collectionService->addAssets($collection->id, $assets->pluck('id')->toArray(), $this->user->id);
+    }
+
+    /** @test */
+    public function it_throws_exception_when_adding_assets_not_owned_by_user()
+    {
+        $collection = Collection::factory()->create(['user_id' => $this->user->id]);
+        $anotherUser = User::factory()->create();
+        $userAsset = Asset::factory()->create(['user_id' => $this->user->id]);
+        $anotherUserAsset = Asset::factory()->create(['user_id' => $anotherUser->id]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('One or more assets do not belong to the authenticated user.');
+
+        $this->collectionService->addAssets($collection->id, [$userAsset->id, $anotherUserAsset->id], $this->user->id);
+    }
+
+    /** @test */
     public function it_removes_assets_from_a_collection()
     {
         $collection = Collection::factory()->create(['user_id' => $this->user->id]);
@@ -165,6 +220,33 @@ class CollectionServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_throws_exception_when_removing_assets_from_collection_of_another_user()
+    {
+        $anotherUser = User::factory()->create();
+        $collection = Collection::factory()->create(['user_id' => $anotherUser->id]);
+        $assets = Asset::factory()->count(2)->create(['user_id' => $this->user->id]);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->collectionService->removeAssets($collection->id, $assets->pluck('id')->toArray(), $this->user->id);
+    }
+
+    /** @test */
+    public function it_throws_exception_when_removing_assets_not_owned_by_user()
+    {
+        $collection = Collection::factory()->create(['user_id' => $this->user->id]);
+        $anotherUser = User::factory()->create();
+        $userAsset = Asset::factory()->create(['user_id' => $this->user->id]);
+        $anotherUserAsset = Asset::factory()->create(['user_id' => $anotherUser->id]);
+
+        $collection->assets()->attach([$userAsset->id, $anotherUserAsset->id]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('One or more assets do not belong to the authenticated user.');
+
+        $this->collectionService->removeAssets($collection->id, [$userAsset->id, $anotherUserAsset->id], $this->user->id);
+    }
+
+    /** @test */
     public function it_retrieves_assets_within_a_collection()
     {
         $collection = Collection::factory()->create(['user_id' => $this->user->id]);
@@ -175,6 +257,16 @@ class CollectionServiceTest extends TestCase
 
         $this->assertCount(3, $retrievedAssets->items());
         $this->assertTrue($retrievedAssets->pluck('id')->contains($assets->first()->id));
+    }
+
+    /** @test */
+    public function it_throws_exception_when_retrieving_assets_from_collection_of_another_user()
+    {
+        $anotherUser = User::factory()->create();
+        $collection = Collection::factory()->create(['user_id' => $anotherUser->id]);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->collectionService->getCollectionAssets($collection->id, 15, $this->user->id);
     }
 
     /** @test */
@@ -207,5 +299,15 @@ class CollectionServiceTest extends TestCase
 
         $this->assertCount(2, $childCollections);
         $this->assertTrue($childCollections->every(fn ($c) => $c->parent_id === $parent->id));
+    }
+
+    /** @test */
+    public function it_throws_exception_when_getting_child_collections_of_another_user_parent()
+    {
+        $anotherUser = User::factory()->create();
+        $parent = Collection::factory()->create(['user_id' => $anotherUser->id]);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->collectionService->getChildCollections($parent->id, $this->user->id);
     }
 }

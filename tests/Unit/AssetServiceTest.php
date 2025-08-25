@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Queue;
 use App\Jobs\GenerateThumbnail;
 use App\Jobs\TranscodeVideo;
 use App\Jobs\ReplaceAssetTags;
+use App\Services\FileHashService;
 
 class AssetServiceTest extends TestCase
 {
@@ -31,12 +32,13 @@ class AssetServiceTest extends TestCase
         parent::setUp();
         $this->storageServiceMock = $this->createMock(StorageService::class);
         $this->metadataServiceMock = $this->createMock(MetadataService::class);
+        $this->fileHashServiceMock = $this->createMock(\App\Services\FileHashService::class);
         $this->pathServiceMock = $this->createMock(\App\Services\PathService::class);
 
         // Bind the mocked PathService to the container
         $this->app->instance(PathService::class, $this->pathServiceMock);
 
-        $this->assetService = new AssetService($this->storageServiceMock, $this->metadataServiceMock);
+        $this->assetService = new AssetService($this->storageServiceMock, $this->metadataServiceMock, $this->fileHashServiceMock);
         Storage::fake('local'); // Mock the storage disk
     }
 
@@ -142,6 +144,7 @@ class AssetServiceTest extends TestCase
         $user = User::factory()->create();
         $asset = Asset::factory()->create(['user_id' => $user->id]);
         $assetVersion = AssetVersion::factory()->create(['asset_id' => $asset->id]);
+        $asset->update(['latest_version_id' => $assetVersion->id]);
 
         $updatedData = [
             'name' => 'Updated Name',
@@ -173,6 +176,7 @@ class AssetServiceTest extends TestCase
         $user = User::factory()->create();
         $asset = Asset::factory()->create(['user_id' => $user->id]);
         $assetVersion = AssetVersion::factory()->create(['asset_id' => $asset->id]);
+        $asset->update(['latest_version_id' => $assetVersion->id]);
 
         $updatedData = [
             'name' => 'Updated Name Only',
@@ -297,5 +301,199 @@ class AssetServiceTest extends TestCase
 
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
         $this->assetService->createNewVersion(999, $file, $data);
+    }
+
+    /** @test */
+    public function it_creates_a_new_asset_and_links_to_existing_version_if_file_hash_exists()
+    {
+        $user = User::factory()->create();
+        $existingAsset = Asset::factory()->create(['user_id' => $user->id]);
+        $existingVersion = AssetVersion::factory()->create([
+            'asset_id' => $existingAsset->id,
+            'file_hash' => 'existing_hash',
+            'version' => 1
+        ]);
+        $existingAsset->update(['latest_version_id' => $existingVersion->id]);
+
+        $file = UploadedFile::fake()->image('duplicate.jpg');
+        $data = ['user_id' => $user->id];
+
+        $this->fileHashServiceMock->expects($this->once())
+                                 ->method('calculateFileHash')
+                                 ->with($file)
+                                 ->willReturn('existing_hash');
+
+        // Expect no calls to store or metadata service for the new asset
+        $this->storageServiceMock->expects($this->never())
+                                 ->method('store');
+        $this->metadataServiceMock->expects($this->never())
+                                  ->method('__invoke');
+
+        $newAsset = $this->assetService->create($file, $data);
+        $newAsset = Asset::find($newAsset->id);
+
+        $this->assertInstanceOf(Asset::class, $newAsset);
+        $this->assertNotNull($newAsset->id);
+        $this->assertNotEquals($existingAsset->id, $newAsset->id);
+        $this->assertEquals($existingVersion->id, $newAsset->latest_version_id);
+        $this->assertEquals($existingVersion->id, $newAsset->latest_version_id);
+        $this->assertNotNull($newAsset->latestVersion);
+        $this->assertEquals($existingVersion->id, $newAsset->latestVersion->id);
+
+        $this->assertDatabaseHas('assets', [
+            'id' => $newAsset->id,
+            'user_id' => $user->id,
+            'latest_version_id' => $existingVersion->id,
+        ]);
+        // Ensure no new asset version was created
+        $this->assertDatabaseMissing('asset_versions', [
+            'asset_id' => $newAsset->id,
+            'file_hash' => 'existing_hash',
+            'version' => 1,
+        ]);
+    }
+
+    /** @test */
+    public function it_creates_a_new_version_and_links_to_existing_version_if_file_hash_exists()
+    {
+        $user = User::factory()->create();
+        $asset = Asset::factory()->create(['user_id' => $user->id]);
+        $existingVersion = AssetVersion::factory()->create([
+            'asset_id' => $asset->id,
+            'file_hash' => 'existing_hash',
+            'version' => 1
+        ]);
+        $asset->update(['latest_version_id' => $existingVersion->id]);
+
+        $file = UploadedFile::fake()->image('duplicate_new_version.jpg');
+        $data = [];
+
+        $this->fileHashServiceMock->expects($this->once())
+                                 ->method('calculateFileHash')
+                                 ->with($file)
+                                 ->willReturn('existing_hash');
+
+        // Expect no calls to store or metadata service for the new version
+        $this->storageServiceMock->expects($this->never())
+                                 ->method('store');
+        $this->metadataServiceMock->expects($this->never())
+                                  ->method('__invoke');
+
+        $newVersion = $this->assetService->createNewVersion($asset->id, $file, $data);
+
+        $this->assertInstanceOf(AssetVersion::class, $newVersion);
+        $this->assertEquals($existingVersion->id, $newVersion->id);
+        $this->assertEquals($existingVersion->id, $asset->fresh()->latest_version_id);
+
+        // Ensure no new asset version was created
+        $this->assertDatabaseCount('asset_versions', 1);
+    }
+
+    /** @test */
+    public function it_restores_a_soft_deleted_asset()
+    {
+        $user = User::factory()->create();
+        $asset = Asset::factory()->create(['user_id' => $user->id]);
+        $asset->delete(); // Soft delete the asset
+
+        $this->assertSoftDeleted('assets', ['id' => $asset->id]);
+
+        $this->assetService->restore($asset->id);
+
+        $this->assertNotSoftDeleted('assets', ['id' => $asset->id]);
+        $this->assertEquals(Asset::STATUS_ACTIVE, $asset->fresh()->status);
+    }
+
+    /** @test */
+    public function it_changes_an_asset_status()
+    {
+        $user = User::factory()->create();
+        $asset = Asset::factory()->create(['user_id' => $user->id, 'status' => Asset::STATUS_ACTIVE]);
+
+        $this->assertEquals(Asset::STATUS_ACTIVE, $asset->status);
+
+        $this->assetService->changeStatus($asset->id, Asset::STATUS_ARCHIVED);
+
+        $this->assertEquals(Asset::STATUS_ARCHIVED, $asset->fresh()->status);
+    }
+
+    /** @test */
+    public function it_bulk_soft_deletes_assets()
+    {
+        $user = User::factory()->create();
+        $assets = Asset::factory()->count(3)->create(['user_id' => $user->id]);
+        $assetIds = $assets->pluck('id')->toArray();
+
+        $this->assetService->bulkSoftDelete($assetIds);
+
+        foreach ($assetIds as $assetId) {
+            $this->assertSoftDeleted('assets', ['id' => $assetId]);
+        }
+    }
+
+    /** @test */
+    public function it_dispatches_jobs_for_image_asset_creation()
+    {
+        Queue::fake();
+
+        $user = User::factory()->create();
+        $file = UploadedFile::fake()->image('test.jpg');
+        $data = ['user_id' => $user->id];
+
+        $this->fileHashServiceMock->expects($this->once())
+                                 ->method('calculateFileHash')
+                                 ->willReturn('unique_hash');
+
+        $this->assetService->create($file, $data);
+
+        Queue::assertPushed(GenerateThumbnail::class);
+        Queue::assertNotPushed(TranscodeVideo::class);
+    }
+
+    /** @test */
+    public function it_dispatches_jobs_for_video_asset_creation()
+    {
+        Queue::fake();
+
+        $user = User::factory()->create();
+        $file = UploadedFile::fake()->create('video.mp4', 100, 'video/mp4');
+        $data = ['user_id' => $user->id];
+
+        $this->fileHashServiceMock->expects($this->once())
+                                 ->method('calculateFileHash')
+                                 ->willReturn('unique_hash');
+
+        $this->assetService->create($file, $data);
+
+        Queue::assertPushed(GenerateThumbnail::class);
+        Queue::assertPushed(TranscodeVideo::class);
+    }
+
+    /** @test */
+    public function it_retrieves_all_assets_including_trashed_for_a_user()
+    {
+        $user = User::factory()->create();
+        Asset::factory()->count(2)->create(['user_id' => $user->id]);
+        Asset::factory()->count(1)->trashed()->create(['user_id' => $user->id]);
+        Asset::factory()->count(1)->create(); // Another user's asset
+
+        $assets = $this->assetService->findAll($user->id, 15, true, false);
+
+        $this->assertCount(3, $assets);
+        $this->assertTrue($assets->every(fn ($asset) => $asset->user_id === $user->id));
+    }
+
+    /** @test */
+    public function it_retrieves_only_trashed_assets_for_a_user()
+    {
+        $user = User::factory()->create();
+        Asset::factory()->count(2)->create(['user_id' => $user->id]);
+        Asset::factory()->count(1)->trashed()->create(['user_id' => $user->id]);
+        Asset::factory()->count(1)->create(); // Another user's asset
+
+        $assets = $this->assetService->findAll($user->id, 15, false, true);
+
+        $this->assertCount(1, $assets);
+        $this->assertTrue($assets->every(fn ($asset) => $asset->user_id === $user->id && $asset->trashed()));
     }
 }

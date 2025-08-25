@@ -31,13 +31,20 @@ class AuthServiceTest extends TestCase
             'password_confirmation' => 'password',
         ];
 
-        $user = $this->authService->register($userData);
+        $result = $this->authService->register($userData);
 
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('access_token', $result);
+        $this->assertArrayHasKey('token_type', $result);
+        $this->assertEquals('Bearer', $result['token_type']);
+
+        $user = User::where('email', 'test@example.com')->first();
         $this->assertInstanceOf(User::class, $user);
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',
         ]);
         $this->assertTrue(Hash::check('password', $user->password));
+        $this->assertCount(1, $user->tokens);
     }
 
     /** @test */
@@ -47,11 +54,20 @@ class AuthServiceTest extends TestCase
             'email' => 'test@example.com',
             'password' => Hash::make('password'),
         ]);
+        $user->createToken('old_token_1');
+        $user->createToken('old_token_2');
 
-        $token = $this->authService->login('test@example.com', 'password');
+        $this->assertCount(2, $user->tokens); // Ensure old tokens exist
 
-        $this->assertIsString($token);
-        $this->assertCount(1, $user->tokens);
+        $result = $this->authService->login('test@example.com', 'password');
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('access_token', $result);
+        $this->assertArrayHasKey('token_type', $result);
+        $this->assertEquals('Bearer', $result['token_type']);
+
+        $user->refresh(); // Refresh user to get updated token count
+        $this->assertCount(1, $user->tokens); // Only the new token should exist
     }
 
     /** @test */

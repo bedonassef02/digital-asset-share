@@ -39,7 +39,7 @@ class Asset extends Model
 
     public function latestVersion(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(AssetVersion::class)->latest('version');
+        return $this->hasOne(AssetVersion::class, 'id', 'latest_version_id');
     }
 
     public function shares(): \Illuminate\Database\Eloquent\Relations\MorphMany
