@@ -16,6 +16,11 @@ class AssetVersion extends Model
         'size',
         'extension',
         'description',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
     ];
 
     public function asset()
