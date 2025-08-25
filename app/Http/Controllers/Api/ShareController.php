@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ResolveShareRequest;
-use App\Http\Requests\StoreShareRequest;
+use App\Http\Requests\Share\ResolveShareRequest;
+use App\Http\Requests\Share\StoreShareRequest;
 use App\Models\Asset;
 use App\Models\Collection;
-use App\Services\ShareService;
+use App\Services\Share\ShareService;
 
 class ShareController extends Controller
 {

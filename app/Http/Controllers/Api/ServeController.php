@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\DownloadService;
-use App\Services\ServeService;
+use App\Services\Serve\ServeService;
 use Illuminate\Support\Facades\Storage;
 
 class ServeController extends Controller

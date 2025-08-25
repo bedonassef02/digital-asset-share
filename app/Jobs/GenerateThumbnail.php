@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Models\AssetVersion;
-use App\Services\MetadataService;
-use App\Services\Thumbnail\ImageThumbnail;
-use App\Services\Thumbnail\VideoThumbnail;
+use App\Services\Asset\MetadataService;
+use App\Services\Asset\Thumbnail\ImageThumbnail;
+use App\Services\Asset\Thumbnail\VideoThumbnail;
+use App\Services\Notification\NotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;

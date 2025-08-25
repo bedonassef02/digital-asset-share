@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Models\AssetVersion;
-use App\Services\PathService;
+use App\Services\Asset\PathService;
 use FFMpeg\FFMpeg;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

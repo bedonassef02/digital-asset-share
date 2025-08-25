@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Requests\Asset;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class BulkTagAssetsRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'asset_ids' => 'required|array',
+            'asset_ids.*' => 'required|integer|exists:assets,id',
+            'tags' => 'required|array',
+            'tags.*' => 'required|string|min:1',
+        ];
+    }
+}

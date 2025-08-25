@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TagRequest;
-use App\Services\TagService;
+use App\Http\Requests\Tag\TagRequest;
+use App\Services\Tag\TagService;
 
 class TagController extends Controller
 {

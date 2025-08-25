@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCollectionRequest;
-use App\Http\Requests\UpdateCollectionAssetsRequest;
-use App\Http\Requests\UpdateCollectionRequest;
-use App\Services\CollectionService;
+use App\Http\Requests\Collection\StoreCollectionRequest;
+use App\Http\Requests\Collection\UpdateCollectionAssetsRequest;
+use App\Http\Requests\Collection\UpdateCollectionRequest;
+use App\Services\Collection\CollectionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,7 +27,6 @@ class CollectionController extends Controller
 
     public function store(StoreCollectionRequest $request): JsonResponse
     {
-
         $data = $request->validated();
         $data['user_id'] = auth()->id();
 
@@ -46,7 +45,6 @@ class CollectionController extends Controller
 
     public function update(UpdateCollectionRequest $request, int $id): JsonResponse
     {
-
         $collection = $this->collectionService->update($id, $request->validated(), auth()->id());
 
         return response()->json($collection);

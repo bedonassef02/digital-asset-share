@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAssetRequest;
-use App\Services\AssetVersionService;
+use App\Http\Requests\Asset\StoreAssetRequest;
+use App\Services\Asset\AssetVersionService;
 
 class AssetVersionController extends Controller
 {

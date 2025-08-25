@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BulkDeleteAssetsRequest;
-use App\Http\Requests\BulkTagAssetsRequest;
-use App\Http\Requests\ChangeAssetStatusRequest;
-use App\Http\Requests\StoreAssetRequest;
-use App\Http\Requests\UpdateAssetRequest;
+use App\Http\Requests\Asset\BulkDeleteAssetsRequest;
+use App\Http\Requests\Asset\BulkTagAssetsRequest;
+use App\Http\Requests\Asset\ChangeAssetStatusRequest;
+use App\Http\Requests\Asset\StoreAssetRequest;
+use App\Http\Requests\Asset\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
-use App\Services\AssetService;
-use App\Services\TagService;
+use App\Services\Asset\AssetService;
+use App\Services\Tag\TagService;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller

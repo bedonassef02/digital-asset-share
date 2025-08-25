@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\StoreUserRequest;
-use App\Services\AuthService;
+use App\Services\Auth\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 

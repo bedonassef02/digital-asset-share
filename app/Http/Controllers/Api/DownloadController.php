@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\ZipCreationException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BulkDownloadAssetsRequest;
-use App\Services\DownloadService;
+use App\Http\Requests\Asset\BulkDownloadAssetsRequest;
+use App\Services\Download\DownloadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SearchAssetsRequest;
-use App\Services\SearchService;
+use App\Http\Requests\Search\SearchAssetsRequest;
+use App\Services\Search\SearchService;
 
 class SearchController extends Controller
 {
