@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkDeleteAssetsRequest;
 use App\Http\Requests\BulkTagAssetsRequest;
+use App\Http\Requests\ChangeAssetStatusRequest;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
@@ -95,6 +96,18 @@ class AssetController extends Controller
         $assetIds = $validated['asset_ids'];
         $tags = $validated['tags'];
         $this->tagService->bulkTag($assetIds, $tags);
+        return response()->json(null, 204);
+    }
+
+    public function changeStatus(ChangeAssetStatusRequest $request, string $id): \Illuminate\Http\JsonResponse
+    {
+        $this->assetService->changeStatus($id, $request->validated('status'));
+        return response()->json(null, 204);
+    }
+
+    public function restore(string $id): \Illuminate\Http\JsonResponse
+    {
+        $this->assetService->restore($id);
         return response()->json(null, 204);
     }
 }

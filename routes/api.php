@@ -25,6 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/assets/{id}/tags', [TagController::class, 'add']);
     Route::delete('/assets/{id}/tags', [TagController::class, 'remove']);
 
+    Route::post('/assets/{id}/status', [AssetController::class, 'changeStatus']);
+    Route::post('/assets/{id}/restore', [AssetController::class, 'restore']);
+
     Route::get('/assets/{assetId}/versions', [AssetVersionController::class, 'index']);
     Route::get('/assets/{assetId}/versions/{version}', [AssetVersionController::class, 'show']);
     Route::post('/assets/{assetId}/versions', [AssetVersionController::class, 'store']);
